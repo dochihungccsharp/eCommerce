@@ -1,0 +1,8 @@
+{
+  "sdk": {
+    "version": "6.0",
+    "rollForward": "latestMajor",
+    "allowPrerelease": false,
+    "comments":"nếu không có file này thì mỗi lần build về nó sẽ lấy version mặc định trên máy. Nếu cài 7 thì nó sẽ chạy 7, gây lỗi"
+  }
+}
