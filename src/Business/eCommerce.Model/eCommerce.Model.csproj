@@ -6,4 +6,29 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Models" />
+      <Folder Include="Validators\Brands" />
+      <Folder Include="Validators\Categories" />
+      <Folder Include="Validators\Orders" />
+      <Folder Include="Validators\Products" />
+      <Folder Include="Validators\PurchaseOrder" />
+      <Folder Include="Validators\ReturnOrders" />
+      <Folder Include="Validators\Roles" />
+      <Folder Include="Validators\Shoppings" />
+      <Folder Include="Validators\Suppliers" />
+      <Folder Include="Validators\Users" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="11.5.1" />
+      <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.5.1" />
+      <PackageReference Include="FluentValidation.WebApi" Version="8.6.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Shared\eCommerce.Shared\eCommerce.Shared.csproj" />
+    </ItemGroup>
+
 </Project>
