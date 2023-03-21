@@ -6,4 +6,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="CacheService" />
+      <Folder Include="Mapping" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Domain\eCommerce.Database\eCommerce.Database.csproj" />
+      <ProjectReference Include="..\..\Domain\eCommerce.Domain\eCommerce.Domain.csproj" />
+      <ProjectReference Include="..\..\Domain\eCommerce.Infrastructure\eCommerce.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Shared\eCommerce.Shared\eCommerce.Shared.csproj" />
+      <ProjectReference Include="..\eCommerce.Model\eCommerce.Model.csproj" />
+    </ItemGroup>
+
 </Project>

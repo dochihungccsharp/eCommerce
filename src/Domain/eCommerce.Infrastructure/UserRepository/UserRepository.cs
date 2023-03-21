@@ -84,6 +84,8 @@ public class UserRepository : IUserRepository
 
     public async Task<User> FindUserByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(email);
+        
         return await _databaseRepository.GetAsync<User>(
             sqlQuery: "sp_FindByEmail",
             parameters: new Dictionary<string, object>()
