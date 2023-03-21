@@ -1,8 +1,9 @@
 using eCommerce.Domain.Abstractions.Audits;
+using eCommerce.Domain.Abstractions.Paginations;
 
 namespace eCommerce.Domain.Domains;
 
-public class User : IFullAuditDomain
+public class User : IFullAuditDomain, IPagedDomain
 {
     public Guid Id { get; set; }
     public string Username { get; set; }
@@ -12,7 +13,8 @@ public class User : IFullAuditDomain
     public string PasswordHash { get; set; }
     public string PhoneNumber { get; set; }
     public string Avatar { get; set; }
-    public string TotalAmountOwed { get; set; }
+    public string Address { get; set; }
+    public decimal TotalAmountOwed { get; set; }
     public Guid UserAddressId { get; set; }
     
     #region Full Audit Domain
@@ -20,5 +22,9 @@ public class User : IFullAuditDomain
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
     public bool IsDeleted { get; set; }
+    #endregion
+
+    #region Paged Domain
+    public int TotalRows { get; set; }
     #endregion
 }

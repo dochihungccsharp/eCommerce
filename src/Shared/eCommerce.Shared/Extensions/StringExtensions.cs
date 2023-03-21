@@ -44,4 +44,9 @@ public static class StringExtensions
         return Base64UrlEncoder.Decode(base64EncodedData);
     }
 
+    public static string TrimAndToLower(this string str)
+    {
+        return str.Trim().ToLower();
+    }
+
 }

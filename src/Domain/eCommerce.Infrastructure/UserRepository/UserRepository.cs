@@ -34,6 +34,7 @@ public class UserRepository : IUserRepository
                 {"PasswordHash", user.PasswordHash},
                 {"PhoneNumber", user.PhoneNumber},
                 {"Avatar", user.Avatar},
+                {"Address", user.Address},
                 {"TotalAmountOwed", user.TotalAmountOwed},
                 {"UserAddressId", user.UserAddressId},
                 {"Created", user.Created},
@@ -73,6 +74,7 @@ public class UserRepository : IUserRepository
                 {"PasswordHash", user.PasswordHash},
                 {"PhoneNumber", user.PhoneNumber},
                 {"Avatar", user.Avatar},
+                {"Address", user.Address},
                 {"TotalAmountOwed", user.TotalAmountOwed},
                 {"UserAddressId", user.UserAddressId},
                 {"IsDeleted", user.IsDeleted}
