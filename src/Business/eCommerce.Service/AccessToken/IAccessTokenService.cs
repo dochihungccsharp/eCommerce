@@ -1,7 +1,7 @@
 using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Model.Users;
 
-namespace eCommerce.Service.AccessTokenService;
+namespace eCommerce.Service.AccessToken;
 
 public interface IAccessTokenService
 {

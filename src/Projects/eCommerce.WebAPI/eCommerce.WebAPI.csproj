@@ -12,6 +12,16 @@
 
     <ItemGroup>
       <Folder Include="Controllers" />
+      <Folder Include="wwwroot" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Business\eCommerce.Model\eCommerce.Model.csproj" />
+      <ProjectReference Include="..\..\Business\eCommerce.Service\eCommerce.Service.csproj" />
+      <ProjectReference Include="..\..\Domain\eCommerce.Database\eCommerce.Database.csproj" />
+      <ProjectReference Include="..\..\Domain\eCommerce.Domain\eCommerce.Domain.csproj" />
+      <ProjectReference Include="..\..\Domain\eCommerce.Infrastructure\eCommerce.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Shared\eCommerce.Shared\eCommerce.Shared.csproj" />
     </ItemGroup>
 
 </Project>

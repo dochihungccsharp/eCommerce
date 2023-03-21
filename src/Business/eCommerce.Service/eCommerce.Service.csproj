@@ -7,16 +7,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="CacheService" />
-      <Folder Include="Mapping" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\..\Domain\eCommerce.Database\eCommerce.Database.csproj" />
       <ProjectReference Include="..\..\Domain\eCommerce.Domain\eCommerce.Domain.csproj" />
       <ProjectReference Include="..\..\Domain\eCommerce.Infrastructure\eCommerce.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Shared\eCommerce.Shared\eCommerce.Shared.csproj" />
       <ProjectReference Include="..\eCommerce.Model\eCommerce.Model.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="12.0.1" />
+      <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+      <PackageReference Include="MailKit.Microsoft.Extension.Logging" Version="2.10.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.0" />
+      <PackageReference Include="MimeKit" Version="3.6.1" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.27.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Roles" />
+      <Folder Include="UserRoles" />
     </ItemGroup>
 
 </Project>
