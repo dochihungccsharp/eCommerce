@@ -1,5 +1,4 @@
-﻿DROP DATABASE eCommerce
-GO
+﻿
 -- Create database with database name eCommerce
 CREATE DATABASE eCommerce
 GO
@@ -34,6 +33,89 @@ CREATE TYPE PurchaseOrderDetailsTableType AS TABLE
 );
 GO
 
+CREATE TABLE [dbo].[User] (
+    [Id]                   UNIQUEIDENTIFIER   NOT NULL,
+    [Username]             NVARCHAR (256)     NOT NULL,
+    [Fullname]             NVARCHAR (512)     NULL,
+    [Email]                NVARCHAR (256)     NOT NULL,
+    [EmailConfirmed]       BIT                DEFAULT 0,
+    [PasswordHash]         NVARCHAR (MAX)     NULL,
+    [PhoneNumber]          NVARCHAR (50)      NULL,
+    [Avatar]               NVARCHAR (MAX)     NULL,
+    [Address]              NVARCHAR (MAX)     NULL,
+    TotalAmountOwed        DECIMAL            DEFAULT 0,
+    UserAddressId          UNIQUEIDENTIFIER   NULL,
+    [Status]               BIT                DEFAULT 1,
+    [Created]              DATETIME           NOT NULL,
+    [Modified]             DATETIME           NULL,
+    [IsDeleted]            BIT                DEFAULT 0,
+    CONSTRAINT [PK_User] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+CREATE TABLE [dbo].[Role] (
+  [Id]                   UNIQUEIDENTIFIER   NOT NULL,
+  [Name]                 NVARCHAR (256)     NOT NULL,
+  [Description]          NVARCHAR (MAX)         NULL,
+  [Created]              DATETIME           NOT NULL,
+  [Modified]             DATETIME           NULL,
+  [IsDeleted]            BIT                DEFAULT 0,
+  CONSTRAINT [PK_Role] PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+-- CREATE TABLE USER ROLE
+CREATE TABLE [UserRole] (
+    UserId UNIQUEIDENTIFIER NOT NULL,
+    RoleId UNIQUEIDENTIFIER NOT NULL,
+    PRIMARY KEY CLUSTERED (UserId ASC, RoleId ASC),
+    CONSTRAINT [FK_UserRole_Role] FOREIGN KEY (RoleId) REFERENCES [Role] (Id) ON DELETE CASCADE,
+    CONSTRAINT [FK_UserRole_User] FOREIGN KEY (UserId) REFERENCES [User] (Id) ON DELETE CASCADE,
+);
+
+
+
+-- CREATE TABLE USER ADDRESS
+CREATE TABLE UserAddress
+(
+    Id UNIQUEIDENTIFIER NOT NULL,
+    [Name] NVARCHAR,
+    [UserId] UNIQUEIDENTIFIER,
+    DeliveryAddress NVARCHAR(255) NOT NULL,
+    Telephone VARCHAR(10),
+    Active BIT,
+
+    Created DATETIME NULL,
+    Modified DATETIME NULL,
+	IsDeleted BIT DEFAULT 0,
+
+    CONSTRAINT [PK_UserAddress] PRIMARY KEY CLUSTERED (Id ASC),
+
+    CONSTRAINT [FK_UserAddress_UserId] FOREIGN KEY([UserId]) REFERENCES [User](Id) ON DELETE CASCADE
+)
+GO
+
+-- ADD FK USER
+ALTER TABLE [User]
+ADD CONSTRAINT FK_User_UserAddressId
+FOREIGN KEY (UserAddressId)
+REFERENCES UserAddress(Id);
+
+-- CREATE TABLE USER PAYMENT
+CREATE TABLE UserPayment
+(
+    Id UNIQUEIDENTIFIER NOT NULL,
+    [UserId] UNIQUEIDENTIFIER,
+    PaymentType VARCHAR(100),
+    [Provider] VARCHAR(100),
+    AccountNo INT,
+    Expiry DATETIME,
+
+    CONSTRAINT [Pk_UserPayment] PRIMARY KEY CLUSTERED (Id ASC),
+
+    CONSTRAINT [Fk_UserPayment_UserId] FOREIGN KEY([UserId]) REFERENCES [User](Id) ON DELETE CASCADE
+)
+GO
 
 -- 1. CREATE TABLE BRAND
 CREATE TABLE Brand
@@ -190,83 +272,6 @@ CREATE TABLE PurchaseOrderDetail
 )
 GO
 
-CREATE TABLE [dbo].[User] (
-    [Id]                   UNIQUEIDENTIFIER   NOT NULL,
-    [Username]             NVARCHAR (256)     NOT NULL,
-    [Fullname]             NVARCHAR (512)     NULL,
-    [Email]                NVARCHAR (256)     NOT NULL,
-    [EmailConfirmed]       BIT                DEFAULT 0,
-    [PasswordHash]         NVARCHAR (MAX)     NULL,
-    [PhoneNumber]          NVARCHAR (50)      NULL,
-    [Avatar]               NVARCHAR (MAX)     NULL,
-    TotalAmountOwed        DECIMAL            DEFAULT 0,
-    UserAddressId          UNIQUEIDENTIFIER   NULL,
-    [Status]               BIT                DEFAULT 1,
-    [Created]              DATETIME           NOT NULL,
-    Modified               DATETIME           NULL,
-    [IsDeleted]            BIT                DEFAULT 0,
-    CONSTRAINT [PK_User] PRIMARY KEY CLUSTERED ([Id] ASC)
-);
-
-
-CREATE TABLE [dbo].[Role] (
-  [Id]                   UNIQUEIDENTIFIER   NOT NULL,
-  [Name]                 NVARCHAR (256)     NOT NULL,
-  [Description]          NVARCHAR (256)     NOT NULL,
-  [Status]               BIT                DEFAULT 1,
-  [Created]              DATETIME           NOT NULL,
-  [Modified]             DATETIME           NULL,
-  [IsDeleted]            BIT                DEFAULT 0,
-  CONSTRAINT [PK_Role] PRIMARY KEY CLUSTERED ([Id] ASC)
-);
-
-
--- CREATE TABLE USER ROLE
-CREATE TABLE [UserRole] (
-    UserId UNIQUEIDENTIFIER NOT NULL,
-    RoleId UNIQUEIDENTIFIER NOT NULL,
-    PRIMARY KEY CLUSTERED (UserId ASC, RoleId ASC),
-    CONSTRAINT [FK_UserRole_Role] FOREIGN KEY (RoleId) REFERENCES [Role] (Id),
-    CONSTRAINT [FK_UserRole_User] FOREIGN KEY (UserId) REFERENCES [User] (Id)
-);
-
-
-
--- CREATE TABLE USER ADDRESS
-CREATE TABLE UserAddress
-(
-    Id UNIQUEIDENTIFIER NOT NULL,
-    [Name] NVARCHAR,
-    [UserId] UNIQUEIDENTIFIER,
-    DeliveryAddress NVARCHAR(255) NOT NULL,
-    Telephone VARCHAR(10),
-    Active BIT,
-
-    Created DATETIME NULL,
-    Modified DATETIME NULL,
-	IsDeleted BIT DEFAULT 0,
-
-    CONSTRAINT [PK_UserAddress] PRIMARY KEY CLUSTERED (Id ASC),
-
-    CONSTRAINT [FK_UserAddress] FOREIGN KEY([UserId]) REFERENCES [User](Id)
-)
-GO
-
--- CREATE TABLE USER PAYMENT
-CREATE TABLE UserPayment
-(
-    Id UNIQUEIDENTIFIER NOT NULL,
-    [UserId] UNIQUEIDENTIFIER,
-    PaymentType VARCHAR(100),
-    [Provider] VARCHAR(100),
-    AccountNo INT,
-    Expiry DATETIME,
-
-    CONSTRAINT [Pk_UserPayment] PRIMARY KEY CLUSTERED (Id ASC),
-
-    CONSTRAINT [Fk_UserPayment_UserId] FOREIGN KEY([UserId]) REFERENCES [User](id)
-)
-GO
 
 -- CREATE TABLE SHOPPING SESSION
 CREATE TABLE Shopping

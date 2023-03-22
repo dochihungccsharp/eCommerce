@@ -13,6 +13,7 @@ public class UserProfileModel
     public string PhoneNumber { get; set; }
     public string Avatar { get; set; }
     public string Address { get; set; }
+    public string TotalAmountOwed { get; set; }
     public Guid UserAddressId { get; set; }
     public List<UserAddressModel> _UserAddresses { get; set; }
     public List<RoleModel> _Roles { get; set; }

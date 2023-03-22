@@ -13,4 +13,6 @@ public class UserModel
     public string Address { get; set; }
     public Guid UserAddressId { get; set; }
     public bool Status { get; set; }
+    public DateTime Created { get; set; }
+    public DateTime Modified { get; set; }
 }

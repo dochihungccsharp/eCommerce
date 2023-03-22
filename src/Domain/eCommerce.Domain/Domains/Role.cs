@@ -8,7 +8,7 @@ public class Role : IAuditDomain
     public string Name { get; set; }
     public string Description { get; set; }
     
-    #region Full Audit Domain
+    #region Audit Domain
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
     public bool IsDeleted { get; set; }

@@ -22,8 +22,6 @@ public interface IUserService
     Task<BaseResponseModel> CreateAsync(EditUserModel editUserModel,CancellationToken cancellationToken = default);
     Task<BaseResponseModel> UpdateAsync(Guid userId, EditUserModel editUserModel, CancellationToken cancellationToken = default);
     Task<BaseResponseModel> DeleteAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> AddRoleToUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> AddRolesToUserAsync(Guid userId, List<Guid> roles, CancellationToken cancellationToken = default);
     #endregion
 
     #region User Service (Member)

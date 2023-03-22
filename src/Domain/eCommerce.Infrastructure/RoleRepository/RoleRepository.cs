@@ -10,6 +10,7 @@ public class RoleRepository : IRoleRepository
 {
     private readonly ILogger<RoleRepository> _logger;
     private readonly IDatabaseRepository _databaseRepository;
+    private readonly string SQL_QUERY = "sp_Roles";
     public RoleRepository(ILogger<RoleRepository> logger, IDatabaseRepository databaseRepository)
     {
         _logger = logger;
@@ -20,9 +21,10 @@ public class RoleRepository : IRoleRepository
     {
         ArgumentNullException.ThrowIfNull(role);
         return await _databaseRepository.ExecuteAsync(
-            sqlQuery: "sp_InsertRole",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "INSERT"},
                 {"Id", Guid.NewGuid()},
                 {"Username", role.Name},
                 {"Description", role.Description},
@@ -37,12 +39,14 @@ public class RoleRepository : IRoleRepository
         ArgumentNullException.ThrowIfNull(role);
 
         return await _databaseRepository.ExecuteAsync(
-            sqlQuery: "sp_UpdateRole",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
-                {"Id", role.Id == null ? Guid.NewGuid() : role.Id},
+                {"Activity", "UPDATE"},
+                {"Id", role.Id},
                 {"Username", role.Name},
-                {"Description", role.Description}
+                {"Description", role.Description},
+                {"Updated", DateTime.Now}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -53,9 +57,10 @@ public class RoleRepository : IRoleRepository
         ArgumentNullException.ThrowIfNull(roleId);
 
         return await _databaseRepository.ExecuteAsync(
-            sqlQuery: "sp_DeleteRole",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "DELETE"},
                 { "Id", roleId }
             },
             cancellationToken: cancellationToken
@@ -67,9 +72,10 @@ public class RoleRepository : IRoleRepository
         ArgumentNullException.ThrowIfNull(userId);
         
         var roles = await _databaseRepository.GetAllAsync<Role>(
-            sqlQuery: "sp_GetUserRolesByUserId",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "GET_ROLES_BY_USER_ID"},
                 {"UserId", userId}
             },
             cancellationToken: cancellationToken
@@ -86,9 +92,10 @@ public class RoleRepository : IRoleRepository
         ArgumentNullException.ThrowIfNull(roleId);
 
         return await _databaseRepository.GetAsync<Role>(
-            sqlQuery: "sp_FindRoleById",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "FIND_ROLE_BY_ID"},
                 {"Id", roleId}
             }, cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -99,10 +106,11 @@ public class RoleRepository : IRoleRepository
         ArgumentNullException.ThrowIfNull(roleName);
         
         return await _databaseRepository.GetAsync<Role>(
-            sqlQuery: "sp_FindRoleById",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
-                {"RoleName", roleName}
+                {"Activity", "FIND_ROLE_BY_NAME"},
+                {"Name", roleName}
             }, cancellationToken: cancellationToken
         ).ConfigureAwait(false);
     }

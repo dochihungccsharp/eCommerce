@@ -2,7 +2,9 @@ using System.Data;
 using eCommerce.Domain.Domains;
 using eCommerce.Infrastructure.DatabaseRepository;
 using eCommerce.Model.Abstractions.Responses;
+using eCommerce.Model.Roles;
 using eCommerce.Shared.Exceptions;
+using eCommerce.Shared.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace eCommerce.Infrastructure.UserRepository;
@@ -11,6 +13,7 @@ public class UserRepository : IUserRepository
 {
     private readonly ILogger<UserRepository> _logger;
     private readonly IDatabaseRepository _databaseRepository;
+    private readonly string SQL_QUERY = "sp_Users";
 
     public UserRepository(ILogger<UserRepository> logger, IDatabaseRepository databaseRepository)
     {
@@ -18,14 +21,15 @@ public class UserRepository : IUserRepository
         _databaseRepository = databaseRepository 
                               ?? throw new ArgumentNullException(nameof(databaseRepository));
     }
-    public async Task<bool> CreateUserAsync(User user, List<Guid> roles = null,CancellationToken cancellationToken = default)
+    public async Task<bool> CreateUserAsync(User user, List<RoleIdModel> roles = null,CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(user);
         
         return await _databaseRepository.ExecuteAsync(
-            sqlQuery: "sp_InsertUser",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "INSERT"},
                 {"Id", user.Id == null ? Guid.NewGuid() : user.Id},
                 {"Username", user.Username},
                 {"Fullname", user.Fullname},
@@ -37,9 +41,7 @@ public class UserRepository : IUserRepository
                 {"Address", user.Address},
                 {"TotalAmountOwed", user.TotalAmountOwed},
                 {"UserAddressId", user.UserAddressId},
-                {"Created", user.Created},
-                {"IsDeleted", user.IsDeleted},
-                {"RoleIds", roles}
+                {"RoleIds", roles?.ToDataTable()}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -50,23 +52,25 @@ public class UserRepository : IUserRepository
         ArgumentNullException.ThrowIfNull(userId);
         
         return await _databaseRepository.ExecuteAsync(
-            sqlQuery: "sp_DeleteUser",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "DELETE"},
                 {"Id", Guid.NewGuid()},
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
     }
 
-    public async Task<bool> UpdateUserAsync(User user, List<Guid> roles = null, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateUserAsync(User user, List<RoleIdModel> roles = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(user);
         
         return await _databaseRepository.ExecuteAsync(
-            sqlQuery: "sp_UpdateUser",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "UPDATE"},
                 {"Id", user.Id},
                 {"Username", user.Username},
                 {"Fullname", user.Fullname},
@@ -79,7 +83,7 @@ public class UserRepository : IUserRepository
                 {"TotalAmountOwed", user.TotalAmountOwed},
                 {"UserAddressId", user.UserAddressId},
                 {"IsDeleted", user.IsDeleted},
-                {"RoleIds", roles}
+                {"RoleIds", roles?.ToDataTable()}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -91,9 +95,10 @@ public class UserRepository : IUserRepository
         ArgumentNullException.ThrowIfNull(email);
         
         return await _databaseRepository.GetAsync<User>(
-            sqlQuery: "sp_FindByEmail",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "FIND_BY_EMAIL"},
                 {"Email", email}
             },
             cancellationToken: cancellationToken
@@ -105,9 +110,10 @@ public class UserRepository : IUserRepository
         ArgumentNullException.ThrowIfNull(userId);
         
         return await _databaseRepository.GetAsync<User>(
-            sqlQuery: "sp_FindById",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "FIND_BY_ID"},
                 {"Id", userId}
             },
             cancellationToken: cancellationToken
@@ -119,9 +125,10 @@ public class UserRepository : IUserRepository
         ArgumentNullException.ThrowIfNull(userName);
         
         return await _databaseRepository.GetAsync<User>(
-            sqlQuery: "sp_FindByName",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
-            {
+            { 
+                {"Activity", "FIND_BY_NAME"},
                 {"Username", userName}
             },
             cancellationToken: cancellationToken
@@ -133,9 +140,10 @@ public class UserRepository : IUserRepository
         ArgumentNullException.ThrowIfNull(user);
         
         var u = await _databaseRepository.GetAsync<User>(
-            sqlQuery: "sp_CheckDuplicateUser",
+            sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "CHECK_DUPLICATE"},
                 {"Id", user.Id},
                 {"Username", user.Username},
                 {"Email", user.Email},

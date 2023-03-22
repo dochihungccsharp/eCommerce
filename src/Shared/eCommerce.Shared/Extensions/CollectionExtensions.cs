@@ -51,7 +51,7 @@ public static class CollectionExtensions
                 object safeValue = default!;
                 if (value != null)
                 {
-                    if (column.ColumnName.ToLower().Contains("object"))
+                    if (column.ColumnName.ToLower().Contains("_"))
                     {
                         safeValue = JsonConvert.DeserializeObject(value.ToString(), propType, Settings);
                     }

@@ -1,8 +1,8 @@
 using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Model.Users;
 using eCommerce.Service.Users;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace eCommerce.WebAPI.Controllers;
 
@@ -36,7 +36,7 @@ public class UserController : BaseController
         => Ok(await _userService.SignUpAsync(registerModel, cancellationToken).ConfigureAwait(false));
     
     
-    [Authorize]
+    [Filters.Authorize]
     [HttpPut]
     [Route("api/users/refresh-token")]
     [ProducesResponseType(typeof(AuthorizedResponseModel), StatusCodes.Status200OK)]
@@ -61,15 +61,14 @@ public class UserController : BaseController
     #endregion
 
     #region Users API (Role Admin)
-    [Authorize("Admin")]
     [HttpGet]
-    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users")]
+    [Filters.Authorize("Admin")]
     public async Task<IActionResult> GetAllAsync([FromQuery] UserFilterRequestModel filter,
         CancellationToken cancellationToken = default)
         => Ok(await _userService.GetAllAsync(filter, cancellationToken).ConfigureAwait(false));
 
-    [Authorize("Admin")]
+    [Filters.Authorize("Admin")]
     [HttpGet]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
@@ -77,7 +76,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.GetAsync(userId, cancellationToken).ConfigureAwait(false));
 
-    [Authorize("Admin")]
+    [Filters.Authorize("Admin")]
     [HttpPost]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users")]
@@ -85,7 +84,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.CreateAsync(editUserModel, cancellationToken).ConfigureAwait(false));
 
-    [Authorize("Admin")]
+    [Filters.Authorize("Admin")]
     [HttpPut]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
@@ -93,7 +92,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.UpdateAsync(userId, editUserModel, cancellationToken).ConfigureAwait(false));
 
-    [Authorize("Admin")]
+    [Filters.Authorize("Admin")]
     [HttpDelete]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
@@ -104,14 +103,14 @@ public class UserController : BaseController
 
     #region Users API (Role Member)
 
-    [Authorize]
+    [Filters.Authorize]
     [HttpGet]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/profile")]
     public async Task<IActionResult> GetProfileAsync(CancellationToken cancellationToken = default)
         => Ok(await _userService.GetProfileAsync(cancellationToken).ConfigureAwait(false));
 
-    [Authorize]
+    [Filters.Authorize]
     [HttpPut]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/change-password")]
@@ -119,7 +118,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.ChangePasswordAsync(changePasswordModel, cancellationToken).ConfigureAwait(false));
     
-    [Authorize]
+    [Filters.Authorize]
     [HttpPut]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/profile")]

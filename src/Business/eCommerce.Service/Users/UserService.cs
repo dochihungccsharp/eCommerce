@@ -66,7 +66,7 @@ public class UserService : IUserService
         user.Id = userId;
 
         var duplicateUser = await _userRepository.CheckDuplicateAsync(user, cancellationToken).ConfigureAwait(false);
-        if (duplicateUser)
+        if (!duplicateUser)
             throw new InvalidOperationException("User with the same name already exists.");
         
         var resultCreated = await _userRepository.CreateUserAsync(
@@ -176,11 +176,12 @@ public class UserService : IUserService
     public async Task<OkResponseModel<PaginationModel<UserModel>>> GetAllAsync(UserFilterRequestModel filter, CancellationToken cancellationToken = default)
     {
         var users = await _databaseRepository.PagingAllAsync<User>(
-            sqlQuery: "sp_GetAllUser",
+            sqlQuery: "sp_Users",
             pageIndex: filter.PageIndex,
             pageSize: filter.PageSize,
             parameters: new Dictionary<string, object>()
             {
+                {"Activity", "GET_ALL"},
                 { "SearchString", filter.SearchString }
             },
             cancellationToken: cancellationToken
@@ -192,10 +193,11 @@ public class UserService : IUserService
     public async Task<OkResponseModel<UserProfileModel>> GetAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await _databaseRepository.GetAsync<UserProfileModel>(
-            sqlQuery: "sp_GetUserProfile",
+            sqlQuery: "sp_Users",
             parameters: new Dictionary<string, object>()
             {
-                { "UserId", userId }
+                {"Activity", "GET_PROFILE_BY_ID"},
+                { "Id", userId }
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -218,9 +220,7 @@ public class UserService : IUserService
             PasswordHash = editUserModel.Password.HashMD5(),
             Address = editUserModel.Address,
             TotalAmountOwed = 0,
-            Status = true,
-            Created = DateTime.Now,
-            IsDeleted = false
+            Status = true
         };
 
         var duplicateUser = await _userRepository.CheckDuplicateAsync(user, cancellationToken).ConfigureAwait(false);
@@ -259,9 +259,7 @@ public class UserService : IUserService
             PasswordHash = editUserModel.Password.HashMD5(),
             Address = editUserModel.Address,
             TotalAmountOwed = 0,
-            Status = true,
-            Created = DateTime.Now,
-            IsDeleted = false
+            Status = true
         };
         
         if (editUserModel.Avatar != null)
@@ -271,7 +269,7 @@ public class UserService : IUserService
         }
 
         var resultUpdated = await _userRepository.UpdateUserAsync(
-                user:user, 
+                user: user, 
                 roles: editUserModel.RoleIds,
                 cancellationToken:cancellationToken
             ).ConfigureAwait(false);
@@ -291,28 +289,7 @@ public class UserService : IUserService
             throw new InternalServerException("Deleted user fail");
         return new BaseResponseModel("Deleted user success");
     }
-
-    public async Task<BaseResponseModel> AddRoleToUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default)
-    {
-        var u = await _userRepository.FindUserByIdAsync(userId, cancellationToken).ConfigureAwait(false);
-        if (u == null)
-            throw new BadRequestException("Invalid user id");
-
-        var r = await _roleRepository.FindRoleByIdAsync(roleId, cancellationToken).ConfigureAwait(false);
-        if(r == null)
-            throw new BadRequestException("Invalid role id");
-
-        var resultAdd = await _userRoleRepository.AddUserToRoleAsync(userId, roleId, cancellationToken).ConfigureAwait(false);
-        if (!resultAdd)
-            throw new InternalServerException("Add user to role fail");
-        return new BaseResponseModel("Add user to role success");
-    }
-
-    public async Task<BaseResponseModel> AddRolesToUserAsync(Guid userId, List<Guid> roles,
-        CancellationToken cancellationToken = default)
-    {
-        return new BaseResponseModel();
-    }
+    
     #endregion
 
     #region User Service (Member)

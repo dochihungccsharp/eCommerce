@@ -40,6 +40,10 @@ public class SendMailService : ISendMailService
             await smtp.ConnectAsync(_mailSetting.Host, _mailSetting.Port, SecureSocketOptions.StartTls).ConfigureAwait(false);
             await smtp.AuthenticateAsync(_mailSetting.Mail, _mailSetting.Password).ConfigureAwait(false);
             await smtp.SendAsync(message).ConfigureAwait(false);
+            
+            Directory.CreateDirectory("MailSave");
+            var emailSaveFile = $"MailSave/{Guid.NewGuid()}.eml";
+            await message.WriteToAsync(emailSaveFile).ConfigureAwait(false);
         }
         catch(Exception ex)
         {
