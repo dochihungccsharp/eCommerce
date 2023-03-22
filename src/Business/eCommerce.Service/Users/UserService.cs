@@ -343,7 +343,8 @@ public class UserService : IUserService
         
     }
     #endregion
-    
+
+    #region Private Service
     private UserContextModel GetUserContextModel(User user)
     {
         return new UserContextModel()
@@ -354,4 +355,5 @@ public class UserService : IUserService
             Username = user.Username
         };
     }
+    #endregion
 }
