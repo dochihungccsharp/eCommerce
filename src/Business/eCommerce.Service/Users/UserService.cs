@@ -69,7 +69,11 @@ public class UserService : IUserService
         if (duplicateUser)
             throw new InvalidOperationException("User with the same name already exists.");
         
-        var resultCreated = await _userRepository.CreateUserAsync(user, cancellationToken).ConfigureAwait(false);
+        var resultCreated = await _userRepository.CreateUserAsync(
+                user:user,
+                null,
+                cancellationToken:cancellationToken
+            ).ConfigureAwait(false);
         if (!resultCreated)
             throw new InternalServerException("Created user fail");
         
@@ -129,7 +133,11 @@ public class UserService : IUserService
 
         var newPassword = new Random().Next(100000, 999999).ToString();
         u.PasswordHash = newPassword.HashMD5();
-        var resultForgotPass = await _userRepository.UpdateUserAsync(u, cancellationToken).ConfigureAwait(false);
+        var resultForgotPass = await _userRepository.UpdateUserAsync(
+                user: u, 
+                roles: null,
+                cancellationToken
+            ).ConfigureAwait(false);
         if (!resultForgotPass)
             throw new InternalServerException("Forgot password fail");
         
@@ -153,8 +161,13 @@ public class UserService : IUserService
         
         u.EmailConfirmed = true;
 
-        await _userRepository.UpdateUserAsync(u, cancellationToken);
-
+        var resultConfirm = await _userRepository.UpdateUserAsync(
+                user: u, 
+                roles: null,
+                cancellationToken
+            ).ConfigureAwait(false);
+        if (!resultConfirm)
+            throw new InternalServerException("Confirm email fail");
         return new BaseResponseModel("Confirm mail success");
     }
     #endregion
@@ -219,7 +232,11 @@ public class UserService : IUserService
             user.Avatar = await editUserModel.Avatar.SaveImageAsync(_env);
         }
 
-        var resultCreated = await _userRepository.CreateUserAsync(user, cancellationToken).ConfigureAwait(false);
+        var resultCreated = await _userRepository.CreateUserAsync(
+                user:user,
+                roles: editUserModel.RoleIds,
+                cancellationToken:cancellationToken
+            ).ConfigureAwait(false);
         if (!resultCreated)
             throw new InternalServerException("Create user fail");
         return new BaseResponseModel("Create user success");
@@ -253,7 +270,11 @@ public class UserService : IUserService
             user.Avatar = await editUserModel.Avatar.SaveImageAsync(_env);
         }
 
-        var resultUpdated = await _userRepository.UpdateUserAsync(user, cancellationToken).ConfigureAwait(false);
+        var resultUpdated = await _userRepository.UpdateUserAsync(
+                user:user, 
+                roles: editUserModel.RoleIds,
+                cancellationToken:cancellationToken
+            ).ConfigureAwait(false);
         if (!resultUpdated)
             throw new InternalServerException("Update user fail");
         return new BaseResponseModel("Update user success");
@@ -313,7 +334,11 @@ public class UserService : IUserService
 
         u.PasswordHash = changePasswordModel.NewPassword.HashMD5();
 
-        var resultChange = await _userRepository.UpdateUserAsync(u, cancellationToken).ConfigureAwait(false);
+        var resultChange = await _userRepository.UpdateUserAsync(
+                user: u, 
+                roles: null ,
+                cancellationToken: cancellationToken
+            ).ConfigureAwait(false);
         if (!resultChange)
             throw new InternalServerException("Change password user fail");
         return new BaseResponseModel("Change password user success");
@@ -336,7 +361,11 @@ public class UserService : IUserService
             user.Avatar = await editProfileModel.Avatar.SaveImageAsync(_env);
         }
         
-        var resultUpdated = await _userRepository.UpdateUserAsync(user, cancellationToken).ConfigureAwait(false);
+        var resultUpdated = await _userRepository.UpdateUserAsync(
+                user:user, 
+                roles: null,
+                cancellationToken: cancellationToken
+            ).ConfigureAwait(false);
         if (!resultUpdated)
             throw new InternalServerException("Update user fail");
         return new BaseResponseModel("Update user success");

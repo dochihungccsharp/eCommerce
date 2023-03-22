@@ -18,7 +18,7 @@ public class UserRepository : IUserRepository
         _databaseRepository = databaseRepository 
                               ?? throw new ArgumentNullException(nameof(databaseRepository));
     }
-    public async Task<bool> CreateUserAsync(User user, CancellationToken cancellationToken = default)
+    public async Task<bool> CreateUserAsync(User user, List<Guid> roles = null,CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(user);
         
@@ -38,7 +38,8 @@ public class UserRepository : IUserRepository
                 {"TotalAmountOwed", user.TotalAmountOwed},
                 {"UserAddressId", user.UserAddressId},
                 {"Created", user.Created},
-                {"IsDeleted", user.IsDeleted}
+                {"IsDeleted", user.IsDeleted},
+                {"RoleIds", roles}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -58,7 +59,7 @@ public class UserRepository : IUserRepository
         ).ConfigureAwait(false);
     }
 
-    public async Task<bool> UpdateUserAsync(User user, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateUserAsync(User user, List<Guid> roles = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(user);
         
@@ -77,7 +78,8 @@ public class UserRepository : IUserRepository
                 {"Address", user.Address},
                 {"TotalAmountOwed", user.TotalAmountOwed},
                 {"UserAddressId", user.UserAddressId},
-                {"IsDeleted", user.IsDeleted}
+                {"IsDeleted", user.IsDeleted},
+                {"RoleIds", roles}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);

@@ -46,7 +46,7 @@ public class UserController : BaseController
     [AllowAnonymous]
     [HttpPost]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
-    [Route("api/accounts/confirm-email")]
+    [Route("api/users/confirm-email")]
     public async Task<IActionResult> ConfirmEmailAsync([FromQuery(Name = "user_id")]Guid userId, [FromQuery(Name = "code")]string code, CancellationToken cancellationToken)
         => Ok(await _userService.ConfirmEmailAsync(userId, code, cancellationToken));
 
@@ -54,21 +54,77 @@ public class UserController : BaseController
     [AllowAnonymous]
     [HttpPut]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
-    [Route("api/accounts/forgot-password")]
+    [Route("api/users/forgot-password")]
     public async Task<IActionResult> ForgotPasswordAsync([FromQuery(Name = "email")]string email,
         CancellationToken cancellationToken = default)
         => Ok(await _userService.ForgotPasswordAsync(email, cancellationToken).ConfigureAwait(false));
     #endregion
 
     #region Users API (Role Admin)
+    [Authorize("Admin")]
+    [HttpGet]
+    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
+    [Route("api/users")]
+    public async Task<IActionResult> GetAllAsync([FromQuery] UserFilterRequestModel filter,
+        CancellationToken cancellationToken = default)
+        => Ok(await _userService.GetAllAsync(filter, cancellationToken).ConfigureAwait(false));
 
-    
+    [Authorize("Admin")]
+    [HttpGet]
+    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
+    [Route("api/users/{id:guid}")]
+    public async Task<IActionResult> GetAsync([FromRoute(Name = "id")] Guid userId,
+        CancellationToken cancellationToken = default)
+        => Ok(await _userService.GetAsync(userId, cancellationToken).ConfigureAwait(false));
 
+    [Authorize("Admin")]
+    [HttpPost]
+    [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
+    [Route("api/users")]
+    public async Task<IActionResult> CreateAsync([FromBody]EditUserModel editUserModel,
+        CancellationToken cancellationToken = default)
+        => Ok(await _userService.CreateAsync(editUserModel, cancellationToken).ConfigureAwait(false));
+
+    [Authorize("Admin")]
+    [HttpPut]
+    [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
+    [Route("api/users/{id:guid}")]
+    public async Task<IActionResult> UpdateAsync([FromQuery(Name = "id")]Guid userId, [FromBody] EditUserModel editUserModel,
+        CancellationToken cancellationToken = default)
+        => Ok(await _userService.UpdateAsync(userId, editUserModel, cancellationToken).ConfigureAwait(false));
+
+    [Authorize("Admin")]
+    [HttpDelete]
+    [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
+    [Route("api/users/{id:guid}")]
+    public async Task<IActionResult> DeleteAsync([FromQuery(Name = "id")] Guid userId,
+        CancellationToken cancellationToken = default)
+        => Ok(await _userService.DeleteAsync(userId, cancellationToken).ConfigureAwait(false));
     #endregion
 
     #region Users API (Role Member)
 
-    
+    [Authorize]
+    [HttpGet]
+    [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
+    [Route("api/users/profile")]
+    public async Task<IActionResult> GetProfileAsync(CancellationToken cancellationToken = default)
+        => Ok(await _userService.GetProfileAsync(cancellationToken).ConfigureAwait(false));
 
+    [Authorize]
+    [HttpPut]
+    [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
+    [Route("api/users/change-password")]
+    public async Task<IActionResult> ChangePasswordAsync([FromBody]ChangePasswordModel changePasswordModel,
+        CancellationToken cancellationToken = default)
+        => Ok(await _userService.ChangePasswordAsync(changePasswordModel, cancellationToken).ConfigureAwait(false));
+    
+    [Authorize]
+    [HttpPut]
+    [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
+    [Route("api/users/profile")]
+    public async Task<IActionResult> UpdateProfileAsync([FromBody]EditProfileModel editProfileModel,
+        CancellationToken cancellationToken = default)
+        => Ok(await _userService.UpdateProfileAsync(editProfileModel, cancellationToken).ConfigureAwait(false));
     #endregion
 }
