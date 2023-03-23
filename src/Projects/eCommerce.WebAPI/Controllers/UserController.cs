@@ -62,6 +62,7 @@ public class UserController : BaseController
 
     #region Users API (Role Admin)
     [HttpGet]
+    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users")]
     [Filters.Authorize("Admin")]
     public async Task<IActionResult> GetAllAsync([FromQuery] UserFilterRequestModel filter,

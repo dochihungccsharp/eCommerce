@@ -11,4 +11,5 @@ public interface IRoleRepository
     Task<IList<string>> GetRolesByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<Role> FindRoleByIdAsync(Guid roleId, CancellationToken cancellationToken = default);
     Task<Role> FindRoleByNameAsync(string roleName, CancellationToken cancellationToken = default);
+    Task<bool> CheckDuplicateRole(Role role, CancellationToken cancellationToken = default);
 }

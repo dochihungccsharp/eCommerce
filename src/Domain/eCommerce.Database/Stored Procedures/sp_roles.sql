@@ -32,12 +32,6 @@ BEGIN
 		WHERE Id = @Id
 END
 
-DECLARE @ids AS RoleIdsTableType;
-INSERT INTO @ids (Id) VALUES ('13A33D33-257B-4E15-8FF7-79957559DD1E');
-DECLARE @id UNIQUEIDENTIFIER = NEWID();
-exec sp_Users @Activity = 'INSERT', @Id = @id, @Username = 'dochihung',@Email = 'dochihung',
-@RoleIds = @ids
-
 -----------------------------------------------------------------
 IF @Activity = 'DELETE'
 BEGIN

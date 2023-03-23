@@ -13,6 +13,5 @@ public class EditUserModel
     public IFormFile? Avatar { get; set; }
     public string? Address { get; set; }
     public Guid? UserAddressId { get; set; }
-    public string? Status { get; set; }
-    public List<RoleIdModel>? RoleIds { get; set; }
+    public List<AddRoleModel>? Roles { get; set; }
 }

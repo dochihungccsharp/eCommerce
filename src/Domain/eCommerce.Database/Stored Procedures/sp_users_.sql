@@ -1,11 +1,17 @@
 USE eCommerce
 GO
 
---CREATE TYPE RoleIdsTableType AS TABLE
---(
---   Id UNIQUEIDENTIFIER
---);
---GO
+
+CREATE TYPE RolesTableType AS TABLE
+(
+   Id UNIQUEIDENTIFIER,
+   [Name]                 NVARCHAR (256)     NOT NULL,
+   [Description]          NVARCHAR (MAX)         NULL,
+   [Created]              DATETIME           NOT NULL
+);
+GO
+
+DROP TABLE RolesTableType
 
 ALTER PROC sp_Users
 @Activity						NVARCHAR(50)		=		NULL,
@@ -30,7 +36,11 @@ ALTER PROC sp_Users
 @Modified                       DATETIME            =       NULL,
 @IsDeleted                      BIT                 =       NULL,
 -----------------------------------------------------------------
-@RoleIds                        RoleIdsTableType     READONLY 
+@Roles                          RolesTableType     READONLY ,
+-----------------------------------------------------------------
+@ErrorMessage                   NVARCHAR(MAX)      =        NULL,
+@ErrorSeverity                  INT                 =       NULL,
+@ErrorState                     INT                 =       NULL
 -----------------------------------------------------------------
 AS 
 -----------------------------------------------------------------
@@ -42,17 +52,17 @@ BEGIN
 			INSERT INTO [User] 
 			([Id], [UserName], [Fullname], [Email], [EmailConfirmed], [PasswordHash], [PhoneNumber], [Avatar], [Address], [TotalAmountOwed],[UserAddressId], [Status], [Created], [IsDeleted])
 			VALUES
-			(@Id, @Username, @Fullname, @Email, @EmailConfirmed, @PasswordHash, @PhoneNumber, @Avatar, @Address, @TotalAmountOwed, @UserAddressId, 1, GETDATE(), 0)
+			(@Id, @Username, @Fullname, @Email, @EmailConfirmed, @PasswordHash, @PhoneNumber, @Avatar, @Address, 0, NULL, 1, GETDATE(), 0)
 
 			DECLARE @RoleId UNIQUEIDENTIFIER;
 			DECLARE @Index INT = 1;
 
-			DECLARE @RowCount INT = (SELECT COUNT(*) FROM @RoleIds);
+			DECLARE @RowCount INT = (SELECT COUNT(*) FROM @Roles);
 			IF @RowCount > 0
 					WHILE @Index <= @RowCount
 						BEGIN
 							SELECT @RoleId = Id
-							FROM @RoleIds
+							FROM @Roles
 							ORDER BY (SELECT NULL) OFFSET @Index-1 ROWS FETCH NEXT 1 ROWS ONLY;
 							INSERT INTO [UserRole] (UserId, RoleId)
 							VALUES (@Id, @RoleId)
@@ -62,14 +72,18 @@ BEGIN
 		COMMIT TRANSACTION
 	END TRY
 	BEGIN CATCH
-	PRINT '1111111'
-		RAISERROR('Error: No details provided', 16, 1)
+        SELECT 
+            @ErrorMessage = ERROR_MESSAGE(),
+            @ErrorSeverity = ERROR_SEVERITY(),
+            @ErrorState = ERROR_STATE();
+
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
 		ROLLBACK TRANSACTION
 	END CATCH
 
 END
 
------------------------------------------------------------------
+---------------------------------------------------------------
 ELSE IF @Activity = 'UPDATE'
 BEGIN
 	BEGIN TRANSACTION
@@ -86,30 +100,31 @@ BEGIN
 				[Avatar] = ISNULL(@Avatar, [Avatar]),
 				[Address] = ISNULL(@Address, [Address]),
 				[TotalAmountOwed] = ISNULL(@TotalAmountOwed, [TotalAmountOwed]),
-				[UserAddressId] = ISNULL(@UserAddressId, [UserAddressId]),
+				-- [UserAddressId] = ISNULL(@UserAddressId, [UserAddressId]),
 				[Status] = ISNULL(@Status, [Status]),
-				[Modified] = GETDATE(),
-				[IsDeleted] = ISNULL(@IsDeleted, [IsDeleted])
+				[Modified] = GETDATE()
 			WHERE Id = @Id
-	
-			-- DELETE ALL USER ROLE
-			DELETE FROM [UserRole] WHERE UserId = @Id;
 
-			-- ADD ROLE ROLE
+	
 			DECLARE @RoleId_ UNIQUEIDENTIFIER;
 			DECLARE @Index_ INT = 1;
 
-			DECLARE @RowCount_ INT = (SELECT COUNT(*) FROM @RoleIds);
+			DECLARE @RowCount_ INT = (SELECT COUNT(*) FROM @Roles);
 			IF @RowCount_ > 0
 				BEGIN
+
+					-- DELETE ALL USER ROLE
+					DELETE FROM [UserRole] WHERE UserId = @Id;
+
+					-- ADD ROLE ROLE
 					WHILE @Index_ <= @RowCount_
 						BEGIN
 							SELECT @RoleId_ = Id
-							FROM @RoleIds
-							ORDER BY (SELECT NULL) OFFSET @Index_-1 ROWS FETCH NEXT 1 ROWS ONLY;
+							FROM @Roles
+							ORDER BY (SELECT NULL) OFFSET @Index_ - 1 ROWS FETCH NEXT 1 ROWS ONLY;
 
 							INSERT INTO [UserRole] (UserId, RoleId)
-							VALUES (@Id, @RoleId)
+							VALUES (@Id, @RoleId_)
 
 							SET @Index_ += 1
 						END
@@ -118,48 +133,52 @@ BEGIN
 		END
 	END TRY
 	BEGIN CATCH
-		RAISERROR('Error: No details provided', 16, 1)
+        SELECT 
+            @ErrorMessage = ERROR_MESSAGE(),
+            @ErrorSeverity = ERROR_SEVERITY(),
+            @ErrorState = ERROR_STATE();
+
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
 		ROLLBACK TRANSACTION
 	END CATCH
 END
 
------------------------------------------------------------------
+---------------------------------------------------------------
 ELSE IF @Activity = 'DELETE'
 BEGIN
 	UPDATE [User] SET [IsDeleted] = 1 WHERE [Id] = @Id
 END
 
------------------------------------------------------------------
+---------------------------------------------------------------
 ELSE IF @Activity = 'CHECK_DUPLICATE'
 BEGIN
 	SELECT TOP 1 1
 	FROM [User] (NOLOCK)
-	WHERE  (@Username IS NULL OR [Username] = @Username) 
-	AND  (@Email IS NULL OR [Email] = @Email) 
-	AND  (@PhoneNumber IS NULL OR [PhoneNumber] = @PhoneNumber) 
-	AND (@Id IS NULL OR Id <> @Id)
+	WHERE  (([Username] = @Username) 
+	OR  ([Email] = @Email) 
+	OR  ([PhoneNumber] = @PhoneNumber)) 
 	AND [IsDeleted] = 0
 END
 
------------------------------------------------------------------
+---------------------------------------------------------------
 ELSE IF @Activity = 'FIND_BY_EMAIL'
 BEGIN
 	SELECT * FROM [User] WHERE [Email] = @Email
 END
 
------------------------------------------------------------------
+---------------------------------------------------------------
 ELSE IF @Activity = 'FIND_BY_ID'
 BEGIN
 	SELECT * FROM [User] WHERE Id = @Id
 END
 
------------------------------------------------------------------
+---------------------------------------------------------------
 ELSE IF @Activity = 'FIND_BY_NAME'
 BEGIN
 	SELECT * FROM [User] WHERE [Username] = @Username
 END
 
------------------------------------------------------------------
+---------------------------------------------------------------
 ELSE IF @Activity = 'GET_PROFILE_BY_ID'
 BEGIN
 	SELECT u.Id, u.Username, u.Fullname, u.Email, u.[EmailConfirmed], u.PhoneNumber, u.Avatar, u.[Address], u.TotalAmountOwed, u.UserAddressId, u.[Status], u.Created, u.Modified,
@@ -173,7 +192,7 @@ BEGIN
 	WHERE u.Id = @Id
 END
 
------------------------------------------------------------------
+---------------------------------------------------------------
 ELSE IF @Activity = 'GET_ALL'
 BEGIN
 	;WITH UserTemp AS(
@@ -199,5 +218,4 @@ BEGIN
 
 END
 
-EXEC sp_Users @Activity = 'CHECK_DUPLICATE', @Username = 'dochihung492002@gmai.com'
 

@@ -154,7 +154,7 @@ public class UserService : IUserService
         var email = code.Base64Decode().Trim().ToLower();
         var u = await _userRepository.FindUserByIdAsync(userId, cancellationToken).ConfigureAwait(false);
         if (u == null || String.Compare(u.Email, email, StringComparison.OrdinalIgnoreCase) != 0)
-            throw new BadRequestException("confirm email fail");
+            throw new BadRequestException("Confirm email fail");
         
         if (u.EmailConfirmed == true)
             return new BaseResponseModel("Account Verified");
@@ -164,7 +164,7 @@ public class UserService : IUserService
         var resultConfirm = await _userRepository.UpdateUserAsync(
                 user: u, 
                 roles: null,
-                cancellationToken
+                cancellationToken: cancellationToken
             ).ConfigureAwait(false);
         if (!resultConfirm)
             throw new InternalServerException("Confirm email fail");
@@ -209,32 +209,24 @@ public class UserService : IUserService
 
     public async Task<BaseResponseModel> CreateAsync(EditUserModel editUserModel, CancellationToken cancellationToken = default)
     {
-        var user = new User()
-        {
-            Id = Guid.NewGuid(),
-            Username = editUserModel.Username,
-            Fullname = editUserModel.Fullname,
-            Email = editUserModel.Email,
-            EmailConfirmed = true,
-            PhoneNumber = editUserModel.PhoneNumber,
-            PasswordHash = editUserModel.Password.HashMD5(),
-            Address = editUserModel.Address,
-            TotalAmountOwed = 0,
-            Status = true
-        };
-
+        var user = _mapper.Map<User>(editUserModel);
+        user.Id = Guid.NewGuid();
+            
+        
         var duplicateUser = await _userRepository.CheckDuplicateAsync(user, cancellationToken).ConfigureAwait(false);
         if(!duplicateUser)
             throw new InvalidOperationException("User with the same name already exists.");
         
         if (editUserModel.Avatar != null)
-        {
             user.Avatar = await editUserModel.Avatar.SaveImageAsync(_env);
-        }
-
+        
+        List<Role> roles = default!;
+        if (editUserModel.Roles != null)
+            roles = _mapper.Map<List<Role>>(editUserModel.Roles);
+                
         var resultCreated = await _userRepository.CreateUserAsync(
                 user:user,
-                roles: editUserModel.RoleIds,
+                roles: roles,
                 cancellationToken:cancellationToken
             ).ConfigureAwait(false);
         if (!resultCreated)
@@ -246,35 +238,36 @@ public class UserService : IUserService
     {
         var u = await _userRepository.FindUserByIdAsync(userId, cancellationToken).ConfigureAwait(false);
         if(u == null)
-            throw new BadRequestException("Invalid user id");
+            throw new BadRequestException("The request is invalid");
 
-        var user = new User()
+        if (u.Email != editUserModel.Email)
         {
-            Id = Guid.NewGuid(),
-            Username = editUserModel.Username,
-            Fullname = editUserModel.Fullname,
-            Email = editUserModel.Email,
-            EmailConfirmed = true,
-            PhoneNumber = editUserModel.PhoneNumber,
-            PasswordHash = editUserModel.Password.HashMD5(),
-            Address = editUserModel.Address,
-            TotalAmountOwed = 0,
-            Status = true
-        };
+            var userWithEmail = await _userRepository.FindUserByEmailAsync(editUserModel.Email, cancellationToken)
+                .ConfigureAwait(false);
+            if (userWithEmail != null)
+                throw new BadRequestException("The request is invalid, email already exists");
+        }
+
+        var user = _mapper.Map<User>(editUserModel);
         
         if (editUserModel.Avatar != null)
         {
             await u.Avatar.DeleteImageAsync();
             user.Avatar = await editUserModel.Avatar.SaveImageAsync(_env);
         }
+        
+        List<Role> roles = default!;
+        // if (editUserModel.Roles != null)
+        //     roles = _mapper.Map<List<Role>>(editUserModel.Roles);
 
         var resultUpdated = await _userRepository.UpdateUserAsync(
                 user: user, 
-                roles: editUserModel.RoleIds,
+                roles: roles,
                 cancellationToken:cancellationToken
             ).ConfigureAwait(false);
         if (!resultUpdated)
             throw new InternalServerException("Update user fail");
+        
         return new BaseResponseModel("Update user success");
     }
 
@@ -287,6 +280,7 @@ public class UserService : IUserService
         var resultDeleted = await _userRepository.DeleteUserAsync(userId, cancellationToken).ConfigureAwait(false);
         if(!resultDeleted)
             throw new InternalServerException("Deleted user fail");
+        
         return new BaseResponseModel("Deleted user success");
     }
     
@@ -297,6 +291,10 @@ public class UserService : IUserService
     public async Task<OkResponseModel<UserProfileModel>> GetProfileAsync(CancellationToken cancellationToken = default)
     {
         var userId = Guid.Parse(_userContextModel.Id);
+        var u = await _userRepository.FindUserByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        if (u == null)
+            throw new BadRequestException("The request is invalid");
+        
         return await GetAsync(userId, cancellationToken).ConfigureAwait(false);
     }
     public async Task<BaseResponseModel> ChangePasswordAsync(ChangePasswordModel changePasswordModel, CancellationToken cancellationToken = default)
@@ -318,25 +316,30 @@ public class UserService : IUserService
             ).ConfigureAwait(false);
         if (!resultChange)
             throw new InternalServerException("Change password user fail");
+        
         return new BaseResponseModel("Change password user success");
     }
 
     
     public async Task<BaseResponseModel> UpdateProfileAsync(EditProfileModel editProfileModel, CancellationToken cancellationToken = default)
     {
-        var user = new User()
+        var userId = Guid.Parse(_userContextModel.Id);
+        var u = await _userRepository.FindUserByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        if (u == null)
+            throw new BadRequestException("The request is invalid");
+
+        if (u.Email != editProfileModel.Email)
         {
-            Fullname = editProfileModel.Fullname,
-            Email = editProfileModel.Email,
-            PhoneNumber = editProfileModel.PhoneNumber,
-            Address = editProfileModel.Address,
-            UserAddressId = editProfileModel.UserAddressId ?? default!
-        };
+            var userWithEmail = await _userRepository.FindUserByEmailAsync(editProfileModel.Email, cancellationToken).ConfigureAwait(false);
+            if(userWithEmail != null)
+                throw new BadRequestException("The request is invalid, email already exists");
+        }
+        
+        var user = _mapper.Map<User>(editProfileModel);
 
         if (editProfileModel.Avatar != null)
-        {
             user.Avatar = await editProfileModel.Avatar.SaveImageAsync(_env);
-        }
+
         
         var resultUpdated = await _userRepository.UpdateUserAsync(
                 user:user, 
@@ -345,6 +348,7 @@ public class UserService : IUserService
             ).ConfigureAwait(false);
         if (!resultUpdated)
             throw new InternalServerException("Update user fail");
+        
         return new BaseResponseModel("Update user success");
         
     }

@@ -26,9 +26,8 @@ public class RoleRepository : IRoleRepository
             {
                 {"Activity", "INSERT"},
                 {"Id", Guid.NewGuid()},
-                {"Username", role.Name},
-                {"Description", role.Description},
-                {"Created", DateTime.Now}
+                {"Name", role.Name},
+                {"Description", role.Description}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -44,9 +43,8 @@ public class RoleRepository : IRoleRepository
             {
                 {"Activity", "UPDATE"},
                 {"Id", role.Id},
-                {"Username", role.Name},
-                {"Description", role.Description},
-                {"Updated", DateTime.Now}
+                {"Name", role.Name},
+                {"Description", role.Description}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -113,5 +111,21 @@ public class RoleRepository : IRoleRepository
                 {"Name", roleName}
             }, cancellationToken: cancellationToken
         ).ConfigureAwait(false);
+    }
+
+    public async Task<bool> CheckDuplicateRole(Role role, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(role);
+        
+        var r = await _databaseRepository.GetAsync<Role>(
+            sqlQuery: SQL_QUERY,
+            parameters: new Dictionary<string, object>()
+            {
+                {"Activity", "CHECK_DUPLICATE"},
+                {"Name", role.Name }
+            }, cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
+
+        return r == null;
     }
 }
