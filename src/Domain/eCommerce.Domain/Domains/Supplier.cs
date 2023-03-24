@@ -1,8 +1,9 @@
 using eCommerce.Domain.Abstractions.Audits;
+using eCommerce.Domain.Abstractions.Paginations;
 
 namespace eCommerce.Domain.Domains;
 
-public class Supplier : IFullAuditDomain
+public class Supplier : IFullAuditDomain, IPagedDomain
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
@@ -19,4 +20,9 @@ public class Supplier : IFullAuditDomain
     public DateTime Modified { get; set; }
     public bool IsDeleted { get; set; }
     #endregion
+
+    #region Paged Domain
+    public int TotalRows { get; set; }
+    #endregion
+
 }

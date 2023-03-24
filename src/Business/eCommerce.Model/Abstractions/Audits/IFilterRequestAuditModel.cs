@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace eCommerce.Model.Abstractions.Audits;
 
 public interface IFilterRequestAuditModel

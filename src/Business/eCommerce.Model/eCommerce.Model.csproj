@@ -7,6 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="Categories" />
+      <Folder Include="Products" />
+      <Folder Include="Suppliers" />
       <Folder Include="Validators\Brands" />
       <Folder Include="Validators\Categories" />
       <Folder Include="Validators\Orders" />
