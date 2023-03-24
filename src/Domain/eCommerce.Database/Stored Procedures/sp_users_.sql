@@ -2,16 +2,14 @@ USE eCommerce
 GO
 
 
+
 CREATE TYPE RolesTableType AS TABLE
 (
-   Id UNIQUEIDENTIFIER,
-   [Name]                 NVARCHAR (256)     NOT NULL,
-   [Description]          NVARCHAR (MAX)         NULL,
-   [Created]              DATETIME           NOT NULL
+  [Id]                   UNIQUEIDENTIFIER   NOT NULL,
+  [Name]                 NVARCHAR (256)     NOT NULL
 );
 GO
 
-DROP TABLE RolesTableType
 
 ALTER PROC sp_Users
 @Activity						NVARCHAR(50)		=		NULL,
@@ -100,7 +98,7 @@ BEGIN
 				[Avatar] = ISNULL(@Avatar, [Avatar]),
 				[Address] = ISNULL(@Address, [Address]),
 				[TotalAmountOwed] = ISNULL(@TotalAmountOwed, [TotalAmountOwed]),
-				-- [UserAddressId] = ISNULL(@UserAddressId, [UserAddressId]),
+				[UserAddressId] = ISNULL(@UserAddressId, [UserAddressId]),
 				[Status] = ISNULL(@Status, [Status]),
 				[Modified] = GETDATE()
 			WHERE Id = @Id
@@ -189,7 +187,7 @@ BEGIN
 	) AS _Roles,
 	(SELECT * FROM UserAddress AS ua WHERE ua.Id = u.UserAddressId FOR JSON PATH) AS _UserAddresses
 	FROM [User] AS u
-	WHERE u.Id = @Id
+	WHERE u.Id = @Id AND u.IsDeleted = 0
 END
 
 ---------------------------------------------------------------

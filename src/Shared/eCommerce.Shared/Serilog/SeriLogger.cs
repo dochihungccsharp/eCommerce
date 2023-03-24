@@ -15,6 +15,14 @@ public static class SeriLogger
                 .WriteTo.Debug()
                 .WriteTo.Console(outputTemplate:
                     "[{Timestamp: HH:mm:ss} {Level}] {SourceContext} {NewLine} {Message:lj}{NewLine}{Exception}{NewLine}")
+                .WriteTo.File(
+                    $@"logs/{applicationName}-{environmentName}.txt",
+                    rollingInterval: RollingInterval.Day,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] {Message}{NewLine}{Exception}",
+                    fileSizeLimitBytes: 10485760, // 10 MB
+                    rollOnFileSizeLimit: true,
+                    retainedFileCountLimit: 30
+                )
                 .Enrich.FromLogContext()
                 .Enrich.WithMachineName()
                 .Enrich.WithProperty("Environment", environmentName)

@@ -44,7 +44,7 @@ public class UserController : BaseController
         => Ok(await _userService.RefreshTokenAsync(cancellationToken).ConfigureAwait(false));
     
     [AllowAnonymous]
-    [HttpPost]
+    [HttpGet]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users/confirm-email")]
     public async Task<IActionResult> ConfirmEmailAsync([FromQuery(Name = "user_id")]Guid userId, [FromQuery(Name = "code")]string code, CancellationToken cancellationToken)
@@ -89,7 +89,7 @@ public class UserController : BaseController
     [HttpPut]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
-    public async Task<IActionResult> UpdateAsync([FromQuery(Name = "id")]Guid userId, [FromBody] EditUserModel editUserModel,
+    public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")]Guid userId, [FromBody] EditUserModel editUserModel,
         CancellationToken cancellationToken = default)
         => Ok(await _userService.UpdateAsync(userId, editUserModel, cancellationToken).ConfigureAwait(false));
 
@@ -97,7 +97,7 @@ public class UserController : BaseController
     [HttpDelete]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromQuery(Name = "id")] Guid userId,
+    public async Task<IActionResult> DeleteAsync([FromRoute(Name = "id")] Guid userId,
         CancellationToken cancellationToken = default)
         => Ok(await _userService.DeleteAsync(userId, cancellationToken).ConfigureAwait(false));
     #endregion

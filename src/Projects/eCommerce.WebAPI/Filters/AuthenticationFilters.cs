@@ -21,12 +21,12 @@ public class AuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
 
-        var _roleCacheService = (IRoleCacheService)context.HttpContext.RequestServices.GetService(typeof(IRoleCacheService));
+        var _roleCacheService = (RoleCacheService)context.HttpContext.RequestServices.GetService(typeof(IRoleCacheService));
         var _authModel = (UserContextModel)context.HttpContext.RequestServices.GetService(typeof(UserContextModel));
             
         if (_authModel == null)
         {
-            context.Result = new JsonResult(new AuthorizedResponseModel("Forbidden"));
+            context.Result = new JsonResult(new BaseResponseModel(HttpStatusCode.Unauthorized, "Unauthorized"));
             return;
         }
             
@@ -37,7 +37,7 @@ public class AuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
         if (userRoles == null || userRoles.Count < 1)
         {
-            context.Result = new JsonResult(new AuthorizedResponseModel("Forbidden"));
+            context.Result = new JsonResult(new BaseResponseModel(HttpStatusCode.Unauthorized, "Forbidden"));
             return;
         }
             
@@ -45,7 +45,7 @@ public class AuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         {
             if (!userRoles.Contains(role))
             {
-                context.Result = new JsonResult(new AuthorizedResponseModel("Forbidden"));
+                context.Result = new JsonResult(new BaseResponseModel(HttpStatusCode.Unauthorized, "Forbidden"));
                 return;
             }
         }

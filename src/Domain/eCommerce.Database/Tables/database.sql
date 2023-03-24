@@ -1,5 +1,4 @@
-﻿
--- Create database with database name eCommerce
+﻿-- Create database with database name eCommerce
 CREATE DATABASE eCommerce
 GO
 
@@ -7,22 +6,6 @@ GO
 USE eCommerce
 GO
 
--- 1. Brand
--- 2. Supplier
--- 3. Category
--- 4. Inventory
--- 5. Product
--- 6. ProductImage
--- 6. PurchaseOrder
--- 7. PurchaseOrderDetails
--- 8. User
--- 9. UserAddress
--- 10. UserPayment
--- 11. ShoppingSession
--- 12. CartItem
--- 13. OrderDetail
--- 14. PaymentDetail
--- 15. OrderItem
 
 
 CREATE TYPE PurchaseOrderDetailsTableType AS TABLE
@@ -96,10 +79,10 @@ CREATE TABLE UserAddress
 GO
 
 -- ADD FK USER
-ALTER TABLE [User]
-ADD CONSTRAINT FK_User_UserAddressId
-FOREIGN KEY (UserAddressId)
-REFERENCES UserAddress(Id);
+--ALTER TABLE [User]
+--ADD CONSTRAINT FK_User_UserAddressId
+--FOREIGN KEY (UserAddressId)
+--REFERENCES UserAddress(Id);
 
 -- CREATE TABLE USER PAYMENT
 CREATE TABLE UserPayment

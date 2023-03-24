@@ -1,75 +1,77 @@
+using eCommerce.Shared.Serilog;
 using eCommerce.WebAPI.Extensions;
 using eCommerce.WebAPI.Middlewares;
 using Microsoft.OpenApi.Models;
+using Serilog;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Host.UseSerilog(SeriLogger.Configure);
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+Log.Information("Start server web api eCommerce");
+
+try
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    // Add services to the container.
+    builder.Services.AddControllerService();
 
-    // Configure Swagger to use the JWT bearer authentication scheme
-    var securityScheme = new OpenApiSecurityScheme
+    builder.Services.AddAuthenticationService(builder.Configuration);
+    
+    
+    // add swagger service
+    builder.Services.AddSwaggerService();
+    
+    builder.Services.AddSingleton(builder.Configuration);
+    
+    builder.Services.AddConfigurationSettings(builder.Configuration);
+    
+    // add  service handler jwt token middleware
+    builder.Services.AddTransient<HandleJwtTokenMiddleware>();
+    
+    // add service handler exception token middleware
+    builder.Services.AddTransient<HandleExceptionMiddleware>();
+    
+    // add all service eCommerce.Infrastructure
+    builder.Services.AddInfrastructureService(builder.Configuration);
+    
+    // add all service eCommerce.Model
+    builder.Services.AddModelService(builder.Configuration);
+    
+    // add all service eCommerce.Service
+    builder.Services.AddService(builder.Configuration);
+    
+    // add service get user from request
+    builder.Services.AddUserContextModelService(builder.Configuration);
+
+    var app = builder.Build();
+    
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
     {
-        Name = "Authorization",
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Reference = new OpenApiReference
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
-        }
-    };
-    c.AddSecurityDefinition("Bearer", securityScheme);
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+    
+    app.UseJwtTokenMiddleware();
+    
+    app.UseExceptionMiddleware();
 
-    // Make Swagger require a JWT token to access the endpoints
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            securityScheme,
-            new string[] {}
-        }
-    });
-});
-
-
-builder.Services.AddTransient<HandleJwtTokenMiddleware>();
-builder.Services.AddTransient<HandleExceptionMiddleware>();
-
-builder.Services.AddSingleton(builder.Configuration);
-builder.Services.AddConfigurationSettings(builder.Configuration);
-builder.Services.AddInfrastructureService(builder.Configuration);
-builder.Services.AddModelService(builder.Configuration);
-builder.Services.AddUserContextModelService(builder.Configuration);
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseHttpsRedirection();
+    
+    app.UseAuthorization();
+    
+    app.MapControllers();
+    
+    app.Run();
 }
-
-app.UseJwtTokenMiddleware();
-
-app.UseExceptionMiddleware();
-
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-
-
-app.Run();
+catch (Exception exception)
+{
+    // Unhandled exception: chưa xử lý exception
+    Log.Fatal(exception, "Unhandled exception");
+}
+finally
+{
+    Log.Information("Shut dow web api eCommerce complete");
+    Log.CloseAndFlush();
+}

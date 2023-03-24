@@ -1,0 +1,10 @@
+From: =?utf-8?b?xJDhu5cgQ2jDuW5n?= <dohung.csharp@gmail.com>
+Date: Fri, 24 Mar 2023 10:28:54 +0700
+Subject: Confirm Email
+Message-Id: <7WXAU0E3IJU4.505NFPA0J9Q93@dochihung>
+Sender: =?utf-8?b?xJDhu5cgQ2jDuW5n?= <dohung.csharp@gmail.com>
+To: dinhminhquyen@gmail.com
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+
+Please confirm your email address <a href="https://localhost:7196/api/confirm-email?user_id=e94f9094-ac03-450e-ac4f-72e60379dfb1&amp;code=ZGluaG1pbmhxdXllbkBnbWFpbC5jb20=">Click here </a>

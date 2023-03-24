@@ -87,7 +87,15 @@ public static class CollectionExtensions
             
             foreach (var property in properties)
             {
-                row[property.Name] = property.GetValue(item, null);
+                if (property.PropertyType == typeof(DateTime))
+                {
+                    var value = property.GetValue(item, null);
+                    row[property.Name] = value != null ? (object)value : DBNull.Value;
+                }
+                else
+                {
+                    row[property.Name] = property.GetValue(item, null);
+                }
             }
 
             dataTable.Rows.Add(row);

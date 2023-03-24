@@ -83,7 +83,7 @@ public class UserService : IUserService
         var host = _httpContextAccessor?.HttpContext?.Request.Host;
 
         var code = registerUser.Email.Base64Encode();
-        var callbackUrl = scheme + "://" + host + $"/api/confirm-email?user_id={userId}&code={code}";;
+        var callbackUrl = scheme + "://" + host + $"/api/users/confirm-email?user_id={userId}&code={code}";;
 
         var encodedCallbackUrl = HtmlEncoder.Default.Encode(callbackUrl);
         var body = emailBody.Replace("#URL#", encodedCallbackUrl);
@@ -202,7 +202,7 @@ public class UserService : IUserService
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
         if (user == null)
-            throw new BadRequestException("The request invalid");
+            throw new BadRequestException("The user is not found");
 
         return new OkResponseModel<UserProfileModel>(user);
     }
@@ -219,14 +219,10 @@ public class UserService : IUserService
         
         if (editUserModel.Avatar != null)
             user.Avatar = await editUserModel.Avatar.SaveImageAsync(_env);
-        
-        List<Role> roles = default!;
-        if (editUserModel.Roles != null)
-            roles = _mapper.Map<List<Role>>(editUserModel.Roles);
-                
+
         var resultCreated = await _userRepository.CreateUserAsync(
                 user:user,
-                roles: roles,
+                roles: editUserModel.Roles ?? default!,
                 cancellationToken:cancellationToken
             ).ConfigureAwait(false);
         if (!resultCreated)
@@ -255,14 +251,10 @@ public class UserService : IUserService
             await u.Avatar.DeleteImageAsync();
             user.Avatar = await editUserModel.Avatar.SaveImageAsync(_env);
         }
-        
-        List<Role> roles = default!;
-        // if (editUserModel.Roles != null)
-        //     roles = _mapper.Map<List<Role>>(editUserModel.Roles);
 
         var resultUpdated = await _userRepository.UpdateUserAsync(
                 user: user, 
-                roles: roles,
+                roles: editUserModel.Roles ?? default!,
                 cancellationToken:cancellationToken
             ).ConfigureAwait(false);
         if (!resultUpdated)

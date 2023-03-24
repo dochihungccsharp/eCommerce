@@ -1,7 +1,7 @@
 USE eCommerce
 GO
 
-CREATE PROC sp_Roles
+ALTER PROC sp_Roles
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @Id						        UNIQUEIDENTIFIER	=		NULL,
@@ -19,7 +19,7 @@ AS
 IF @Activity = 'INSERT'
 BEGIN
 	INSERT INTO [Role] ([Id], [Name], [Description], [Created], [Modified], [IsDeleted])
-	VALUES (@Id, @Name, @Description, @Created, @Modified, @IsDeleted)
+	VALUES (@Id, @Name, @Description, GETDATE(), NULL, 0)
 	SELECT CAST(SCOPE_IDENTITY() AS INT)
 END
 

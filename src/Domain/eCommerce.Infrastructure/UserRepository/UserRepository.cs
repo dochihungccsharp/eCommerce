@@ -21,7 +21,7 @@ public class UserRepository : IUserRepository
         _databaseRepository = databaseRepository 
                               ?? throw new ArgumentNullException(nameof(databaseRepository));
     }
-    public async Task<bool> CreateUserAsync(User user, List<Role> roles = null,CancellationToken cancellationToken = default)
+    public async Task<bool> CreateUserAsync(User user, List<AddRoleModel> roles = null,CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(user);
         
@@ -56,13 +56,13 @@ public class UserRepository : IUserRepository
             parameters: new Dictionary<string, object>()
             {
                 {"Activity", "DELETE"},
-                {"Id", Guid.NewGuid()},
+                {"Id", userId},
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
     }
 
-    public async Task<bool> UpdateUserAsync(User user, List<Role> roles = null, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateUserAsync(User user, List<AddRoleModel> roles = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(user);
         
