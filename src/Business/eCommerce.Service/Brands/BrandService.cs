@@ -13,10 +13,10 @@ namespace eCommerce.Service.Brands;
 
 public class BrandService : IBrandService
 {
-    private const string SQL_QUERY = "sp_Brands";
     private readonly IDatabaseRepository _databaseRepository;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _env;
+    private const string SQL_QUERY = "sp_Brands";
     
     public BrandService(IDatabaseRepository databaseRepository, IMapper mapper, IWebHostEnvironment env)
     {

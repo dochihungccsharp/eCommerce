@@ -1,8 +1,13 @@
 using AutoMapper;
 using eCommerce.Domain.Abstractions.Paginations;
 using eCommerce.Domain.Domains;
+using eCommerce.Model.Brands;
+using eCommerce.Model.Categories;
+using eCommerce.Model.Inventories;
 using eCommerce.Model.Paginations;
+using eCommerce.Model.Products;
 using eCommerce.Model.Roles;
+using eCommerce.Model.Suppliers;
 using eCommerce.Model.Users;
 using eCommerce.Shared.Extensions;
 
@@ -43,7 +48,6 @@ public class AutoMapperProfile : Profile
         #region CREATE MAPPER ROLE
         CreateMap<Role, EditRoleModel>().ReverseMap();
         CreateMap<Role, AddRoleModel>().ReverseMap();
-        // CreateMap<List<Role>, List<AddRoleModel>>().ReverseMap();
         CreateMap<Role, RoleModel>().ReverseMap();
         #endregion
 
@@ -52,6 +56,29 @@ public class AutoMapperProfile : Profile
         
 
         #endregion
-        
+
+        #region CREATE MAPPER BRAND
+        CreateMap<Brand, BrandModel>().ReverseMap();
+        CreateMap<PagedList<Brand>, PaginationModel<BrandModel>>().ReverseMap();
+        #endregion
+
+        #region CREATE MAPPER CATEGORY
+        CreateMap<Category, CategoryModel>().ReverseMap();
+        CreateMap<PaginationModel<CategoryModel>, PagedList<Category>>().ReverseMap();
+        #endregion
+
+        #region CREATE MAPPER SUPPLIER
+        CreateMap<Supplier, SupplierModel>().ReverseMap();
+        CreateMap<PaginationModel<SupplierModel>, PagedList<Supplier>>().ReverseMap();
+        #endregion
+
+        #region CREATE MAPPER PRODUCT
+        CreateMap<Product, ProductModel>().ReverseMap();
+        CreateMap<PaginationModel<ProductModel>, PagedList<Product>>().ReverseMap();
+        #endregion
+
+        #region CREATE MAPPER INVENTORY
+        CreateMap<Inventory, InventoryModel>().ReverseMap();
+        #endregion
     }
 }

@@ -474,8 +474,8 @@ GO
 DECLARE @counter INT = 1;
 WHILE @counter <= 100
 	BEGIN
-		INSERT INTO Category (Id, [Name], [Description], ImageUrl, [Status], CreatedTime, CreatorId, ModifiedTime, ModifierId, IsDeleted, CategoryParentId)
+		INSERT INTO Category (Id, [Name], [Description], ImageUrl, [Status], Created, Modified, IsDeleted, ParentId)
 		VALUES
-		(NEWID(), 'Category ' + CAST(@counter AS NVARCHAR(10)), 'This is category ' + CAST(@counter AS NVARCHAR(10)), 'https://example.com/category' + CAST(@counter AS NVARCHAR(10)) + '.jpg', @counter%2, GETDATE(), NULL, NULL, NULL, 0, NULL)
+		(NEWID(), 'Category ' + CAST(@counter AS NVARCHAR(10)), 'This is category ' + CAST(@counter AS NVARCHAR(10)), 'https://example.com/category' + CAST(@counter AS NVARCHAR(10)) + '.jpg', @counter%2, GETDATE(), NULL, 0, NULL)
 		SET @counter += 1
 	END

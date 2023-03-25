@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.Tokens;
 
 namespace eCommerce.Shared.Extensions;
@@ -47,6 +48,32 @@ public static class StringExtensions
     public static string TrimAndToLower(this string str)
     {
         return str.Trim().ToLower();
+    }
+    
+    public static string RemoveVietnameseSigns(this string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        text = text.Trim().ToLower();
+        text = Regex.Replace(text, @"[áàảãạăắằẳẵặâấầẩẫậ]", "a");
+        text = Regex.Replace(text, @"[éèẻẽẹêếềểễệ]", "e");
+        text = Regex.Replace(text, @"[óòỏõọôốồổỗộơớờởỡợ]", "o");
+        text = Regex.Replace(text, @"[íìỉĩị]", "i");
+        text = Regex.Replace(text, @"[úùủũụưứừửữự]", "u");
+        text = Regex.Replace(text, @"[ýỳỷỹỵ]", "y");
+        text = Regex.Replace(text, @"đ", "d");
+
+        return text;
+    }
+    
+    public static string ConvertToSlug(this string input)
+    {
+        string slug = input.ToLower().RemoveVietnameseSigns().Replace(" ", "-").Replace(",", "").Replace(".", "");
+        
+        slug = Regex.Replace(slug, @"[^0-9a-z-]+", "");
+
+        return slug;
     }
 
 }

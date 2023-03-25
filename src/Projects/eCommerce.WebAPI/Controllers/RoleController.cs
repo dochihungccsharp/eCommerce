@@ -14,7 +14,7 @@ public class RoleController  : BaseController
         _roleService = roleService;
     }
 
-    #region Roles API (Role Admin) 
+    #region Roles API (Role Admin) Private
     [HttpGet]
     [Route("api/roles")]
     [Filters.Authorize("Admin")]

@@ -76,7 +76,7 @@ public class ProvinceService : IProvinceService
             parameters: new Dictionary<string, object>()
             {
                 {"Activity", "GET_ALL_W_BY_D_ID"},
-                {"District", districtId}
+                {"DistrictId", districtId}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);

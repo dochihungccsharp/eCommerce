@@ -8,7 +8,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROC [dbo].[sp_Categories]
+ALTER PROC [dbo].[sp_Categories]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,
@@ -20,19 +20,17 @@ CREATE PROC [dbo].[sp_Categories]
 @Description					NVARCHAR(255)		=		NULL,
 @ImageUrl                       NVARCHAR(MAX)       =       NULL,
 @Status                         BIT                 =       NULL,
-@CreatedTime                    DATETIME            =       NULL,
-@CreatorId                      UNIQUEIDENTIFIER    =       NULL,
-@ModifiedTime                   DATETIME            =       NULL,
-@ModifierId                     UNIQUEIDENTIFIER    =       NULL,
+@Created                        DATETIME            =       NULL,
+@Modified                       DATETIME            =       NULL,
 @IsDeleted						BIT                 =       0,
-@CategoryParentId               UNIQUEIDENTIFIER    =       NULL,
+@ParentId                       UNIQUEIDENTIFIER    =       NULL,
 @ListId							VARCHAR(MAX)        =       NULL
 -----------------------------------------------------------------
 AS
 IF @Activity = 'INSERT'
 BEGIN
-	INSERT INTO Category (Id, [Name], [Description], ImageUrl, [Status], CreatedTime, CreatorId, IsDeleted, CategoryParentId) 
-	VALUES (@Id, @Name, @Description, @ImageUrl, 1, GETDATE(), @CreatorId, 0, @CategoryParentId)
+	INSERT INTO Category (Id, [Name], [Description], ImageUrl, [Status], Created, IsDeleted, ParentId) 
+	VALUES (@Id, @Name, @Description, @ImageUrl, 1, GETDATE(), 0, @ParentId)
 END
 
 -----------------------------------------------------------------
@@ -44,9 +42,8 @@ BEGIN
 		[Description] = ISNULL(@Description, [Description]),
 		ImageUrl = ISNULL(@ImageUrl, ImageUrl),
 		[Status] = ISNULL(@Status, [Status]),
-		ModifiedTime = GETDATE(),
-		ModifierId = ISNULL(@ModifierId, ModifierId),
-		CategoryParentId = ISNULL(@CategoryParentId, CategoryParentId)
+		Modified = GETDATE(),
+		ParentId = ISNULL(@ParentId, ParentId)
 	WHERE Id = @Id
 END
 
@@ -81,8 +78,8 @@ END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'GET_DETAILS_BY_ID'
 BEGIN
-	SELECT c.Id, c.[Name], c.[Description], c.ImageUrl, c.[Status], c.CreatedTime, c.CreatorId, c.ModifiedTime, c.ModifierId, c.CategoryParentId, 
-	(SELECT JSON_QUERY((SELECT TOP(1) Id, [Name], [Description], ImageUrl, [Status] FROM Category AS ct WHERE ct.Id = c.CategoryParentId FOR JSON PATH), '$[0]')) AS ObjectCategoryParent
+	SELECT c.Id, c.[Name], c.[Description], c.ImageUrl, c.[Status], c.Created, c.Modified, c.ParentId, 
+	(SELECT JSON_QUERY((SELECT TOP(1) Id, [Name], [Description], ImageUrl, [Status] FROM Category AS ct WHERE ct.Id = c.ParentId FOR JSON PATH), '$[0]')) AS _Category
 	FROM Category AS c (NOLOCK)
 	WHERE c.Id = @Id AND c.IsDeleted = 0
 END
@@ -103,7 +100,7 @@ BEGIN
 			FROM CategoriesTemp
 		) as RecordCount
 		INNER JOIN Category (NOLOCK) c ON c.Id = ct.Id
-	ORDER BY c.CreatedTime DESC
+	ORDER BY c.Created DESC
 	OFFSET ((@PageIndex - 1) * @PageSize) ROWS
     FETCH NEXT @PageSize ROWS ONLY
 END

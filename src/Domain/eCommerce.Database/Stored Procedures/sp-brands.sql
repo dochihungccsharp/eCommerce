@@ -12,7 +12,7 @@ CREATE PROC [dbo].[sp_Brands]
 @Activity						NVARCHAR(50)		=		NULL,
 @SearchString					NVARCHAR(MAX)		=		NULL,
 -----------------------------------------------------------------
-@PageIndex						INT					=		0,
+@PageIndex						INT					=		1,
 @PageSize						INT					=		10,
 -----------------------------------------------------------------
 @Id						        UNIQUEIDENTIFIER	=		NULL,
@@ -20,18 +20,16 @@ CREATE PROC [dbo].[sp_Brands]
 @LogoURL                        NVARCHAR(MAX)       =       NULL,
 @Description					NVARCHAR(255)		=		NULL,
 @Status                         BIT                 =       NULL,
-@CreatedTime                    DATETIME            =       NULL,
-@CreatorId                      UNIQUEIDENTIFIER    =       NULL,
-@ModifiedTime                   DATETIME            =       NULL,
-@ModifierId                     UNIQUEIDENTIFIER    =       NULL,
+@Created                        DATETIME            =       NULL,
+@Modified                       DATETIME            =       NULL,
 @IsDeleted						BIT                 =       0
 -----------------------------------------------------------------
 AS
 -----------------------------------------------------------------
 IF @Activity = 'INSERT'
 BEGIN
-	INSERT INTO Brand(Id, [Name], [Description], LogoURL, [Status], CreatedTime, CreatorId, IsDeleted) 
-	VALUES (@Id, @Name, @Description, @LogoURL, 1, GETDATE(), @CreatorId, 0)
+	INSERT INTO Brand(Id, [Name], [Description], LogoURL, [Status], Created, IsDeleted) 
+	VALUES (@Id, @Name, @Description, @LogoURL, 1, GETDATE(), 0)
 END
 
 -----------------------------------------------------------------
@@ -43,8 +41,7 @@ BEGIN
 		[Description] = ISNULL(@Description, [Description]),
 		LogoURL = ISNULL(@LogoURL, LogoURL),
 		[Status] = ISNULL(@Status, [Status]),
-		ModifiedTime = GETDATE(),
-		ModifierId = ISNULL(@ModifierId, ModifierId)
+		Modified = GETDATE()
 	WHERE Id = @Id
 END
 
@@ -79,7 +76,7 @@ END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'GET_DETAILS_BY_ID'
 BEGIN
-	SELECT TOP(1) b.Id, b.[Name], b.LogoURL, b.[Description], b.[Status], b.CreatedTime, b.CreatorId, b.ModifiedTime, B.ModifierId
+	SELECT TOP(1) b.Id, b.[Name], b.LogoURL, b.[Description], b.[Status], b.Created, b.Modified
 	FROM Brand AS b WHERE b.Id = @Id AND b.IsDeleted = 0
 END
 
@@ -99,9 +96,25 @@ BEGIN
 			FROM BrandsTemp
 		) as RecordCount
 		INNER JOIN Brand (NOLOCK) b ON b.Id = bt.Id
-	ORDER BY b.CreatedTime DESC
+	ORDER BY b.Created DESC
 	OFFSET ((@PageIndex - 1) * @PageSize) ROWS
     FETCH NEXT @PageSize ROWS ONLY
 END
+GO
+
+
+-- + + + + + INIT DATA TABLE + + + + + --
+INSERT INTO Brand (Id, Name, LogoURL, Description, Status, Created, Modified, IsDeleted)
+SELECT TOP 100 NEWID(), 
+       CONCAT('Brand ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
+       CONCAT('http://example.com/logo/', NEWID(), '.jpg'), 
+       CONCAT('Description for Brand ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
+       1,
+       GETDATE(),
+       NULL,
+       0
+FROM sys.columns c1
+CROSS JOIN sys.columns c2
+OPTION (MAXDOP 1);
 GO
 

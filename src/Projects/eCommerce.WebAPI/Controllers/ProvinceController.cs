@@ -9,45 +9,43 @@ namespace eCommerce.WebAPI.Controllers;
 public class ProvinceController : BaseController
 {
     private readonly IProvinceService _provinceService;
-    public ProvinceController(ILogger logger, IProvinceService provinceService) : base(logger)
+    public ProvinceController(ILogger<ProvinceController> logger, IProvinceService provinceService) : base(logger)
     {
         _provinceService = provinceService;
     }
-    
+
+    #region API Public
     [AllowAnonymous]
     [HttpPost]
-    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
-    [Route("api/provinces/provinces")]
+    [Route("api/provinces")]
     public async Task<IActionResult> GetAllProvinceAsync(CancellationToken cancellationToken = default)
         => Ok(await _provinceService.GetAllProvinceAsync(cancellationToken).ConfigureAwait(false));
     
     [AllowAnonymous]
     [HttpPost]
-    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
-    [Route("api/provinces/districts")]
-    public async Task<IActionResult> GetAllDistrictAsync(CancellationToken cancellationToken = default)
-        => Ok(await _provinceService.GetAllDistrictAsync(cancellationToken).ConfigureAwait(false));
-    
-    [AllowAnonymous]
-    [HttpPost]
-    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
-    [Route("api/provinces/districts")]
-    public async Task<IActionResult> GetAllDistrictByProvinceIdAsync([FromQuery(Name = "province_id")] Guid provinceId,
+    [Route("api/provinces/{id:guid}/districts")]
+    public async Task<IActionResult> GetAllDistrictByProvinceIdAsync([FromRoute(Name = "id")] Guid provinceId,
         CancellationToken cancellationToken = default)
         => Ok(await _provinceService.GetAllDistrictByProvinceIdAsync(provinceId, cancellationToken).ConfigureAwait(false));
     
     [AllowAnonymous]
     [HttpPost]
-    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
+    [Route("api/districts")]
+    public async Task<IActionResult> GetAllDistrictAsync(CancellationToken cancellationToken = default)
+        => Ok(await _provinceService.GetAllDistrictAsync(cancellationToken).ConfigureAwait(false));
+    
+    [AllowAnonymous]
+    [HttpPost]
+    [Route("api/districts/{id:guid}/wards")]
+    public async Task<IActionResult> GetAllWardByDistrictIdAsync([FromRoute(Name = "id")]Guid districtId,
+        CancellationToken cancellationToken = default)
+        => Ok(await _provinceService.GetAllWardByDistrictIdAsync(districtId, cancellationToken).ConfigureAwait(false));
+
+    [AllowAnonymous]
+    [HttpPost]
     [Route("api/provinces/wards")]
     public async Task<IActionResult> GetAllWardAsync(CancellationToken cancellationToken = default)
         => Ok(await _provinceService.GetAllWardAsync(cancellationToken).ConfigureAwait(false));
     
-    [AllowAnonymous]
-    [HttpPost]
-    [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
-    [Route("api/provinces/wards")]
-    public async Task<IActionResult> GetAllWardByDistrictIdAsync([FromQuery(Name = "ward_id")]Guid wardId,
-        CancellationToken cancellationToken = default)
-        => Ok(await _provinceService.GetAllWardByDistrictIdAsync(wardId, cancellationToken).ConfigureAwait(false));
+    #endregion
 }
