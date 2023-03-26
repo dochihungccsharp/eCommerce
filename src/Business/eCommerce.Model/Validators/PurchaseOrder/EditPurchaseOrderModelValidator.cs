@@ -8,12 +8,12 @@ public class EditPurchaseOrderModelValidator : AbstractValidator<EditPurchaseOrd
     public EditPurchaseOrderModelValidator()
     {
         RuleFor(x => x.SupplierId)
-            .Null()
+            .NotNull()
             .NotEmpty()
             .WithMessage("Mã nhà cung cấp bắt buộc phải có");
         
         RuleFor(x => x.UserId)
-            .Null()
+            .NotNull()
             .NotEmpty()
             .WithMessage("Mã nhân viên cấp bắt buộc phải có");
 

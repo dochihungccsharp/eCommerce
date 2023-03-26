@@ -11,6 +11,7 @@ namespace eCommerce.Model.PurchaseOrders
         public decimal TotalMoney { get; set; }
         public string Note { get; set; }
         public string OrderStatus { get; set; }
+        public string PaymentStatus { get; set; }
         public SupplierModel _Supplier { get; set; }
         public UserModel? _User { get; set; }
         public List<PurchaseOrderDetails.PurchaseOrderDetailsModel> _PurchaseOrderDetails { get; set; }
