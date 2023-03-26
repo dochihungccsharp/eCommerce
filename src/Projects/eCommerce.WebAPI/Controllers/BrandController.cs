@@ -22,22 +22,21 @@ public class BrandController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _brandService.GetAllAsync(filter, cancellationToken).ConfigureAwait(false));
     
-    #endregion
-
-    #region API Private
     [HttpGet]
     [Route("api/brands/{id:guid}")]
-    [Authorize("Admin")]
     public async Task<IActionResult> GetAsync([FromRoute(Name = "id")] Guid brandId,
         CancellationToken cancellationToken = default)
         => Ok(await _brandService.GetAsync(brandId, cancellationToken).ConfigureAwait(false));
 
     [HttpGet]
     [Route("api/brands/{id:guid}/details")]
-    [Authorize("Admin")]
     public async Task<IActionResult> GetDetailsAsync([FromRoute(Name = "id")] Guid brandId,
         CancellationToken cancellationToken = default)
         => Ok(await _brandService.GetDetailsAsync(brandId, cancellationToken).ConfigureAwait(false));
+    
+    #endregion
+
+    #region API Private
 
     [HttpPost]
     [Route("api/brands")]

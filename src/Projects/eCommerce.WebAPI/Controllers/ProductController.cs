@@ -1,5 +1,6 @@
 using eCommerce.Model.Products;
 using eCommerce.Service.Products;
+using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eCommerce.WebAPI.Controllers;
@@ -7,7 +8,7 @@ namespace eCommerce.WebAPI.Controllers;
 public class ProductController : BaseController
 {
     private readonly IProductService _productService;
-    public ProductController(ILogger logger, IProductService productService) : base(logger)
+    public ProductController(ILogger<ProductController> logger, IProductService productService) : base(logger)
     {
         _productService = productService;
     }
@@ -38,12 +39,14 @@ public class ProductController : BaseController
 
     [HttpPost]
     [Route("api/products")]
+    [Authorize("Admin")]
     public async Task<IActionResult> CreateAsync([FromForm] EditProductModel editProductModel,
         CancellationToken cancellationToken = default)
         => Ok(await _productService.CreateAsync(editProductModel, cancellationToken).ConfigureAwait(false));
 
     [HttpPut]
     [Route("api/products/{id:guid}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid productId,
         [FromForm] EditProductModel editProductModel, CancellationToken cancellationToken = default)
         => Ok(await _productService.UpdateAsync(productId, editProductModel, cancellationToken).ConfigureAwait(false));
@@ -51,12 +54,14 @@ public class ProductController : BaseController
 
     [HttpPut]
     [Route("api/products/{id:guid}/best-selling-status")]
+    [Authorize("Admin")]
     public async Task<IActionResult> ChangeStatusIsBestSellingAsync([FromRoute(Name = "id")] Guid productId,
         CancellationToken cancellationToken = default)
         => Ok(await _productService.ChangeIsBestSellingAsync(productId, cancellationToken).ConfigureAwait(false));
 
-            [HttpPut]
+    [HttpPut]
     [Route("api/products/{id:guid}/newest-status")]
+    [Authorize("Admin")]
     public async Task<IActionResult> ChangeStatusIsNew([FromRoute(Name = "id")] Guid productId, 
         CancellationToken cancellationToken = default)
         => Ok( await _productService.ChangeIsNewAsync(productId, cancellationToken).ConfigureAwait(false));
@@ -64,6 +69,7 @@ public class ProductController : BaseController
 
     [HttpPut]
     [Route("api/products/{id:guid}/status")]
+    [Authorize("Admin")]
     public async Task<IActionResult> ChangeStatusAsync([FromRoute(Name = "id")] Guid productId,
         CancellationToken cancellationToken = default)
         => Ok(await _productService.ChangeStatusAsync(productId, cancellationToken).ConfigureAwait(false));
@@ -71,6 +77,7 @@ public class ProductController : BaseController
     
     [HttpDelete]
     [Route("api/products/{id:guid}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> DeleteAsync([FromRoute(Name = "id")] Guid productId, 
         CancellationToken cancellationToken = default)
         => Ok(await _productService.DeleteAsync(productId, cancellationToken).ConfigureAwait(false));
@@ -78,6 +85,7 @@ public class ProductController : BaseController
 
     [HttpDelete]
     [Route("api/products/{ids}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> DeleteListAsync([FromRoute(Name = "ids")] string[] listProductId,
         CancellationToken cancellationToken = default)
         => Ok(await _productService.DeleteListAsync(listProductId, cancellationToken).ConfigureAwait(false));

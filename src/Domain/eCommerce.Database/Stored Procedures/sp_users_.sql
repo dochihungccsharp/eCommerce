@@ -47,11 +47,15 @@ BEGIN
 	BEGIN TRANSACTION
 	BEGIN TRY
 		BEGIN
+
+			-- ADD USER
 			INSERT INTO [User] 
 			([Id], [UserName], [Fullname], [Email], [EmailConfirmed], [PasswordHash], [PhoneNumber], [Avatar], [Address], [TotalAmountOwed],[UserAddressId], [Status], [Created], [IsDeleted])
 			VALUES
 			(@Id, @Username, @Fullname, @Email, @EmailConfirmed, @PasswordHash, @PhoneNumber, @Avatar, @Address, 0, NULL, 1, GETDATE(), 0)
 
+
+			-- ADD USER ROLE
 			DECLARE @RoleId UNIQUEIDENTIFIER;
 			DECLARE @Index INT = 1;
 
@@ -103,17 +107,15 @@ BEGIN
 				[Modified] = GETDATE()
 			WHERE Id = @Id
 
-	
+	        -- DELETE ALL USER ROLE
+			DELETE FROM [UserRole] WHERE UserId = @Id;
+
 			DECLARE @RoleId_ UNIQUEIDENTIFIER;
 			DECLARE @Index_ INT = 1;
 
 			DECLARE @RowCount_ INT = (SELECT COUNT(*) FROM @Roles);
 			IF @RowCount_ > 0
 				BEGIN
-
-					-- DELETE ALL USER ROLE
-					DELETE FROM [UserRole] WHERE UserId = @Id;
-
 					-- ADD ROLE ROLE
 					WHILE @Index_ <= @RowCount_
 						BEGIN
@@ -161,19 +163,19 @@ END
 ---------------------------------------------------------------
 ELSE IF @Activity = 'FIND_BY_EMAIL'
 BEGIN
-	SELECT * FROM [User] WHERE [Email] = @Email
+	SELECT * FROM [User] WHERE [Email] = @Email AND [IsDeleted] = 0
 END
 
 ---------------------------------------------------------------
 ELSE IF @Activity = 'FIND_BY_ID'
 BEGIN
-	SELECT * FROM [User] WHERE Id = @Id
+	SELECT * FROM [User] WHERE Id = @Id AND [IsDeleted] = 0
 END
 
 ---------------------------------------------------------------
 ELSE IF @Activity = 'FIND_BY_NAME'
 BEGIN
-	SELECT * FROM [User] WHERE [Username] = @Username
+	SELECT * FROM [User] WHERE [Username] = @Username AND [IsDeleted] = 0
 END
 
 ---------------------------------------------------------------
@@ -199,7 +201,7 @@ BEGIN
 		WHERE (@SearchString IS NULL OR u.[Fullname] LIKE N'%'+@SearchString+'%' 
 		OR u.[Username] LIKE N'%'+@SearchString+'%' 
 		OR  u.[Email] LIKE N'%'+@SearchString+'%'
-		OR  u.[PhoneNumber] LIKE N'%'+@SearchString+'%') 
+		OR  u.[PhoneNumber] LIKE N'%'+@SearchString+'%') AND [IsDeleted] = 0
 	)
 
 	SELECT u.Id, u.Username, u.Fullname, u.Email, u.[EmailConfirmed] ,u.PhoneNumber, u.Avatar, u.[Address], u.TotalAmountOwed, u.UserAddressId, u.[Status], u.Created, u.Modified

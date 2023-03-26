@@ -1,18 +1,15 @@
 ﻿USE eCommerce
 GO
 
-SET ANSI_NULLS ON
-GO
 
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE PROC sp_Products
+ALTER PROC sp_Products
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
-@PageIndex						INT					=		0,
+@PageIndex						INT					=		1,
 @PageSize						INT					=		10,
 @SearchString					NVARCHAR(MAX)		=		NULL,
+@FromPrice                      DECIMAL             =       NULL,
+@ToPrice                        DECIMAL             =       NULL,
 @FromTime                       DATETIME            =       NULL,
 @ToTime                         DATETIME            =       NULL,
 -----------------------------------------------------------------
@@ -40,15 +37,19 @@ CREATE PROC sp_Products
 @ModifierId                     UNIQUEIDENTIFIER    =       NULL,
 @IsDeleted                      BIT                 =       0   ,
 
-@ListId							VARCHAR(MAX)        =       NULL
+@ListId							VARCHAR(MAX)        =       NULL,
+-----------------------------------------------------------------
+@ErrorMessage                   NVARCHAR(MAX)      =        NULL,
+@ErrorSeverity                  INT                 =       NULL,
+@ErrorState                     INT                 =       NULL
 -----------------------------------------------------------------
 AS
 
 -----------------------------------------------------------------
 IF @Activity = 'INSERT'
 BEGIN
-	INSERT INTO Product (Id, [Name], Slug, [Description], ImageUrl, OriginalPrice, Price, QuantitySold, CategoryId, SupplierId, BrandId, [Status], IsBestSelling, IsNew, CreatedTime , CreatorId)
-	VALUES (@Id, @Name, @Slug, @Description, @ImageUrl, @OriginalPrice, @Price, 0, @CategoryId, @SupplierId, @BrandId, 1, 0, 0, GETDATE(), @CreatorId)
+	INSERT INTO Product (Id, [Name], Slug, [Description], ImageUrl, OriginalPrice, Price, QuantitySold, CategoryId, SupplierId, BrandId, [Status], IsBestSelling, IsNew, Created)
+	VALUES (@Id, @Name, @Slug, @Description, @ImageUrl, @OriginalPrice, @Price, 0, @CategoryId, @SupplierId, @BrandId, 1, 0, 0, GETDATE())
 END
 
 -----------------------------------------------------------------
@@ -67,9 +68,8 @@ BEGIN
 		[Status] = ISNULL(@Status, [Status]),
 		IsBestSelling = ISNULL(@IsBestSelling, IsBestSelling),
 		IsNew = ISNULL(@IsNew, IsBestSelling),
-		ModifiedTime = GETDATE(),
-		CreatorId = ISNULL(@CreatorId, CreatorId)
-	WHERE Id = @Id
+		Modified = GETDATE()
+	WHERE Id = @Id  AND @IsDeleted = 0
 END
 
 -----------------------------------------------------------------
@@ -96,6 +96,12 @@ BEGIN
 			END
 		ELSE
 			BEGIN
+			SELECT 
+				@ErrorMessage = ERROR_MESSAGE(),
+				@ErrorSeverity = ERROR_SEVERITY(),
+				@ErrorState = ERROR_STATE();
+				RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+
 				ROLLBACK TRANSACTION
 			END
 	END 
@@ -113,19 +119,19 @@ END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'CHANGE_STATUS_IS_BESTSELLING'
 BEGIN
-	UPDATE Product SET IsBestSelling = ~IsBestSelling WHERE Id = @Id
+	UPDATE Product SET IsBestSelling = ~IsBestSelling WHERE Id = @Id AND @IsDeleted = 0
 END
 
 -----------------------------------------------------------------
 ELSE IF @Activity = 'CHANGE_STATUS_IS_NEW'
 BEGIN
-	UPDATE Product SET IsNew = ~IsNew WHERE Id = @Id
+	UPDATE Product SET IsNew = ~IsNew WHERE Id = @Id AND @IsDeleted = 0
 END
 
 -----------------------------------------------------------------
 ELSE IF @Activity = 'CHANGE_STATUS'
 BEGIN
-	UPDATE Product SET [Status] = ~[Status] WHERE Id = @Id
+	UPDATE Product SET [Status] = ~[Status] WHERE Id = @Id AND @IsDeleted = 0
 END
 
 -----------------------------------------------------------------
@@ -141,11 +147,11 @@ END
 ELSE IF @Activity = 'GET_DETAILS_BY_ID'
 BEGIN
 	SELECT p.Id, p.[Name], p.Slug, p.[Description], p.ImageUrl, p.OriginalPrice,  p.Price, p.QuantitySold, p.[Status], p.IsBestSelling, p.IsNew,
-	p.CategoryId, p.InventoryId, p.BrandId, p.SupplierId, p.CreatedTime, p.CreatorId, p.ModifiedTime, p.ModifierId,
-	(SELECT JSON_QUERY((SELECT TOP(1) * FROM Category AS c WHERE c.Id = p.CategoryId FOR JSON PATH), '$[0]')) AS ObjectCategory,
-	(SELECT JSON_QUERY((SELECT TOP(1) * FROM Brand AS b WHERE b.Id = p.BrandId FOR JSON PATH), '$[0]')) AS ObjectBrand,
-	(SELECT JSON_QUERY((SELECT TOP(1) * FROM Supplier AS s WHERE s.Id = p.SupplierId FOR JSON PATH), '$[0]')) AS ObjectSupplier,
-	(SELECT JSON_QUERY((SELECT TOP(1) * FROM Inventory AS i WHERE i.Id = p.InventoryId FOR JSON PATH), '$[0]')) AS ObjectInventory
+	p.CategoryId, p.InventoryId, p.BrandId, p.SupplierId, p.Created, p.Modified,
+	(SELECT JSON_QUERY((SELECT TOP(1) * FROM Category AS c WHERE c.Id = p.CategoryId FOR JSON PATH), '$[0]')) AS _Category,
+	(SELECT JSON_QUERY((SELECT TOP(1) * FROM Brand AS b WHERE b.Id = p.BrandId FOR JSON PATH), '$[0]')) AS _Brand,
+	(SELECT JSON_QUERY((SELECT TOP(1) * FROM Supplier AS s WHERE s.Id = p.SupplierId FOR JSON PATH), '$[0]')) AS _Supplier,
+	(SELECT JSON_QUERY((SELECT TOP(1) * FROM Inventory AS i WHERE i.Id = p.InventoryId FOR JSON PATH), '$[0]')) AS _Inventory
 	FROM Product AS p (NOLOCK)
 	WHERE p.Id = @Id AND P.IsDeleted = 0
 
@@ -160,7 +166,8 @@ BEGIN
 		WHERE (@SearchString IS NULL OR p.[Name] LIKE N'%'+@SearchString+'%' OR  p.[Description] LIKE N'%'+@SearchString+'%') 
 		AND (@CategoryId IS NULL OR p.CategoryId = @CategoryId)
 		AND (@BrandId IS NULL OR p.BrandId = @BrandId)
-		AND ((@FromTime IS NULL OR @ToTime IS NULL) OR (p.CreatedTime >= @FromTime AND p.CreatedTime <= @ToTime))
+		AND ((@FromPrice IS NULL OR @ToPrice IS NULL) OR (p.Price >= @FromPrice AND p.Price <= @ToPrice))
+		AND ((@FromTime IS NULL OR @ToTime IS NULL) OR (p.Created >= @FromTime AND p.Created <= @ToTime))
 		AND (@IsBestSelling IS NULL OR p.IsBestSelling = @IsBestSelling)
 		AND (@IsNew IS NULL OR p.IsNew = @IsNew)
 		AND p.IsDeleted = 0
@@ -175,7 +182,7 @@ BEGIN
 	) as RecordCount
 	INNER JOIN Product (NOLOCK) p ON p.Id = pt.Id
 	LEFT JOIN Inventory (NOLOCK) i ON i.Id = p.InventoryId
-	ORDER BY p.CreatedTime DESC
+	ORDER BY p.Created DESC
 	OFFSET ((@PageIndex - 1) * @PageSize) ROWS
     FETCH NEXT @PageSize ROWS ONLY
 END

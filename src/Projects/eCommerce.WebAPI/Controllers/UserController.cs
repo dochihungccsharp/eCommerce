@@ -1,8 +1,8 @@
 using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Model.Users;
 using eCommerce.Service.Users;
+using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace eCommerce.WebAPI.Controllers;
 
@@ -17,8 +17,7 @@ public class UserController : BaseController
         _userService = userService;
     }
 
-    #region Accounts API 
-    [AllowAnonymous]
+    #region Accounts API
     [HttpPost]
     [ProducesResponseType(typeof(AuthorizedResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/sign-in")]
@@ -27,7 +26,6 @@ public class UserController : BaseController
         => Ok(await _userService.SignInAsync(loginModel, cancellationToken).ConfigureAwait(false));
 
     
-    [AllowAnonymous]
     [HttpPost]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users/sign-up")]
@@ -36,22 +34,20 @@ public class UserController : BaseController
         => Ok(await _userService.SignUpAsync(registerModel, cancellationToken).ConfigureAwait(false));
     
     
-    [Filters.Authorize]
+    [Authorize]
     [HttpPut]
     [Route("api/users/refresh-token")]
     [ProducesResponseType(typeof(AuthorizedResponseModel), StatusCodes.Status200OK)]
     public async Task<IActionResult> RefreshTokenAsync(CancellationToken cancellationToken = default)
         => Ok(await _userService.RefreshTokenAsync(cancellationToken).ConfigureAwait(false));
     
-    [AllowAnonymous]
     [HttpGet]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users/confirm-email")]
     public async Task<IActionResult> ConfirmEmailAsync([FromQuery(Name = "user_id")]Guid userId, [FromQuery(Name = "code")]string code, CancellationToken cancellationToken)
         => Ok(await _userService.ConfirmEmailAsync(userId, code, cancellationToken));
 
-
-    [AllowAnonymous]
+    
     [HttpPut]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users/forgot-password")]
@@ -64,7 +60,7 @@ public class UserController : BaseController
     [HttpGet]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users")]
-    [Filters.Authorize("Admin")]
+    [Authorize("Admin")]
     public async Task<IActionResult> GetAllAsync([FromQuery] UserFilterRequestModel filter,
         CancellationToken cancellationToken = default)
         => Ok(await _userService.GetAllAsync(filter, cancellationToken).ConfigureAwait(false));
@@ -77,7 +73,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.GetAsync(userId, cancellationToken).ConfigureAwait(false));
 
-    [Filters.Authorize("Admin")]
+    [Authorize("Admin")]
     [HttpPost]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users")]
@@ -85,7 +81,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.CreateAsync(editUserModel, cancellationToken).ConfigureAwait(false));
 
-    [Filters.Authorize("Admin")]
+    [Authorize("Admin")]
     [HttpPut]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
@@ -93,7 +89,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.UpdateAsync(userId, editUserModel, cancellationToken).ConfigureAwait(false));
 
-    [Filters.Authorize("Admin")]
+    [Authorize("Admin")]
     [HttpDelete]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
@@ -104,14 +100,14 @@ public class UserController : BaseController
 
     #region Users API (Role Member)
 
-    [Filters.Authorize]
+    [Authorize]
     [HttpGet]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/profile")]
     public async Task<IActionResult> GetProfileAsync(CancellationToken cancellationToken = default)
         => Ok(await _userService.GetProfileAsync(cancellationToken).ConfigureAwait(false));
 
-    [Filters.Authorize]
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/change-password")]
@@ -119,7 +115,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.ChangePasswordAsync(changePasswordModel, cancellationToken).ConfigureAwait(false));
     
-    [Filters.Authorize]
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/profile")]

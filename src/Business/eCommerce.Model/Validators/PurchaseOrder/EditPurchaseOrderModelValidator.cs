@@ -8,8 +8,14 @@ public class EditPurchaseOrderModelValidator : AbstractValidator<EditPurchaseOrd
     public EditPurchaseOrderModelValidator()
     {
         RuleFor(x => x.SupplierId)
+            .Null()
             .NotEmpty()
             .WithMessage("Mã nhà cung cấp bắt buộc phải có");
+        
+        RuleFor(x => x.UserId)
+            .Null()
+            .NotEmpty()
+            .WithMessage("Mã nhân viên cấp bắt buộc phải có");
 
         RuleFor(x => x.TotalMoney)
             .GreaterThan(0)
@@ -32,7 +38,7 @@ public class EditPurchaseOrderModelValidator : AbstractValidator<EditPurchaseOrd
 
         RuleFor(x => x.EditPurchaseOrderDetailsModels)
             .Must(x => x != null && x.Count > 0)
-            .WithMessage("Không thể tạo một đơn hàng mà không nhập sản phẩm nào.")
+            .WithMessage("Vui lòng thêm sản phẩm trước khi tạo đơn hàng.")
             .ForEach(detailValidator => detailValidator
                 .SetValidator(new EditPurchaseOrderDetailsModelValidator()));
 

@@ -98,7 +98,7 @@ public class UserService : IUserService
         var email = loginUser.Email.Trim().ToLower();
         var password = loginUser.Password.Trim().HashMD5();
         
-        var u = await _userRepository.FindUserByEmailAsync(email, cancellationToken).ConfigureAwait(false);
+        var u = await _userRepository.FindUserByNameAsync(email, cancellationToken).ConfigureAwait(false);
         if (u == null)
             return new AuthorizedResponseModel("The email or password is invalid.");
             
@@ -217,8 +217,14 @@ public class UserService : IUserService
         if(!duplicateUser)
             throw new InvalidOperationException("User with the same name already exists.");
         
-        if (editUserModel.Avatar != null)
-            user.Avatar = await editUserModel.Avatar.SaveImageAsync(_env);
+        // cần xem lại chỗ xử lý role này ....
+        if(editUserModel.Roles != null)
+            foreach (var role in editUserModel.Roles)
+            {
+                var r = await _roleRepository.FindRoleByIdAsync(role.Id, cancellationToken).ConfigureAwait(false);
+                if (r == null)
+                    throw new BadRequestException("The role is not found");
+            }
 
         var resultCreated = await _userRepository.CreateUserAsync(
                 user:user,
@@ -245,12 +251,16 @@ public class UserService : IUserService
         }
 
         var user = _mapper.Map<User>(editUserModel);
-        
-        if (editUserModel.Avatar != null)
-        {
-            await u.Avatar.DeleteImageAsync();
-            user.Avatar = await editUserModel.Avatar.SaveImageAsync(_env);
-        }
+        user.Id = userId;
+        // cần xem lại chỗ xử lý role này ....
+        if(editUserModel.Roles != null)
+            foreach (var role in editUserModel.Roles)
+            {
+                var r = await _roleRepository.FindRoleByIdAsync(role.Id, cancellationToken).ConfigureAwait(false);
+                if (r == null)
+                    throw new BadRequestException("The role is not found");
+            }
+
 
         var resultUpdated = await _userRepository.UpdateUserAsync(
                 user: user, 
@@ -332,7 +342,7 @@ public class UserService : IUserService
         if (editProfileModel.Avatar != null)
             user.Avatar = await editProfileModel.Avatar.SaveImageAsync(_env);
 
-        
+        user.Id = userId;
         var resultUpdated = await _userRepository.UpdateUserAsync(
                 user:user, 
                 roles: null,

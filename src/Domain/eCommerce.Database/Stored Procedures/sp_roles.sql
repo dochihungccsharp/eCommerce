@@ -1,7 +1,7 @@
 USE eCommerce
 GO
 
-ALTER PROC sp_Roles
+CREATE PROC sp_Roles
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @Id						        UNIQUEIDENTIFIER	=		NULL,

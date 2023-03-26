@@ -22,22 +22,22 @@ public class CategoryController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _categoryService.GetAllAsync(filter, cancellationToken)
             .ConfigureAwait(false));
-    #endregion
-
-    #region API Private
+    
     [HttpGet]
     [Route("api/categories/{id:guid}")]
-    [Authorize]
     public async Task<IActionResult> GetAsync([FromRoute(Name = "id")] Guid categoryId,
         CancellationToken cancellationToken = default)
         => Ok(await _categoryService.GetAsync(categoryId, cancellationToken).ConfigureAwait(false));
 
     [HttpGet]
     [Route("api/categories/{id:guid}/details")]
-    [Authorize("Admin")]
     public async Task<IActionResult> GetDetailsAsync([FromRoute(Name = "id")] Guid categoryId,
         CancellationToken cancellationToken = default)
         => Ok(await _categoryService.GetDetailsAsync(categoryId, cancellationToken).ConfigureAwait(false));
+    
+    #endregion
+
+    #region API Private
 
     [HttpPost]
     [Route("api/categories")]

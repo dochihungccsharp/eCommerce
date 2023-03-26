@@ -6,10 +6,12 @@ using eCommerce.Model.Categories;
 using eCommerce.Model.Inventories;
 using eCommerce.Model.Paginations;
 using eCommerce.Model.Products;
+using eCommerce.Model.PurchaseOrders;
 using eCommerce.Model.Roles;
 using eCommerce.Model.Suppliers;
 using eCommerce.Model.Users;
 using eCommerce.Shared.Extensions;
+using PurchaseOrderDetailsModel = eCommerce.Model.PurchaseOrderDetails.PurchaseOrderDetailsModel;
 
 namespace eCommerce.Service.Mapping;
 
@@ -42,6 +44,7 @@ public class AutoMapperProfile : Profile
             .AfterMap((src, dest) =>
             {
                 dest.Avatar = default!;
+                dest.EmailConfirmed = true;
             });
         #endregion
 
@@ -79,6 +82,12 @@ public class AutoMapperProfile : Profile
 
         #region CREATE MAPPER INVENTORY
         CreateMap<Inventory, InventoryModel>().ReverseMap();
+        #endregion
+
+        #region CREATE MAPPER PURCHASE ORDER
+        CreateMap<PurchaseOrderDetail, eCommerce.Model.PurchaseOrderDetails.PurchaseOrderDetailsModel>().ReverseMap();
+        CreateMap<PurchaseOrder, PurchaseOrderModel>().ReverseMap();
+        CreateMap<PaginationModel<PurchaseOrderModel>, PagedList<PurchaseOrder>>().ReverseMap();
         #endregion
     }
 }

@@ -13,7 +13,7 @@
 
     <ItemGroup>
       <Folder Include="MailSave" />
-      <Folder Include="wwwroot" />
+      <Folder Include="wwwroot\uploads" />
     </ItemGroup>
 
     <ItemGroup>

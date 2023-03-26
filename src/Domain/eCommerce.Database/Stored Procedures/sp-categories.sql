@@ -8,7 +8,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-ALTER PROC [dbo].[sp_Categories]
+CREATE PROC [dbo].[sp_Categories]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,
@@ -44,19 +44,19 @@ BEGIN
 		[Status] = ISNULL(@Status, [Status]),
 		Modified = GETDATE(),
 		ParentId = ISNULL(@ParentId, ParentId)
-	WHERE Id = @Id
+	WHERE Id = @Id AND IsDeleted = 0
 END
 
 -----------------------------------------------------------------
 ELSE IF @Activity = 'DELETE'
 BEGIN
-	UPDATE Category SET IsDeleted = 1 WHERE Id = @Id
+	UPDATE Category SET IsDeleted = 1 WHERE Id = @Id AND IsDeleted = 0
 END
 
 -----------------------------------------------------------------
 ELSE IF @Activity = 'CHANGE_STATUS'
 BEGIN
-	UPDATE Category SET [Status] = ~[Status] WHERE Id = @Id
+	UPDATE Category SET [Status] = ~[Status] WHERE Id = @Id AND IsDeleted = 0
 END
 
 -----------------------------------------------------------------
@@ -64,7 +64,7 @@ ELSE IF @Activity = 'CHECK_DUPLICATE'
 BEGIN
 	SELECT TOP 1 1
 	FROM Category (NOLOCK)
-	WHERE [Name] = @Name AND (@Id IS NULL OR Id <> @Id)
+	WHERE [Name] = @Name AND (@Id IS NULL OR Id <> @Id) AND IsDeleted = 0
 END
 
 -----------------------------------------------------------------

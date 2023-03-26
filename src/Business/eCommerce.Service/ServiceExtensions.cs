@@ -2,7 +2,9 @@ using eCommerce.Service.AccessToken;
 using eCommerce.Service.Brands;
 using eCommerce.Service.Cache.RoleCache;
 using eCommerce.Service.Categories;
+using eCommerce.Service.Products;
 using eCommerce.Service.Provinces;
+using eCommerce.Service.PurchaseOrders;
 using eCommerce.Service.Roles;
 using eCommerce.Service.SendMail;
 using eCommerce.Service.Suppliers;
@@ -32,6 +34,9 @@ public static class ServiceExtensions
         services.AddScoped<IBrandService, BrandService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<ISupplierService, SupplierService>();
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+
        
 
     }

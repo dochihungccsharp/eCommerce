@@ -1,3 +1,4 @@
+using System.Data.SqlClient;
 using System.Net;
 using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Shared.Exceptions;
@@ -32,6 +33,11 @@ public class HandleExceptionMiddleware : IMiddleware
 
         switch (exception)
         {
+            case SqlException:
+            {
+                baseResponseModel.StatusCode = HttpStatusCode.InternalServerError;
+                break;
+            }
             case UnauthorizedException:
             {
                 baseResponseModel.StatusCode = HttpStatusCode.Unauthorized;

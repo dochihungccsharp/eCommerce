@@ -33,8 +33,8 @@ CREATE PROC [dbo].[sp_Suppliers]
 AS
 IF @Activity = 'INSERT'
 BEGIN
-	INSERT INTO Supplier(Id, [Name], [Description], [Address], Phone, Email, ContactPerson, [Status], TotalAmountOwed, CreatedTime, CreatorId, IsDeleted) 
-	VALUES (@Id, @Name, @Description, @Address, @Phone, @Email, @ContactPerson, 1, 0, GETDATE(), @CreatorId, 0)
+	INSERT INTO Supplier(Id, [Name], [Description], [Address], Phone, Email, ContactPerson, [Status], TotalAmountOwed, Created, IsDeleted) 
+	VALUES (@Id, @Name, @Description, @Address, @Phone, @Email, @ContactPerson, 1, 0, GETDATE(), 0)
 END
 
 -----------------------------------------------------------------
@@ -49,8 +49,7 @@ BEGIN
 		Email = ISNULL(@Email, Email),
 		ContactPerson = ISNULL(@ContactPerson, ContactPerson),
 		[Status] = ISNULL(@Status, [Status]),
-		ModifiedTime = GETDATE(),
-		ModifierId = ISNULL(@ModifierId, ModifierId)
+		Modified = GETDATE()
 	WHERE Id = @Id AND IsDeleted = 0
 END
 
@@ -58,13 +57,13 @@ END
 ELSE IF @Activity = 'CHANGE_STATUS'
 BEGIN
 	UPDATE Supplier
-	SET [Status] = ~[Status] WHERE Id = @Id
+	SET [Status] = ~[Status] WHERE Id = @Id AND IsDeleted = 0
 END
 
 -----------------------------------------------------------------
 ELSE IF @Activity = 'DELETE'
 BEGIN
-	UPDATE Supplier SET IsDeleted = 1 WHERE Id = @Id
+	UPDATE Supplier SET IsDeleted = 1 WHERE Id = @Id AND IsDeleted = 0
 END
 
 -----------------------------------------------------------------
@@ -86,7 +85,7 @@ END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'GET_DETAILS_BY_ID'
 BEGIN
-	SELECT Id, [Name], [Description], [Address], [Phone], Email, ContactPerson, [Status], TotalAmountOwed, CreatedTime, CreatorId, ModifiedTime, ModifierId
+	SELECT Id, [Name], [Description], [Address], [Phone], Email, ContactPerson, [Status], TotalAmountOwed, Created, Modified
 	FROM Supplier AS s (NOLOCK)
 	WHERE s.Id = @Id AND s.IsDeleted = 0
 END
@@ -114,11 +113,8 @@ BEGIN
 			FROM SupplierTemp
 		) as RecordCount
 		INNER JOIN Supplier (NOLOCK) s ON s.Id = st.Id
-	ORDER BY s.CreatedTime DESC
+	ORDER BY s.Created DESC
 	OFFSET ((@PageIndex - 1) * @PageSize) ROWS
     FETCH NEXT @PageSize ROWS ONLY
 END
-GO
-
-UPDATE Supplier SET TotalAmountOwed = 0 WHERE 1 = 1
 GO

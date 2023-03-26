@@ -7,15 +7,6 @@ USE eCommerce
 GO
 
 
-
-CREATE TYPE PurchaseOrderDetailsTableType AS TABLE
-(
-   ProductId UNIQUEIDENTIFIER,
-   Quantity INT,
-   Price DECIMAL(18, 2)
-);
-GO
-
 CREATE TABLE [dbo].[User] (
     [Id]                   UNIQUEIDENTIFIER   NOT NULL,
     [Username]             NVARCHAR (256)     NOT NULL,
@@ -247,7 +238,7 @@ CREATE TABLE PurchaseOrderDetail
 	Quantity INT NOT NULL,
 	Price DECIMAL(18, 2) NOT NULL,
 
-	CONSTRAINT [Fk_PurchaseOrderDetail_PurchaseInvoiceId] FOREIGN KEY (PurchaseOrderId) REFERENCES PurchaseOrder(Id) ON DELETE CASCADE,
+	CONSTRAINT [Fk_PurchaseOrderDetail_PurchaseOrderId] FOREIGN KEY (PurchaseOrderId) REFERENCES PurchaseOrder(Id) ON DELETE CASCADE,
 
 	CONSTRAINT [Fk_PurchaseOrderDetail_ProductId] FOREIGN KEY (ProductId) REFERENCES Product(Id),
 
@@ -436,15 +427,13 @@ GO
 
 
 -- + + + + + INIT DATA TABLE + + + + + --
-INSERT INTO Brand (Id, Name, LogoURL, Description, Status, CreatedTime, CreatorId, ModifiedTime, ModifierId, IsDeleted)
+INSERT INTO Brand (Id, Name, LogoURL, Description, Status, Created, Modified, IsDeleted)
 SELECT TOP 100 NEWID(), 
        CONCAT('Brand ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
        CONCAT('http://example.com/logo/', NEWID(), '.jpg'), 
        CONCAT('Description for Brand ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
        1,
        GETDATE(),
-       NEWID(),
-       NULL,
        NULL,
        0
 FROM sys.columns c1
@@ -452,7 +441,7 @@ CROSS JOIN sys.columns c2
 OPTION (MAXDOP 1);
 GO
 
-INSERT INTO Supplier (Id, Name, Description, Address, Phone, Email, ContactPerson, Status, CreatedTime, CreatorId, ModifiedTime, ModifierId, IsDeleted)
+INSERT INTO Supplier (Id, Name, Description, Address, Phone, Email, ContactPerson, Status, Created, Modified, IsDeleted)
 SELECT TOP 100 NEWID(), 
        CONCAT('Supplier ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
        CONCAT('Description for Supplier ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
@@ -462,8 +451,6 @@ SELECT TOP 100 NEWID(),
        CONCAT('Contact Person for Supplier ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
        1,
        GETDATE(),
-       NEWID(),
-       NULL,
        NULL,
        0
 FROM sys.columns c1

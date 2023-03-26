@@ -1,7 +1,6 @@
 using eCommerce.Shared.Serilog;
 using eCommerce.WebAPI.Extensions;
 using eCommerce.WebAPI.Middlewares;
-using Microsoft.OpenApi.Models;
 using Serilog;
 
 

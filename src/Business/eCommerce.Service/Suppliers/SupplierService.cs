@@ -26,7 +26,7 @@ namespace eCommerce.Service.Suppliers;
             var suppliers = await _databaseRepository.PagingAllAsync<Supplier>(
                 sqlQuery: SQL_QUERY,
                 pageIndex: filter.PageIndex, 
-                pageSize: filter.PageIndex,
+                pageSize: filter.PageSize,
                 parameters: new Dictionary<string, object>()
                 {
                     { "Activity", "GET_ALL" },
