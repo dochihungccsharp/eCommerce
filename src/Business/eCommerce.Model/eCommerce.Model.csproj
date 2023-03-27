@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <Folder Include="Orders" />
-      <Folder Include="Shoppings" />
       <Folder Include="Validators\Orders" />
       <Folder Include="Validators\ReturnOrders" />
       <Folder Include="Validators\Shoppings" />

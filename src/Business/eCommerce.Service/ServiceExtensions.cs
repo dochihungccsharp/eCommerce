@@ -8,6 +8,7 @@ using eCommerce.Service.PurchaseOrders;
 using eCommerce.Service.Roles;
 using eCommerce.Service.SendMail;
 using eCommerce.Service.Suppliers;
+using eCommerce.Service.Uploads;
 using eCommerce.Service.Users;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +37,7 @@ public static class ServiceExtensions
         services.AddScoped<ISupplierService, SupplierService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+        services.AddScoped<IUploadService, UploadService>();
 
        
 

@@ -47,6 +47,29 @@ public static class ImageExtensions
         }
         return listFilePath;
     }
+    
+    public static async Task<string> MoveFile(IWebHostEnvironment _env, string sourcePath, string? targetPath = null)
+    {
+        ArgumentNullException.ThrowIfNull(_env);
+        
+        if (!File.Exists(sourcePath))
+            throw new IOException("File does not exist"); 
+        
+        string fileName = Path.GetFileName(sourcePath);
+        string destFile = String.Empty;
+        if (targetPath == null)
+        {
+            destFile = Path.Combine(_env.WebRootPath, "images", fileName);
+        }
+        else
+        {
+            destFile = Path.Combine(targetPath, fileName);
+        }
+        
+        File.Move(sourcePath, destFile);
+        return destFile;
+        
+    }
 
     public static async Task DeleteImageAsync(this string filePath)
     {
@@ -64,6 +87,15 @@ public static class ImageExtensions
             {
                 File.Delete(filePath);
             }
+        }
+    }
+    
+    public static async Task DeleteFilesInDirectory(string path)
+    {
+        var files = Directory.GetFiles(path);
+        foreach (var file in files)
+        {
+            File.Delete(file);
         }
     }
 

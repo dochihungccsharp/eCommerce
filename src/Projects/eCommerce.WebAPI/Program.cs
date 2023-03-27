@@ -1,6 +1,7 @@
 using eCommerce.Shared.Serilog;
 using eCommerce.WebAPI.Extensions;
 using eCommerce.WebAPI.Middlewares;
+using Hangfire;
 using Serilog;
 
 
@@ -42,6 +43,9 @@ try
     
     // add service get user from request
     builder.Services.AddUserContextModelService(builder.Configuration);
+    
+    // add service hangfire
+    builder.Services.AddHangfire(builder);
 
     var app = builder.Build();
     
@@ -51,6 +55,8 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
+
+    app.UseStaticFiles();
     
     app.UseJwtTokenMiddleware();
     
@@ -59,6 +65,10 @@ try
     app.UseHttpsRedirection();
     
     app.UseAuthorization();
+    
+    app.UseHangfireDashboard();
+    
+    app.UseHangfireServer();
     
     app.MapControllers();
     

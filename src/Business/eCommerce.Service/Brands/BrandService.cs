@@ -86,11 +86,8 @@ public class BrandService : IBrandService
         if (checkDuplicated)
             throw new InvalidOperationException("Brand with the same name already exits.");
 
-        string imageUrl = string.Empty;
-        if (editBrandModel.LogoUpload != null)
-        {
-            imageUrl = await editBrandModel.LogoUpload.SaveImageAsync(_env);
-        }
+        if(!string.IsNullOrEmpty(editBrandModel.LogoURL))
+            editBrandModel.LogoURL = await ImageExtensions.MoveFile(_env,editBrandModel.LogoURL, null);
             
         var resultCreated = await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
@@ -99,7 +96,7 @@ public class BrandService : IBrandService
                 { "Activity", "INSERT" },
                 { "Id", Guid.NewGuid() },
                 { "Name", editBrandModel.Name },
-                { "LogoURL", imageUrl },
+                { "LogoURL",  editBrandModel.LogoURL },
                 { "Description", editBrandModel.Description }
             },
             cancellationToken: cancellationToken
@@ -112,17 +109,35 @@ public class BrandService : IBrandService
 
     public async Task<BaseResponseModel> UpdateAsync(Guid brandId, EditBrandModel editBrandModel, CancellationToken cancellationToken)
     {
-        var checkAlreadyExist = await CheckAlreadyExistAsync(brandId, cancellationToken).ConfigureAwait(false);
-        if (!checkAlreadyExist)
+        var b = await FindById(brandId, cancellationToken).ConfigureAwait(false);
+        if(b == null)
             throw new NotFoundException("The brand is not found");
-            
-
-        string? imageUrl = null;
-        if (editBrandModel.LogoUpload != null)
+        
+        // Có ảnh gửi lên
+        if (!string.IsNullOrEmpty(editBrandModel.LogoURL))
         {
-            imageUrl = await editBrandModel.LogoUpload.SaveImageAsync(_env);
+            // db không có ảnh
+            if (string.IsNullOrEmpty(b.LogoURL))
+            {
+                editBrandModel.LogoURL = await ImageExtensions.MoveFile(_env,editBrandModel.LogoURL, null);
+            }
+            // db có ảnh và khác ảnh mới gửi lên
+            else if (b.LogoURL != editBrandModel.LogoURL)
+            {
+                await b.LogoURL.DeleteImageAsync();
+                editBrandModel.LogoURL = await ImageExtensions.MoveFile(_env,editBrandModel.LogoURL, null);
+            }
         }
-
+        // Không có ảnh gửi lên
+        else
+        {
+            // Db có ảnh
+            if (!string.IsNullOrEmpty(b.LogoURL))
+            {
+                await b.LogoURL.DeleteImageAsync();
+            }
+        }
+        
         var resultUpdated = await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
@@ -130,7 +145,7 @@ public class BrandService : IBrandService
                 { "Activity", "UPDATE" },
                 { "Id", brandId },
                 { "Name", editBrandModel.Name },
-                { "LogoURL", imageUrl },
+                { "LogoURL", editBrandModel.LogoURL },
                 { "Status", editBrandModel.Status }
             }, 
             cancellationToken: cancellationToken
@@ -213,5 +228,21 @@ public class BrandService : IBrandService
         ).ConfigureAwait(false);
 
         return brand != null;
+    }
+    
+    // Find Brand By Id
+    private async Task<Brand> FindById(Guid brandId, CancellationToken cancellationToken = default)
+    {
+        var brand = await _databaseRepository.GetAsync<Brand>(
+            sqlQuery: SQL_QUERY,
+            parameters: new Dictionary<string, object>()
+            {
+                { "Activity", "GET_BY_ID" },
+                { "Id", brandId }
+            },
+            cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
+
+        return brand;
     }
 }

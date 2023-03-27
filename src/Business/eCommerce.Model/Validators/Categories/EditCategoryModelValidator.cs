@@ -20,11 +20,9 @@ public class EditCategoryModelValidator : AbstractValidator<EditCategoryModel>
             .Length(3, 50)
             .WithMessage("Mô tả danh mục tối thiểu phải có 3 ký tự.");
 
-        When(x => x.ImageUpload != null, () =>
-        {
-            RuleFor(x => x.ImageUpload)
-                .SetValidator(new FileValidator());
-        });
+        RuleFor(x => x.ImageUrl)
+            .Must(path => string.IsNullOrEmpty(path) || File.Exists(path))
+            .WithMessage("Logo không tồn tại trong hệ thống.");
 
         RuleFor(x => x.ParentId)
             .Must(x => x == null || Guid.TryParse(x.ToString(), out _))

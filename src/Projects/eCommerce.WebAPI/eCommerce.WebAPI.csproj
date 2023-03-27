@@ -7,12 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Hangfire" Version="1.8.0-rc2" />
+        <PackageReference Include="Hangfire.AspNet" Version="0.2.0" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.8.0-rc2" />
+        <PackageReference Include="Hangfire.Core" Version="1.8.0-rc2" />
+        <PackageReference Include="Hangfire.Dashboard.Authorization" Version="3.0.1" />
+        <PackageReference Include="Hangfire.NetCore" Version="1.8.0-rc2" />
+        <PackageReference Include="Hangfire.SqlServer" Version="1.8.0-rc2" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="MailSave" />
+      <Folder Include="wwwroot\images" />
       <Folder Include="wwwroot\uploads" />
     </ItemGroup>
 

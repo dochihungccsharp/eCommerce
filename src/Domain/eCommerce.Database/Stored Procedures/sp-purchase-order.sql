@@ -140,7 +140,7 @@ BEGIN
 
 										-- UPDATE Quantity Inventory
 										UPDATE Inventory 
-										SET Quantity = Quantity + Quantity
+										SET Quantity = Quantity + @Quantity
 										WHERE Id = @InventoryId;
 									END
 								SET @Index = @Index + 1;

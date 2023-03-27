@@ -41,7 +41,7 @@ public class BrandController : BaseController
     [HttpPost]
     [Route("api/brands")]
     [Authorize("Admin")]
-    public async Task<IActionResult> CreateAsync([FromForm] EditBrandModel editBrandModel,
+    public async Task<IActionResult> CreateAsync([FromBody] EditBrandModel editBrandModel,
         CancellationToken cancellationToken)
     {
         await _brandService.CreateAsync(editBrandModel, cancellationToken).ConfigureAwait(false);
@@ -52,7 +52,7 @@ public class BrandController : BaseController
     [Route("api/brands/{id:guid}")]
     [Authorize("Admin")]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid brandId,
-        [FromForm] EditBrandModel editBrandModel, CancellationToken cancellationToken = default)
+        [FromBody] EditBrandModel editBrandModel, CancellationToken cancellationToken = default)
     {
         await _brandService.UpdateAsync(brandId, editBrandModel, cancellationToken).ConfigureAwait(false);
         return Ok(true);

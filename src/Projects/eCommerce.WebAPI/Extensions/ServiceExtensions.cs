@@ -5,6 +5,7 @@ using eCommerce.Model.Users;
 using eCommerce.Service;
 using eCommerce.Shared.Configurations;
 using eCommerce.Shared.Extensions;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,6 +16,26 @@ namespace eCommerce.WebAPI.Extensions;
 
 public static class ServiceExtensions
 {
+    public static IServiceCollection AddHangfire(this IServiceCollection services, WebApplicationBuilder builder)
+    {
+        var databaseSetting = builder.Configuration.GetOptions<DatabaseSetting>();
+        
+        //Register Hangfire services
+        // services.AddHangfire(configuration => configuration
+        //     .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+        //     .UseRecommendedSerializerSettings()
+        //     .UseSqlServerStorage(databaseSetting.Default)
+        // );
+
+        // Register the Hangfire dashboard authorization filter
+        //services.AddHangfireDashboardAuthorization(env);
+        
+        // create scheduled job
+        var path = Path.Combine(builder.Environment.WebRootPath, "upload");
+        RecurringJob.AddOrUpdate(() => ImageExtensions.DeleteFilesInDirectory(path), "0 0 */12 * *");
+
+        return services;
+    }
     public static IServiceCollection AddControllerService(this IServiceCollection services)
     {
         services.AddControllers().AddNewtonsoftJson(options =>
