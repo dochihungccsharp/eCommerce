@@ -68,6 +68,14 @@ BEGIN
 									FROM @PurchaseOrderDetails
 									ORDER BY (SELECT NULL) OFFSET @Index-1 ROWS FETCH NEXT 1 ROWS ONLY;
 
+									BEGIN
+										SELECT 
+											@ErrorMessage = 'Product in purchase order does not exist', -- Sản phẩm trong purchase order không tồn tại
+											@ErrorSeverity = ERROR_SEVERITY(),
+											@ErrorState = ERROR_STATE();
+										RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+									END
+
 									-- CREATE PURCHASE ORDER DETAIL
 									INSERT INTO PurchaseOrderDetail (PurchaseOrderId, ProductId, Quantity, Price) 
 									VALUES (@Id, @ProductId, @Quantity, @Price)
@@ -170,83 +178,29 @@ END
 ---------------------------------------------------------------
 ELSE IF @Activity = 'UPDATE'
 BEGIN
-	BEGIN TRANSACTION
-	BEGIN TRY
-		BEGIN
-			DELETE FROM PurchaseOrder WHERE Id = @Id;
+	DELETE FROM PurchaseOrder WHERE Id = @Id;
 			
-			-- CREATE Purchase Order
-			DECLARE @NewId UNIQUEIDENTIFIER;
-			EXEC [dbo].[sp_PurchaseOrders] 
-				@Activity               = 'INSERT',
-				@Id                     = @NewId,
-				@UserId                 = @UserId,
-				@SupplierId				= @SupplierId,
-				@TotalMoney				= @TotalMoney,
-				@Note       			= @Note,
-				@OrderStatus            = @OrderStatus,
-				@PaymentStatus          = @PaymentStatus,
-				@TotalPaymentAmount     = @TotalPaymentAmount,
-				@Created                = @Created,
-				@Modified               = @Modified,
-				@IsDeleted				= @IsDeleted,
-				@PurchaseOrderDetails   =  @PurchaseOrderDetails;
-			COMMIT TRANSACTION
-		END
-	END TRY
-	BEGIN CATCH
-		BEGIN
-			SELECT 
-				@ErrorMessage = 'Update purchase order fail',
-				@ErrorSeverity = ERROR_SEVERITY(),
-				@ErrorState = ERROR_STATE();
-			RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-			ROLLBACK TRANSACTION
-		END
-	END CATCH
+	-- CREATE Purchase Order
+	DECLARE @NewId UNIQUEIDENTIFIER;
+	EXEC [dbo].[sp_PurchaseOrders] 
+		@Activity               = 'INSERT',
+		@Id                     = @Id,
+		@UserId                 = @UserId,
+		@SupplierId				= @SupplierId,
+		@TotalMoney				= @TotalMoney,
+		@Note       			= @Note,
+		@OrderStatus            = @OrderStatus,
+		@PaymentStatus          = @PaymentStatus,
+		@TotalPaymentAmount     = @TotalPaymentAmount,
+		@Created                = @Created,
+		@Modified               = @Modified,
+		@IsDeleted				= @IsDeleted,
+		@PurchaseOrderDetails   =  @PurchaseOrderDetails;
 END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'DELETE'
 BEGIN
-BEGIN TRANSACTION
-	BEGIN TRY
-		-- GET PurchaseOrder BY ID
-		IF EXISTS (SELECT * FROM PurchaseOrder WHERE Id = @Id)
-			BEGIN
-				-- GET OrderStatus PURCHASE
-				SELECT @OrderStatus = OrderStatus FROM PurchaseOrder WHERE Id = @Id;
-
-				IF(@OrderStatus = 'DRAFT_INVOICE')
-					BEGIN
-						DELETE FROM PurchaseOrder WHERE Id = @Id;
-					END	
-				ELSE IF (@OrderStatus = 'PURCHASE_INVOICE')
-					BEGIN
-						SELECT 
-							@ErrorMessage = 'Orders placed cannot be deleted', -- Đơn hàng đã đặt, không thể xóa
-							@ErrorSeverity = ERROR_SEVERITY(),
-							@ErrorState = ERROR_STATE();
-						RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-					END
-			END
-		ELSE
-			BEGIN
-				SELECT 
-					@ErrorMessage = 'Purchase order does not exist', -- Đơn hàng đã đặt, không thể xóa
-					@ErrorSeverity = ERROR_SEVERITY(),
-					@ErrorState = ERROR_STATE();
-				RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-			END
-		COMMIT TRANSACTION
-	END TRY
-	BEGIN CATCH
-		SELECT 
-			@ErrorMessage = 'Delete purchase order fail',
-			@ErrorSeverity = ERROR_SEVERITY(),
-			@ErrorState = ERROR_STATE();
-		RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-		ROLLBACK TRANSACTION
-	END CATCH
+	DELETE FROM PurchaseOrder WHERE Id = @Id;
 END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'GET_BY_ID'

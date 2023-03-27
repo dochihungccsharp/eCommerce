@@ -1,12 +1,6 @@
 USE eCommerce
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_Suppliers]  ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
 
 
 CREATE PROC [dbo].[sp_Suppliers]

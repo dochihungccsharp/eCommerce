@@ -1,12 +1,6 @@
 USE eCommerce
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_Category]    Script Date: 2/21/2023 11:11:56 AM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE PROC [dbo].[sp_Brands]
 @Activity						NVARCHAR(50)		=		NULL,
@@ -100,21 +94,5 @@ BEGIN
 	OFFSET ((@PageIndex - 1) * @PageSize) ROWS
     FETCH NEXT @PageSize ROWS ONLY
 END
-GO
-
-
--- + + + + + INIT DATA TABLE + + + + + --
-INSERT INTO Brand (Id, Name, LogoURL, Description, Status, Created, Modified, IsDeleted)
-SELECT TOP 100 NEWID(), 
-       CONCAT('Brand ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
-       CONCAT('http://example.com/logo/', NEWID(), '.jpg'), 
-       CONCAT('Description for Brand ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 
-       1,
-       GETDATE(),
-       NULL,
-       0
-FROM sys.columns c1
-CROSS JOIN sys.columns c2
-OPTION (MAXDOP 1);
 GO
 

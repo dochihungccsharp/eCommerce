@@ -1,12 +1,6 @@
 USE eCommerce
 GO
 
-/****** Object:  StoredProcedure [dbo].[sp_Category]    Script Date: 2/21/2023 11:11:56 AM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE PROC [dbo].[sp_Categories]
 @Activity						NVARCHAR(50)		=		NULL,

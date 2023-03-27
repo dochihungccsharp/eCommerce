@@ -2,7 +2,7 @@
 GO
 
 
-ALTER PROC sp_Products
+CREATE PROC sp_Products
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		1,

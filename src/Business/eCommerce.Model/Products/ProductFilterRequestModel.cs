@@ -28,10 +28,10 @@ public class ProductFilterRequestModel : IFilterRequestAuditModel
     public DateTime? ToTime { get; set; }
         
     [BindProperty(Name = "from_price")]
-    public DateTime? FromPrice { get; set; }
+    public decimal? FromPrice { get; set; }
         
     [BindProperty(Name = "to_price")]
-    public DateTime? ToPrice { get; set; }
+    public decimal? ToPrice { get; set; }
         
     [BindProperty(Name = "is_best_selling")]
     public bool? IsBestSelling { get; set; }

@@ -1,10 +1,11 @@
-﻿-- Create database with database name eCommerce
+-- Create database with database name eCommerce
 CREATE DATABASE eCommerce
 GO
 
 -- Use database
 USE eCommerce
 GO
+
 
 
 CREATE TABLE [dbo].[User] (
@@ -53,7 +54,7 @@ CREATE TABLE [UserRole] (
 CREATE TABLE UserAddress
 (
     Id UNIQUEIDENTIFIER NOT NULL,
-    [Name] NVARCHAR,
+    [Name] NVARCHAR(255),
     [UserId] UNIQUEIDENTIFIER,
     DeliveryAddress NVARCHAR(255) NOT NULL,
     Telephone VARCHAR(10),
@@ -275,7 +276,7 @@ CREATE TABLE CartItem
 	
     CONSTRAINT [Pk_CartItem] PRIMARY KEY CLUSTERED (Id ASC),
 
-    CONSTRAINT [Fk_CartItem_ShoppingSessionId] FOREIGN KEY(ShoppingId) REFERENCES ShoppingSession(Id),
+    CONSTRAINT [Fk_CartItem_ShoppingSessionId] FOREIGN KEY(ShoppingId) REFERENCES Shopping(Id),
 
     CONSTRAINT [Fk_CartItem_ProductId] FOREIGN KEY(ProductId) REFERENCES Product(Id)
 )
@@ -365,5 +366,4 @@ CREATE TABLE Ward(
 	[Status] BIT DEFAULT 1
 )
 GO
-
 

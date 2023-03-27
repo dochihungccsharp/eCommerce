@@ -159,7 +159,7 @@ public class PurchaseOrderService : IPurchaseOrderService
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
-                {"Activity", "INSERT"},
+                {"Activity", "UPDATE"},
                 {"Id", purchaseOrderId},
                 {"SupplierId", editPurchaseOrderModel.SupplierId},
                 {"UserId", editPurchaseOrderModel.UserId},
