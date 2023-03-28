@@ -10,5 +10,5 @@ public class CartItemModel
     public int Quantity { get; set; }
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
-    public ProductModel _ProductModel { get; set; }
+    public ProductModel _Product { get; set; }
 }

@@ -21,8 +21,7 @@
 
     <ItemGroup>
       <Folder Include="MailSave" />
-      <Folder Include="wwwroot\images" />
-      <Folder Include="wwwroot\uploads" />
+      <Folder Include="wwwroot\images\products" />
     </ItemGroup>
 
     <ItemGroup>

@@ -35,7 +35,6 @@ public class AutoMapperProfile : Profile
             {
                 dest.EmailConfirmed = true;
                 dest.PasswordHash = src.Password.HashMD5();
-                dest.Avatar = default!;
                 dest.TotalAmountOwed = 0;
                 dest.Status = false;
             });
@@ -43,7 +42,6 @@ public class AutoMapperProfile : Profile
         CreateMap<EditProfileModel, User>()
             .AfterMap((src, dest) =>
             {
-                dest.Avatar = default!;
                 dest.EmailConfirmed = true;
             });
         #endregion

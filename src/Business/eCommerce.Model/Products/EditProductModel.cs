@@ -10,7 +10,7 @@ public class EditProductModel
         
     public string Description { get; set; }
         
-    public IFormFile? ImageUpload { get; set; }
+    public string ImageUrl { get; set; }
     
     public decimal OriginalPrice { get; set; }
         

@@ -26,10 +26,8 @@ public class EditProfileModelValidator : AbstractValidator<EditProfileModel>
             .WithMessage("Số điện thoại không hợp lệ.");
         
         
-        When(x => x.Avatar != null, () =>
-        {
-            RuleFor(x => x.Avatar)
-                .SetValidator(new FileValidator());
-        });
+        RuleFor(x => x.Avatar)
+            .Must(path => string.IsNullOrEmpty(path) || File.Exists(path))
+            .WithMessage("Logo không tồn tại trong hệ thống.");
     }
 }

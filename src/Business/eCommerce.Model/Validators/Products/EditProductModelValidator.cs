@@ -22,10 +22,8 @@ public class EditProductModelValidator : AbstractValidator<EditProductModel>
             .NotEmpty()
             .WithMessage("Giá bán không được để trống.");
 
-        When(x => x.ImageUpload != null, () =>
-        {
-            RuleFor(x => x.ImageUpload)
-                .SetValidator(new FileValidator());
-        });
+        RuleFor(x => x.ImageUrl)
+            .Must(path => string.IsNullOrEmpty(path) || File.Exists(path))
+            .WithMessage("Image không tồn tại trong hệ thống.");
     }
 }

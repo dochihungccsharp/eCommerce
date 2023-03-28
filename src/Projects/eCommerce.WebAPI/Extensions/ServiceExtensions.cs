@@ -28,11 +28,11 @@ public static class ServiceExtensions
         // );
 
         // Register the Hangfire dashboard authorization filter
-        //services.AddHangfireDashboardAuthorization(env);
+        // services.AddHangfireDashboardAuthorization(env);
         
         // create scheduled job
-        var path = Path.Combine(builder.Environment.WebRootPath, "upload");
-        RecurringJob.AddOrUpdate(() => ImageExtensions.DeleteFilesInDirectory(path), "0 0 */12 * *");
+        // var path = Path.Combine(builder.Environment.WebRootPath, "upload");
+        // RecurringJob.AddOrUpdate(() => ImageExtensions.DeleteFilesInDirectory(path), "0 0 */12 * *");
 
         return services;
     }

@@ -113,7 +113,7 @@ public class PurchaseOrderService : IPurchaseOrderService
         if(u == null)
             throw new NotFoundException("The user is not found");
 
-        var resultCreated = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -130,9 +130,7 @@ public class PurchaseOrderService : IPurchaseOrderService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-
-        if (!resultCreated)
-            throw new InternalServerException("Create purchase order failure");
+        
         return new BaseResponseModel("Create purchase order success");
     }
 
@@ -155,7 +153,7 @@ public class PurchaseOrderService : IPurchaseOrderService
         if (purchaseOrder.OrderStatus == PurchaseOrderStatus.PurchaseInvoice)
             throw new ForbiddenException("Can't edit an imported order");
         
-        var resultUpdated = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -172,9 +170,7 @@ public class PurchaseOrderService : IPurchaseOrderService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-
-        if (!resultUpdated)
-            throw new InternalServerException("Update purchase order failure");
+        
         return new BaseResponseModel("Update purchase order success");
     }
 
@@ -197,7 +193,7 @@ public class PurchaseOrderService : IPurchaseOrderService
         if (purchaseOrder.OrderStatus == PurchaseOrderStatus.PurchaseInvoice)
             throw new ForbiddenException("Can't delete an imported order");
         
-        var resultDeleted =  await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -206,9 +202,7 @@ public class PurchaseOrderService : IPurchaseOrderService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-
-        if (!resultDeleted)
-            throw new BadRequestException("Deleted purchase order failure");
+       
         return new BaseResponseModel("Deleted purchase order success");
     }
 }

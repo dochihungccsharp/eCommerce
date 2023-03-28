@@ -79,80 +79,83 @@ public class BrandService : IBrandService
     }
     
     
-
     public async Task<BaseResponseModel> CreateAsync(EditBrandModel editBrandModel, CancellationToken cancellationToken)
     {
         var checkDuplicated = await CheckDuplicatedAsync(editBrandModel, cancellationToken).ConfigureAwait(false);
         if (checkDuplicated)
             throw new InvalidOperationException("Brand with the same name already exits.");
 
-        if(!string.IsNullOrEmpty(editBrandModel.LogoURL))
-            editBrandModel.LogoURL = await ImageExtensions.MoveFile(_env,editBrandModel.LogoURL, null);
+        var targetPath = string.Empty;
+        if (!string.IsNullOrEmpty(editBrandModel.LogoURL))
+            targetPath = Path.Combine(_env.WebRootPath, "brands", Path.GetFileName(editBrandModel.LogoURL));
+
             
-        var resultCreated = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
                 { "Activity", "INSERT" },
                 { "Id", Guid.NewGuid() },
                 { "Name", editBrandModel.Name },
-                { "LogoURL",  editBrandModel.LogoURL },
+                { "LogoURL",  targetPath },
                 { "Description", editBrandModel.Description }
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
 
-        if (!resultCreated)
-            throw new InternalServerException("Created brand failed");
+        if (!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editBrandModel.LogoURL, targetPath);
+
+      
         return new BaseResponseModel("Create brand success");
     }
 
     public async Task<BaseResponseModel> UpdateAsync(Guid brandId, EditBrandModel editBrandModel, CancellationToken cancellationToken)
     {
-        var b = await FindById(brandId, cancellationToken).ConfigureAwait(false);
+        var b = await FindByIdAsync(brandId, cancellationToken).ConfigureAwait(false);
         if(b == null)
             throw new NotFoundException("The brand is not found");
         
-        // Có ảnh gửi lên
-        if (!string.IsNullOrEmpty(editBrandModel.LogoURL))
+        // handle get path image
+        var targetPath = string.Empty;
+        if (!string.IsNullOrEmpty(editBrandModel.LogoURL)) // có ảnh gửi lên
         {
-            // db không có ảnh
-            if (string.IsNullOrEmpty(b.LogoURL))
+            if (string.IsNullOrEmpty(b.LogoURL)) // db không có ảnh
             {
-                editBrandModel.LogoURL = await ImageExtensions.MoveFile(_env,editBrandModel.LogoURL, null);
+                targetPath = Path.Combine(_env.WebRootPath, "brands", Path.GetFileName(editBrandModel.LogoURL));
             }
-            // db có ảnh và khác ảnh mới gửi lên
-            else if (b.LogoURL != editBrandModel.LogoURL)
+            else if (b.LogoURL != editBrandModel.LogoURL) // db có ảnh , != ảnh mới gửi lên
             {
                 await b.LogoURL.DeleteImageAsync();
-                editBrandModel.LogoURL = await ImageExtensions.MoveFile(_env,editBrandModel.LogoURL, null);
+                targetPath = Path.Combine(_env.WebRootPath, "brands", Path.GetFileName(editBrandModel.LogoURL));
             }
         }
-        // Không có ảnh gửi lên
-        else
+        else // không có ảnh gửi lên
         {
-            // Db có ảnh
+            // db có ảnh
             if (!string.IsNullOrEmpty(b.LogoURL))
             {
                 await b.LogoURL.DeleteImageAsync();
             }
         }
         
-        var resultUpdated = await _databaseRepository.ExecuteAsync(
+        // update brand
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
                 { "Activity", "UPDATE" },
                 { "Id", brandId },
                 { "Name", editBrandModel.Name },
-                { "LogoURL", editBrandModel.LogoURL },
+                { "LogoURL", targetPath },
                 { "Status", editBrandModel.Status }
             }, 
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
 
-        if (!resultUpdated)
-            throw new InternalServerException("Update brand failed");
+        if (!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editBrandModel.LogoURL, targetPath);
+ 
         return new BaseResponseModel("Update brand success");
     }
 
@@ -162,7 +165,7 @@ public class BrandService : IBrandService
         if (!checkAlreadyExist)
             throw new NotFoundException("The brand is not found");
             
-        var resultChange = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -171,19 +174,20 @@ public class BrandService : IBrandService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-
-        if (!resultChange)
-            throw new InternalServerException("Change status brand failed");
+        
         return new BaseResponseModel("Change status success");
     }
 
     public async Task<BaseResponseModel> DeleteAsync(Guid brandId, CancellationToken cancellationToken)
     {
-        var checkAlreadyExist = await CheckAlreadyExistAsync(brandId, cancellationToken);
-        if (!checkAlreadyExist)
+        var b = await FindByIdAsync(brandId, cancellationToken);
+        if (b == null)
             throw new NotFoundException("The brand is not found");
-            
-        var resultDeleted =  await _databaseRepository.ExecuteAsync(
+
+        if (!string.IsNullOrEmpty(b.LogoURL))
+            await b.LogoURL.DeleteImageAsync();
+        
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -192,9 +196,7 @@ public class BrandService : IBrandService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-            
-        if(!resultDeleted)
-            throw new InternalServerException("Deleted brand fail");
+        
         return new BaseResponseModel("Deleted brand success");
     }
     
@@ -231,7 +233,7 @@ public class BrandService : IBrandService
     }
     
     // Find Brand By Id
-    private async Task<Brand> FindById(Guid brandId, CancellationToken cancellationToken = default)
+    public async Task<Brand> FindByIdAsync(Guid brandId, CancellationToken cancellationToken = default)
     {
         var brand = await _databaseRepository.GetAsync<Brand>(
             sqlQuery: SQL_QUERY,

@@ -108,6 +108,11 @@ public class ProductService : IProductService
     public async Task<BaseResponseModel> CreateAsync(EditProductModel editProductModel,
         CancellationToken cancellationToken = default)
     {
+        // check duplicate
+        var checkDuplicatedProduct = await CheckDuplicatedAsync(editProductModel, cancellationToken).ConfigureAwait(false);
+        if (checkDuplicatedProduct)
+            throw new InvalidOperationException("Product with the same name already exists.");
+        
         // check is already exist category
         var checkAlreadyExistCategory = await _categoryService
             .CheckAlreadyExistAsync(editProductModel.CategoryId, cancellationToken).ConfigureAwait(false);
@@ -131,27 +136,20 @@ public class ProductService : IProductService
             if (!checkAlreadyExistBrand)
                 throw new NotFoundException("The brand is not found");
         }
-
-        // check duplicate
-        var checkDuplicatedProduct =
-            await CheckDuplicatedAsync(editProductModel, cancellationToken).ConfigureAwait(false);
-        if (checkDuplicatedProduct)
-            throw new InvalidOperationException("Product with the same name already exists.");
+        
 
         // handler image product
-        string? imageUrl = null;
-        if (editProductModel.ImageUpload != null)
-            imageUrl = await editProductModel.ImageUpload.SaveImageAsync(_env);
+        var targetPath = string.Empty;
+        if (!string.IsNullOrEmpty(editProductModel.ImageUrl))
+            targetPath = Path.Combine(_env.WebRootPath, "images", "products", Path.GetFileName(editProductModel.ImageUrl));
         
-        string? slug = null;
+        var slug = string.Empty;
         if (string.IsNullOrEmpty(editProductModel.Slug))
             slug = editProductModel.Name.ConvertToSlug();
         else
             slug = editProductModel.Slug.ConvertToSlug();
-
-
-        // create product
-        var resultCreated = await _databaseRepository.ExecuteAsync(
+        
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -160,7 +158,7 @@ public class ProductService : IProductService
                 { "Name", editProductModel.Name },
                 { "Slug", slug },
                 { "Description", editProductModel.Description },
-                { "ImageUrl", imageUrl },
+                { "ImageUrl", targetPath },
                 { "OriginalPrice", editProductModel.OriginalPrice },
                 { "Price", editProductModel.Price },
                 { "CategoryId", editProductModel.CategoryId },
@@ -170,8 +168,8 @@ public class ProductService : IProductService
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
 
-        if (!resultCreated)
-            throw new InternalServerException("Created product failed");
+        if(!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editProductModel.ImageUrl, targetPath);
 
         return new BaseResponseModel("Create product success");
     }
@@ -180,9 +178,8 @@ public class ProductService : IProductService
         CancellationToken cancellationToken = default)
     {
         // check is already exist
-        var checkAlreadyExistProduct =
-            await CheckAlreadyExistAsync(productId, cancellationToken).ConfigureAwait(false);
-        if (!checkAlreadyExistProduct)
+        var p = await FindByIdAsync(productId, cancellationToken).ConfigureAwait(false);
+        if (p == null)
             throw new NotFoundException("The product is not found");
 
         // check is already exist category
@@ -210,18 +207,35 @@ public class ProductService : IProductService
         }
 
         // handler image product
-        string? imageUrl = null;
-        if (editProductModel.ImageUpload != null)
-            imageUrl = await editProductModel.ImageUpload.SaveImageAsync(_env);
+        var targetPath = string.Empty;
+        if (!string.IsNullOrEmpty(editProductModel.ImageUrl)) 
+        {
+            if (string.IsNullOrEmpty(p.ImageUrl))
+            {
+                targetPath = Path.Combine(_env.WebRootPath, "images", "products", Path.GetFileName(editProductModel.ImageUrl));
+            }
+            else if (p.ImageUrl != editProductModel.ImageUrl)
+            {
+                await p.ImageUrl.DeleteImageAsync();
+                targetPath = Path.Combine(_env.WebRootPath, "images", "products", Path.GetFileName(editProductModel.ImageUrl));
+            }
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(p.ImageUrl))
+            {
+                await p.ImageUrl.DeleteImageAsync();
+            }
+        }
 
-        string? slug = null;
+        string slug = string.Empty;
         if (string.IsNullOrEmpty(editProductModel.Slug))
             slug = editProductModel.Name.ConvertToSlug();
         else
             slug = editProductModel.Slug.ConvertToSlug();
 
         // update
-        var resultUpdated = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -230,7 +244,7 @@ public class ProductService : IProductService
                 { "Name", editProductModel.Name },
                 { "Slug", slug },
                 { "Description", editProductModel.Description },
-                { "ImageUrl", imageUrl },
+                { "ImageUrl", targetPath },
                 { "OriginalPrice", editProductModel.OriginalPrice },
                 { "Price", editProductModel.Price },
                 { "CategoryId", editProductModel.CategoryId },
@@ -239,9 +253,10 @@ public class ProductService : IProductService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-
-        if (!resultUpdated)
-            throw new InternalServerException("Updated product failed");
+        
+        if(!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editProductModel.ImageUrl, targetPath);
+        
         return new BaseResponseModel("Updated product success");
     }
 
@@ -263,7 +278,7 @@ public class ProductService : IProductService
         if (!string.IsNullOrEmpty(product.ImageUrl))
             await product.ImageUrl.DeleteImageAsync();
 
-        var resultDeleted = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -272,20 +287,31 @@ public class ProductService : IProductService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-
-        if (!resultDeleted)
-            throw new InternalServerException("Deleted product failed");
+        
         return new BaseResponseModel("Deleted product success");
     }
 
     public async Task<BaseResponseModel> DeleteListAsync(string[] listProductId,
         CancellationToken cancellationToken = default)
     {
-        if (!listProductId.ValidateInputIsOfTypeGuid())
-            throw new BadRequestException(
-                "Product id list is not valid, there may be an element that is not of type guid");
 
-        var resultDeleted = await _databaseRepository.ExecuteAsync(
+        var duplicateId = listProductId.ToList().HasDuplicated(x => x);
+        if (duplicateId)
+            throw new BadRequestException("Product is duplicate");
+
+        // xem lại
+        var tasks = listProductId.Select(async pId =>
+        {
+            var id = Guid.Parse(pId);
+            var p = await FindByIdAsync(id, cancellationToken).ConfigureAwait(false);
+            if (p == null)
+                throw new NotFoundException("The product is not found");
+            return p.ImageUrl;
+        }).ToArray();
+        
+        var images = await Task.WhenAll(tasks);
+        
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -295,9 +321,32 @@ public class ProductService : IProductService
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
 
-        if (!resultDeleted)
-            throw new BadRequestException("Deleted list product failed");
+        var tasksDel = images.Select(async p =>
+        {
+            if(string.IsNullOrEmpty(p))
+                return Task.CompletedTask;
+            await p.DeleteImageAsync();
+            return Task.CompletedTask;
+        });
+
+        await Task.WhenAll(tasksDel);
+        
         return new BaseResponseModel("Deleted list product success");
+    }
+
+    public async Task<Product> FindByIdAsync(Guid productId, CancellationToken cancellationToken = default)
+    {
+        var product = await _databaseRepository.GetAsync<Product>(
+            sqlQuery: SQL_QUERY,
+            parameters: new Dictionary<string, object>()
+            {
+                { "Activity", "GET_BY_ID" },
+                { "Id", productId }
+            },
+            cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
+
+        return product;
     }
 
     public async Task<BaseResponseModel> ChangeIsBestSellingAsync(Guid productId,

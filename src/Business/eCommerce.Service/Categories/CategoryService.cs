@@ -57,9 +57,8 @@ public class CategoryService : ICategoryService
         ).ConfigureAwait(false);
 
         if (category == null)
-        {
             throw new NotFoundException("The category is not found");
-        }
+   
         return new OkResponseModel<CategoryModel>(category);
     }
     
@@ -76,24 +75,23 @@ public class CategoryService : ICategoryService
         ).ConfigureAwait(false);
 
         if (category == null)
-        {
             throw new NotFoundException("The category is not found");
-        }
+  
         return new OkResponseModel<CategoryDetailsModel>(category);
     }
 
     public async Task<BaseResponseModel> CreateAsync(EditCategoryModel editCategoryModel, CancellationToken cancellationToken = default)
     {
-        // check if category is duplicated
         var duplicated = await CheckDuplicatedAsync(editCategoryModel, cancellationToken).ConfigureAwait(false);
         if (duplicated)
             throw new InvalidOperationException("Category with the same name already exists.");
 
 
-        if(!string.IsNullOrEmpty(editCategoryModel.ImageUrl))
-            editCategoryModel.ImageUrl = await ImageExtensions.MoveFile(_env,editCategoryModel.ImageUrl, null);
+        var targetPath = string.Empty;
+        if (!string.IsNullOrEmpty(editCategoryModel.ImageUrl))
+            targetPath = Path.Combine(_env.WebRootPath, "categories", Path.GetFileName(editCategoryModel.ImageUrl));
         
-        var resultCreated = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -101,14 +99,14 @@ public class CategoryService : ICategoryService
                 {"Id", Guid.NewGuid()},
                 {"Name", editCategoryModel.Name},
                 {"Description", editCategoryModel.Description},
-                {"ImageUrl", editCategoryModel.ImageUrl},
+                {"ImageUrl", targetPath },
                 {"CategoryParentId", editCategoryModel.ParentId }
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
         
-        if(!resultCreated)
-            throw new InternalServerException("Created category failed");
+        if (!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editCategoryModel.ImageUrl, targetPath);
 
         return new BaseResponseModel("Created category success");
     }
@@ -116,7 +114,7 @@ public class CategoryService : ICategoryService
     public async Task<BaseResponseModel> UpdateAsync(Guid categoryId, EditCategoryModel editCategoryModel, CancellationToken cancellationToken = default)
     {
         // check for existence of category
-        var c = await FindById(categoryId, cancellationToken).ConfigureAwait(false);
+        var c = await FindByIdAsync(categoryId, cancellationToken).ConfigureAwait(false);
 
         if (c == null) 
             throw new NotFoundException("The category is not found");
@@ -130,17 +128,18 @@ public class CategoryService : ICategoryService
                 throw new BadRequestException("The category parents is not found");
         }
         
-        
+        // handle get path image
+        var targetPath = string.Empty;
         if (!string.IsNullOrEmpty(editCategoryModel.ImageUrl))
         {
             if (string.IsNullOrEmpty(c.ImageUrl))
             {
-                editCategoryModel.ImageUrl = await ImageExtensions.MoveFile(_env,editCategoryModel.ImageUrl, null);
+                targetPath = Path.Combine(_env.WebRootPath, "categories", Path.GetFileName(editCategoryModel.ImageUrl));
             }
             else if (c.ImageUrl != editCategoryModel.ImageUrl)
             {
                 await c.ImageUrl.DeleteImageAsync();
-                editCategoryModel.ImageUrl = await ImageExtensions.MoveFile(_env,editCategoryModel.ImageUrl, null);
+                targetPath = Path.Combine(_env.WebRootPath, "categories", Path.GetFileName(editCategoryModel.ImageUrl));
             }
         }
         else
@@ -150,9 +149,8 @@ public class CategoryService : ICategoryService
                 await c.ImageUrl.DeleteImageAsync();
             }
         }
-
         
-        var resultUpdated = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -160,15 +158,16 @@ public class CategoryService : ICategoryService
                 { "Id", categoryId },
                 { "Name", editCategoryModel.Name },
                 { "Description", editCategoryModel.Description},
-                { "ImageUrl", editCategoryModel.ImageUrl},
+                { "ImageUrl", targetPath},
                 { "ParentId", editCategoryModel.ParentId},
                 { "Status", editCategoryModel.Status}
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
         
-        if(!resultUpdated)
-            throw new InternalServerException("Updated category failed");
+        if (!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editCategoryModel.ImageUrl, targetPath);
+        
         return new BaseResponseModel("Update category success");
     }
 
@@ -179,7 +178,7 @@ public class CategoryService : ICategoryService
         if (!alreadyExist) 
             throw new NotFoundException("The category is not found");
         
-        var resultChange = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -189,20 +188,21 @@ public class CategoryService : ICategoryService
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
         
-        if(!resultChange)
-            throw new InternalServerException("Change status category failed");
         return new BaseResponseModel("Change status category success");
 
     }
 
     public async Task<BaseResponseModel> DeleteAsync(Guid categoryId, CancellationToken cancellationToken = default)
     {
-        var alreadyExist = await CheckAlreadyExistAsync(categoryId, cancellationToken).ConfigureAwait(false);
+        var c = await FindByIdAsync(categoryId, cancellationToken).ConfigureAwait(false);
 
-        if (!alreadyExist) 
+        if (c == null) 
             throw new NotFoundException("The category is not found");
+
+        if(!string.IsNullOrEmpty(c.ImageUrl))
+            await c.ImageUrl.DeleteImageAsync();
         
-        var resultDeleted = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -212,8 +212,6 @@ public class CategoryService : ICategoryService
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
         
-        if(!resultDeleted)
-            throw new InternalServerException("Deleted category failed");
         return new BaseResponseModel("Deleted category success");
     }
 
@@ -249,7 +247,7 @@ public class CategoryService : ICategoryService
         return category != null;
     }
     
-    private async Task<Category> FindById(Guid categoryId, CancellationToken cancellationToken = default)
+    public async Task<Category> FindByIdAsync(Guid categoryId, CancellationToken cancellationToken = default)
     {
         var category = await _databaseRepository.GetAsync<Category>(
             sqlQuery: SQL_QUERY,

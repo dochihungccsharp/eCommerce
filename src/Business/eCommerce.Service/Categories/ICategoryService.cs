@@ -1,4 +1,5 @@
-﻿using eCommerce.Model.Abstractions.Responses;
+﻿using eCommerce.Domain.Domains;
+using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Model.Categories;
 using eCommerce.Model.Paginations;
 
@@ -14,6 +15,7 @@ public interface ICategoryService
     Task<BaseResponseModel> UpdateAsync(Guid categoryId, EditCategoryModel editCategoryModel, CancellationToken cancellationToken = default);
     Task<BaseResponseModel> ChangeStatusAsync(Guid categoryId, CancellationToken cancellationToken = default);
     Task<BaseResponseModel> DeleteAsync(Guid categoryId, CancellationToken cancellationToken = default);
+    Task<Category> FindByIdAsync(Guid categoryId, CancellationToken cancellationToken = default);
     Task<bool> CheckDuplicatedAsync(EditCategoryModel editCategoryModel, CancellationToken cancellationToken = default);
     Task<bool> CheckAlreadyExistAsync(Guid categoryId, CancellationToken cancellationToken = default);
 }

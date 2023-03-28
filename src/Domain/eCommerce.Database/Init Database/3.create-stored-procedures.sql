@@ -677,10 +677,8 @@ CREATE PROC sp_Products
 @IsBestSelling                  BIT                 =       NULL,
 @IsNew                          BIT                 =       NULL,
 
-@CreatedTime                    DATETIME            =       NULL,
-@CreatorId                      UNIQUEIDENTIFIER    =       NULL,
-@ModifiedTime                   DATETIME            =       NULL,
-@ModifierId                     UNIQUEIDENTIFIER    =       NULL,
+@Created                        DATETIME            =       NULL,
+@Modified                       DATETIME            =       NULL,
 @IsDeleted                      BIT                 =       0   ,
 
 @ListId							VARCHAR(MAX)        =       NULL,
@@ -846,7 +844,7 @@ GO
 
 
 
-ALTER PROC [dbo].[sp_PurchaseOrders]
+CREATE PROC [dbo].[sp_PurchaseOrders]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,
@@ -975,7 +973,7 @@ BEGIN
 
 										-- UPDATE Quantity Inventory
 										UPDATE Inventory 
-										SET Quantity = Quantity + Quantity
+										SET Quantity = Quantity + @Quantity
 										WHERE Id = @InventoryId;
 									END
 								SET @Index = @Index + 1;

@@ -1,3 +1,4 @@
+using eCommerce.Domain.Domains;
 using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Model.CartItems;
 using eCommerce.Model.Shoppings;
@@ -12,10 +13,12 @@ public interface IShoppingService
     Task<BaseResponseModel> AddCartItemAsync(EditCartItemModel cartItemModel, 
         CancellationToken cancellationToken = default);
 
-    Task<BaseResponseModel> UpdateCartItemAsync(EditCartItemModel cartItemModel,
+    Task<BaseResponseModel> UpdateCartItemAsync(Guid cartItemId ,EditCartItemModel cartItemModel,
         CancellationToken cancellationToken = default);
 
-    Task<BaseResponseModel> RemoveCartItemAsync(EditCartItemModel editCartItemModel,
+    Task<BaseResponseModel> DeleteCartItemAsync(Guid cartItemId ,
         CancellationToken cancellationToken);
+    Task<CartItem> FindCartItemByIdAsync(Guid Id, CancellationToken cancellationToken = default);
+    Task<Shopping> FindShoppingByUserId(Guid userId, CancellationToken cancellationToken);
 
 }

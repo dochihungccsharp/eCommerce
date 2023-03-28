@@ -7,6 +7,7 @@ using eCommerce.Service.Provinces;
 using eCommerce.Service.PurchaseOrders;
 using eCommerce.Service.Roles;
 using eCommerce.Service.SendMail;
+using eCommerce.Service.Shoppings;
 using eCommerce.Service.Suppliers;
 using eCommerce.Service.Uploads;
 using eCommerce.Service.Users;
@@ -37,8 +38,9 @@ public static class ServiceExtensions
         services.AddScoped<ISupplierService, SupplierService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+        services.AddScoped<IShoppingService, ShoppingService>();
         services.AddScoped<IUploadService, UploadService>();
-
+        
        
 
     }

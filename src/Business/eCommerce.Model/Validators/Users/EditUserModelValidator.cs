@@ -30,6 +30,10 @@ public class EditUserModelValidator : AbstractValidator<EditUserModel>
         RuleFor(x => x.PhoneNumber)
             .Must(phone => phone == null || Regex.IsMatch(phone, @"^(03|05|07|08|09)+([0-9]{8})$"))
             .WithMessage("Số điện thoại không hợp lệ hoặc không được cung cấp.");
+        
+        RuleFor(x => x.Avatar)
+            .Must(path => string.IsNullOrEmpty(path) || File.Exists(path))
+            .WithMessage("Logo không tồn tại trong hệ thống.");
     }
     
 }

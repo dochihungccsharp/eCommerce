@@ -1,4 +1,5 @@
-﻿using eCommerce.Model.Abstractions.Responses;
+﻿using eCommerce.Domain.Domains;
+using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Model.Brands;
 using eCommerce.Model.Paginations;
 
@@ -14,6 +15,7 @@ public interface IBrandService
     Task<BaseResponseModel> UpdateAsync(Guid brandId, EditBrandModel editBrandModel, CancellationToken cancellationToken);
     Task<BaseResponseModel> ChangeStatusAsync(Guid brandId, CancellationToken cancellationToken);
     Task<BaseResponseModel> DeleteAsync(Guid brandId, CancellationToken cancellationToken);
+    Task<Brand> FindByIdAsync(Guid brandId, CancellationToken cancellationToken);
     Task<bool> CheckDuplicatedAsync(EditBrandModel editProductModel, CancellationToken cancellationToken = default);
     Task<bool> CheckAlreadyExistAsync(Guid brandId, CancellationToken cancellationToken = default);
 }

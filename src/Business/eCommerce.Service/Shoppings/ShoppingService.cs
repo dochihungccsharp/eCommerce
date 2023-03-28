@@ -9,6 +9,7 @@ using eCommerce.Model.CartItems;
 using eCommerce.Model.Shoppings;
 using eCommerce.Model.Users;
 using eCommerce.Service.AccessToken;
+using eCommerce.Service.Products;
 using eCommerce.Service.SendMail;
 using eCommerce.Shared.Exceptions;
 using eCommerce.Shared.Extensions;
@@ -21,28 +22,24 @@ public class ShoppingService : IShoppingService
 {
     private readonly IDatabaseRepository _databaseRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IProductService _productService;
     private readonly UserContextModel _userContextModel;
-    private readonly IMapper _mapper;
-    private readonly IWebHostEnvironment _env;
     private const string SQL_QUERY = "sp_Shoppings";
     
     public ShoppingService(
         IDatabaseRepository databaseRepository,
         IUserRepository userRepository,
-        IHttpContextAccessor httpContextAccessor,
-        UserContextModel userContextModel,
-        IMapper mapper,
-        IWebHostEnvironment env
+        IProductService productService,
+        UserContextModel userContextModel
     )
     {
         _databaseRepository = databaseRepository;
         _userRepository = userRepository;
-        _httpContextAccessor = httpContextAccessor;
+        _productService = productService;
         _userContextModel = userContextModel ?? throw new BadRequestException("The request is invalid");
-        _mapper = mapper;
-        _env = env;
     }
+    
+    // get shopping cart details
     public async Task<OkResponseModel<ShoppingDetailsModel>> GetShoppingDetailsAsync(CancellationToken cancellationToken = default)
     {
         if(_userContextModel == null)
@@ -57,7 +54,7 @@ public class ShoppingService : IShoppingService
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
-                {"Activity", "GET_SHOPPING_BY_USER_ID"},
+                {"Activity", "GET_SHOPPING_DETAILS_BY_USER_ID"},
                 {"UserId", u.Id}
             },
             cancellationToken: cancellationToken
@@ -66,7 +63,7 @@ public class ShoppingService : IShoppingService
         return new OkResponseModel<ShoppingDetailsModel>(shopping);
 
     }
-
+    
     public async Task<BaseResponseModel> UpdateShoppingAsync(EditShoppingModel editShoppingModel, CancellationToken cancellationToken = default)
     {
         if(_userContextModel == null)
@@ -77,20 +74,18 @@ public class ShoppingService : IShoppingService
         if (u == null)
             throw new BadRequestException("The request is invalid");
 
-        HashSet<Guid> itemSet = new HashSet<Guid>();
-        foreach (EditCartItemModel item in editShoppingModel.EditCartItemModels)
+        if (editShoppingModel.EditCartItemModels != null && editShoppingModel.EditCartItemModels.Count > 0)
         {
-            if (!itemSet.Add(item.ProductId))
-            {
+            var duplicateCartItem = editShoppingModel.EditCartItemModels.HasDuplicated(x => x.ProductId);
+            if(duplicateCartItem) 
                 throw new BadRequestException("Duplicate item found in the cart.");
-            }
         }
-        
+
         var shopping = await FindShoppingByUserId(userId, cancellationToken).ConfigureAwait(false);
         if (shopping == null)
             throw new NotFoundException("The shopping is not found");
 
-        var resultUpdate = await _databaseRepository.ExecuteAsync(
+        await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
@@ -102,27 +97,143 @@ public class ShoppingService : IShoppingService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-
-        if (!resultUpdate)
-            throw new InternalServerException("Update shopping cart fail");
-
+        
         return new BaseResponseModel("Update shopping cart success");
     }
-
+    
     public async Task<BaseResponseModel> AddCartItemAsync(EditCartItemModel cartItemModel, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        if(_userContextModel == null)
+            throw new BadRequestException("The request is invalid");
+        
+        var userId = Guid.Parse(_userContextModel.Id);
+        var u = await _userRepository.FindUserByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        if (u == null)
+            throw new BadRequestException("The request is invalid");
+
+        var p = await _productService.FindByIdAsync(cartItemModel.ProductId, cancellationToken).ConfigureAwait(false);
+        if (p == null)
+            throw new BadRequestException("The product is not found");
+
+        if (cartItemModel.Quantity > p.Quantity)
+            throw new BadRequestException("Insufficient product inventory");
+        
+        var shopping = await FindShoppingByUserId(u.Id, cancellationToken).ConfigureAwait(false);
+        if (shopping != null)
+        {
+            await _databaseRepository.ExecuteAsync(
+                sqlQuery: SQL_QUERY,
+                parameters: new Dictionary<string, object>()
+                {
+                    {"Activity", "ADD_CART_ITEM"},
+                    {"Id", shopping.Id },
+                    {"ProductId", cartItemModel.ProductId},
+                    {"Quantity", cartItemModel.Quantity }
+                },
+                cancellationToken: cancellationToken
+            ).ConfigureAwait(false);
+        }
+        else
+        {
+            await _databaseRepository.ExecuteAsync(
+                sqlQuery: SQL_QUERY,
+                parameters: new Dictionary<string, object>()
+                {
+                    {"Activity", "CREATE_SHOPPING"},
+                    {"Id", Guid.NewGuid()},
+                    {"UserId", u.Id},
+                    {"Total", 0 },
+                    {"CartItems", new List<EditCartItemModel>(){ cartItemModel }.ToDataTable()}
+                },
+                cancellationToken: cancellationToken
+            ).ConfigureAwait(false);
+        }
+        return new BaseResponseModel("Product added to cart successfully");
+
     }
 
-    public async Task<BaseResponseModel> UpdateCartItemAsync(EditCartItemModel cartItemModel, CancellationToken cancellationToken = default)
+    public async Task<BaseResponseModel> UpdateCartItemAsync(Guid cartItemId ,EditCartItemModel cartItemModel, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        if(_userContextModel == null)
+            throw new BadRequestException("The request is invalid");
+        
+        var userId = Guid.Parse(_userContextModel.Id);
+        var u = await _userRepository.FindUserByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        if (u == null)
+            throw new BadRequestException("The request is invalid");
+        
+        var cartItem = await FindCartItemByIdAsync(cartItemId, cancellationToken).ConfigureAwait(false);
+        if (cartItemId == null)
+            throw new BadRequestException("The cart item is not found");
+        
+        var p = await _productService.FindByIdAsync(cartItemModel.ProductId, cancellationToken).ConfigureAwait(false);
+        if (p == null)
+            throw new BadRequestException("The product is not found");
+
+        if (cartItemModel.Quantity <= p.Quantity)
+            throw new BadRequestException("Insufficient product inventory");
+
+        await _databaseRepository.ExecuteAsync(
+            sqlQuery: SQL_QUERY,
+            parameters: new Dictionary<string, object>()
+            {
+                {"Activity", "UPDATE_CART_ITEM"},
+                {"Id", cartItem.Id },
+                {"ShoppingId", cartItem.ShoppingId },
+                {"ProductId", cartItemModel.ProductId },
+                {"Quantity", cartItemModel.Quantity }
+            },
+            cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
+    
+        return new BaseResponseModel("Update cart item successfully");
+
     }
 
-    public async Task<BaseResponseModel> RemoveCartItemAsync(EditCartItemModel editCartItemModel, CancellationToken cancellationToken)
+
+
+    public async Task<BaseResponseModel> DeleteCartItemAsync(Guid cartItemId , CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        if(_userContextModel == null)
+            throw new BadRequestException("The request is invalid");
+        
+        var userId = Guid.Parse(_userContextModel.Id);
+        var u = await _userRepository.FindUserByIdAsync(userId, cancellationToken).ConfigureAwait(false);
+        if (u == null)
+            throw new BadRequestException("The request is invalid");
+        
+        var cartItem = await FindCartItemByIdAsync(cartItemId, cancellationToken).ConfigureAwait(false);
+        if (cartItem == null)
+            throw new BadRequestException("The cart item is not found");
+        
+        await _databaseRepository.ExecuteAsync(
+            sqlQuery: SQL_QUERY,
+            parameters: new Dictionary<string, object>()
+            {
+                {"Activity", "DELETE_CART_ITEM"},
+                {"Id", cartItem.Id }
+            },
+            cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
+    
+        return new BaseResponseModel("Update cart item successfully");
+        
     }
+
+    public async Task<CartItem> FindCartItemByIdAsync(Guid Id, CancellationToken cancellationToken = default)
+    {
+        var cartItem = await _databaseRepository.GetAsync<CartItem>(
+            sqlQuery: SQL_QUERY,
+            parameters: new Dictionary<string, object>()
+            {
+                {"Activity", "FIND_CART_ITEM_BY_ID"},
+                {"Id", Id}
+            },
+            cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
+        return cartItem;
+    }
+    
 
     public async Task<Shopping> FindShoppingByUserId(Guid userId, CancellationToken cancellationToken)
     {
@@ -130,7 +241,7 @@ public class ShoppingService : IShoppingService
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
-                {"Activity", "GET_SHOPPING_BY_USER_ID"},
+                {"Activity", "FIND_SHOPPING_BY_USER_ID"},
                 {"UserId", userId}
             },
             cancellationToken: cancellationToken

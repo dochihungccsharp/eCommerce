@@ -8,5 +8,5 @@ public class EditCategoryModel
     public string Description { get; set; }
     public string? ImageUrl { get; set; }
     public Guid? ParentId { get; set; }
-    public bool? Status { get; set; }
+    public bool Status { get; set; }
 }

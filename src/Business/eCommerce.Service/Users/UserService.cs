@@ -23,8 +23,6 @@ public class UserService : IUserService
 {
     private readonly IDatabaseRepository _databaseRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IRoleRepository _roleRepository;
-    private readonly IUserRoleRepository _userRoleRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISendMailService _sendMailService;
     private readonly IAccessTokenService _accessTokenService;
@@ -47,8 +45,6 @@ public class UserService : IUserService
     {
         _databaseRepository = databaseRepository;
         _userRepository = userRepository;
-        _roleRepository = roleRepository;
-        _userRoleRepository = userRoleRepository;
         _httpContextAccessor = httpContextAccessor;
         _sendMailService = sendMailService;
         _accessTokenService = accessTokenService;
@@ -209,30 +205,35 @@ public class UserService : IUserService
 
     public async Task<BaseResponseModel> CreateAsync(EditUserModel editUserModel, CancellationToken cancellationToken = default)
     {
-        var user = _mapper.Map<User>(editUserModel);
-        user.Id = Guid.NewGuid();
-            
+        if (editUserModel.Roles != null && editUserModel.Roles.Count > 0)
+        {
+            var duplicateRole = editUserModel.Roles.HasDuplicated(x => x.Id);
+            if (duplicateRole)
+                throw new BadRequestException("User role is duplicated");
+        }
         
+        var user = _mapper.Map<User>(editUserModel);
+
         var duplicateUser = await _userRepository.CheckDuplicateAsync(user, cancellationToken).ConfigureAwait(false);
         if(!duplicateUser)
             throw new InvalidOperationException("User with the same name already exists.");
         
-        // cần xem lại chỗ xử lý role này ....
-        if(editUserModel.Roles != null)
-            foreach (var role in editUserModel.Roles)
-            {
-                var r = await _roleRepository.FindRoleByIdAsync(role.Id, cancellationToken).ConfigureAwait(false);
-                if (r == null)
-                    throw new BadRequestException("The role is not found");
-            }
-
-        var resultCreated = await _userRepository.CreateUserAsync(
+        var targetPath = string.Empty;
+        if (!string.IsNullOrEmpty(editUserModel.Avatar))
+            targetPath = Path.Combine(_env.WebRootPath, "users", Path.GetFileName(editUserModel.Avatar));
+            
+        
+        user.Id = Guid.NewGuid();
+        user.Avatar = targetPath;
+        await _userRepository.CreateUserAsync(
                 user:user,
                 roles: editUserModel.Roles ?? default!,
                 cancellationToken:cancellationToken
             ).ConfigureAwait(false);
-        if (!resultCreated)
-            throw new InternalServerException("Create user fail");
+
+        if(!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editUserModel.Avatar, targetPath);
+        
         return new BaseResponseModel("Create user success");
     }
 
@@ -249,26 +250,47 @@ public class UserService : IUserService
             if (userWithEmail != null)
                 throw new BadRequestException("The request is invalid, email already exists");
         }
-
+        
+        if (editUserModel.Roles != null && editUserModel.Roles.Count > 0)
+        {
+            var duplicateRole = editUserModel.Roles.HasDuplicated(x => x.Id);
+            if (duplicateRole)
+                throw new BadRequestException("User role is duplicated");
+        }
+        
+        // handle get path image
+        var targetPath = string.Empty;
+        if (!string.IsNullOrEmpty(editUserModel.Avatar))
+        {
+            if (string.IsNullOrEmpty(u.Avatar))
+            {
+                targetPath = Path.Combine(_env.WebRootPath, "users", Path.GetFileName(editUserModel.Avatar));
+            }
+            else if (u.Avatar != editUserModel.Avatar)
+            {
+                await u.Avatar.DeleteImageAsync();
+                targetPath = Path.Combine(_env.WebRootPath, "users", Path.GetFileName(editUserModel.Avatar));
+            }
+        }
+        else 
+        {
+            if (!string.IsNullOrEmpty(u.Avatar))
+            {
+                await u.Avatar.DeleteImageAsync();
+            }
+        }
+        
         var user = _mapper.Map<User>(editUserModel);
         user.Id = userId;
-        // cần xem lại chỗ xử lý role này ....
-        if(editUserModel.Roles != null)
-            foreach (var role in editUserModel.Roles)
-            {
-                var r = await _roleRepository.FindRoleByIdAsync(role.Id, cancellationToken).ConfigureAwait(false);
-                if (r == null)
-                    throw new BadRequestException("The role is not found");
-            }
-
-
-        var resultUpdated = await _userRepository.UpdateUserAsync(
-                user: user, 
-                roles: editUserModel.Roles ?? default!,
-                cancellationToken:cancellationToken
-            ).ConfigureAwait(false);
-        if (!resultUpdated)
-            throw new InternalServerException("Update user fail");
+        user.Avatar = targetPath;
+        await _userRepository.UpdateUserAsync(
+            user: user, 
+            roles: editUserModel.Roles ?? default!,
+            cancellationToken:cancellationToken
+        ).ConfigureAwait(false);
+        
+        if(!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editUserModel.Avatar, targetPath);
         
         return new BaseResponseModel("Update user success");
     }
@@ -279,10 +301,11 @@ public class UserService : IUserService
         if (u == null)
             throw new BadRequestException("Invalid user id");
 
-        var resultDeleted = await _userRepository.DeleteUserAsync(userId, cancellationToken).ConfigureAwait(false);
-        if(!resultDeleted)
-            throw new InternalServerException("Deleted user fail");
+        if (!string.IsNullOrEmpty(u.Avatar))
+            await u.Avatar.DeleteImageAsync();
         
+        await _userRepository.DeleteUserAsync(userId, cancellationToken).ConfigureAwait(false);
+
         return new BaseResponseModel("Deleted user success");
     }
     
@@ -336,20 +359,40 @@ public class UserService : IUserService
             if(userWithEmail != null)
                 throw new BadRequestException("The request is invalid, email already exists");
         }
-        
+
+        // handle get path image
+        var targetPath = string.Empty;
+        if (!string.IsNullOrEmpty(editProfileModel.Avatar))
+        {
+            if (string.IsNullOrEmpty(u.Avatar))
+            {
+                targetPath = Path.Combine(_env.WebRootPath, "users", Path.GetFileName(editProfileModel.Avatar));
+            }
+            else if (u.Avatar != editProfileModel.Avatar)
+            {
+                await u.Avatar.DeleteImageAsync();
+                targetPath = Path.Combine(_env.WebRootPath, "users", Path.GetFileName(editProfileModel.Avatar));
+            }
+        }
+        else 
+        {
+            if (!string.IsNullOrEmpty(u.Avatar))
+            {
+                await u.Avatar.DeleteImageAsync();
+            }
+        }
+
         var user = _mapper.Map<User>(editProfileModel);
-
-        if (editProfileModel.Avatar != null)
-            user.Avatar = await editProfileModel.Avatar.SaveImageAsync(_env);
-
         user.Id = userId;
-        var resultUpdated = await _userRepository.UpdateUserAsync(
+        user.Avatar = targetPath;
+        await _userRepository.UpdateUserAsync(
                 user:user, 
                 roles: null,
                 cancellationToken: cancellationToken
             ).ConfigureAwait(false);
-        if (!resultUpdated)
-            throw new InternalServerException("Update user fail");
+        
+        if(!string.IsNullOrEmpty(targetPath))
+            await ImageExtensions.MoveFile(editProfileModel.Avatar, targetPath);
         
         return new BaseResponseModel("Update user success");
         

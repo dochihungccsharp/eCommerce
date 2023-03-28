@@ -80,7 +80,7 @@ namespace eCommerce.Service.Suppliers;
             if (checkDuplicatedSupplier)
                 throw new InvalidOperationException("Supplier with the same name or phone or email already exists");
 
-            var resultCreated = await _databaseRepository.ExecuteAsync(
+            await _databaseRepository.ExecuteAsync(
                 sqlQuery: SQL_QUERY,
                 parameters: new Dictionary<string, object>()
                 {
@@ -97,9 +97,6 @@ namespace eCommerce.Service.Suppliers;
                 cancellationToken: cancellationToken
             ).ConfigureAwait(false);
             
-            if(!resultCreated)
-                throw new InternalServerException("Created supplier failed");
-
             return new BaseResponseModel("Created supplier success");
         }
 
@@ -109,7 +106,7 @@ namespace eCommerce.Service.Suppliers;
             if(!checkAlreadyExistSupplier)
                 throw new NotFoundException("The supplier is not found");
             
-            var resultUpdated = await _databaseRepository.ExecuteAsync(
+            await _databaseRepository.ExecuteAsync(
                 sqlQuery: SQL_QUERY,
                 parameters: new Dictionary<string, object>()
                 {
@@ -126,9 +123,6 @@ namespace eCommerce.Service.Suppliers;
                 cancellationToken: cancellationToken
             ).ConfigureAwait(false);
             
-            if(!resultUpdated)
-                throw new InternalServerException("Updated supplier failed");
-
             return new BaseResponseModel("Update supplier success");
         }
         
@@ -140,7 +134,7 @@ namespace eCommerce.Service.Suppliers;
             if(!checkAlreadyExist)
                 throw new NotFoundException("The supplier is not found");
 
-            var resultDeleted = await _databaseRepository.ExecuteAsync(
+            await _databaseRepository.ExecuteAsync(
                 sqlQuery: SQL_QUERY,
                 parameters: new Dictionary<string, object>()
                 {
@@ -150,9 +144,6 @@ namespace eCommerce.Service.Suppliers;
                 cancellationToken: cancellationToken
             ).ConfigureAwait(false);
             
-            if(!resultDeleted)
-                throw new InternalServerException("Deleted supplier failed");
-
             return new BaseResponseModel("Deleted supplier success");
         }
 
@@ -163,7 +154,7 @@ namespace eCommerce.Service.Suppliers;
             if(!checkAlreadyExist)
                 throw new NotFoundException("The supplier is not found");
             
-            var resultChange = await _databaseRepository.ExecuteAsync(
+            await _databaseRepository.ExecuteAsync(
                 sqlQuery: SQL_QUERY,
                 parameters: new Dictionary<string, object>()
                 {
@@ -173,9 +164,6 @@ namespace eCommerce.Service.Suppliers;
                 cancellationToken: cancellationToken
             ).ConfigureAwait(false);
             
-            if(!resultChange)
-                throw new InternalServerException("Change status supplier failed");
-
             return new BaseResponseModel("Change status supplier success");
         }
 

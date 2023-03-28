@@ -48,26 +48,13 @@ public static class ImageExtensions
         return listFilePath;
     }
     
-    public static async Task<string> MoveFile(IWebHostEnvironment _env, string sourcePath, string? targetPath = null)
+    public static async Task MoveFile(string sourcePath, string targetPath)
     {
-        ArgumentNullException.ThrowIfNull(_env);
-        
         if (!File.Exists(sourcePath))
-            throw new IOException("File does not exist"); 
+            throw new IOException("Source path does not exist"); 
         
-        string fileName = Path.GetFileName(sourcePath);
-        string destFile = String.Empty;
-        if (targetPath == null)
-        {
-            destFile = Path.Combine(_env.WebRootPath, "images", fileName);
-        }
-        else
-        {
-            destFile = Path.Combine(targetPath, fileName);
-        }
-        
-        File.Move(sourcePath, destFile);
-        return destFile;
+
+        File.Move(sourcePath, targetPath);
         
     }
 

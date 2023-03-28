@@ -53,7 +53,6 @@ BEGIN
 			DECLARE @RowCount INT = (SELECT COUNT(*) FROM @PurchaseOrderDetails);
 			IF @RowCount > 0
 				BEGIN
-				PRINT @RowCount;
 					DECLARE @ProductId UNIQUEIDENTIFIER;
 					DECLARE @Quantity INT;
 					DECLARE @Price DECIMAL(18,2);
@@ -68,13 +67,15 @@ BEGIN
 									FROM @PurchaseOrderDetails
 									ORDER BY (SELECT NULL) OFFSET @Index-1 ROWS FETCH NEXT 1 ROWS ONLY;
 
-									BEGIN
-										SELECT 
-											@ErrorMessage = 'Product in purchase order does not exist', -- Sản phẩm trong purchase order không tồn tại
-											@ErrorSeverity = ERROR_SEVERITY(),
-											@ErrorState = ERROR_STATE();
-										RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-									END
+									-- CHECK THE PRODUCT EXISTENCE
+									IF NOT EXISTS (SELECT * FROM Product WHERE Id = @ProductId)
+										BEGIN
+											SELECT 
+												@ErrorMessage = 'Product in purchase order does not exist', -- Sản phẩm trong purchase order không tồn tại
+												@ErrorSeverity = ERROR_SEVERITY(),
+												@ErrorState = ERROR_STATE();
+											RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+										END
 
 									-- CREATE PURCHASE ORDER DETAIL
 									INSERT INTO PurchaseOrderDetail (PurchaseOrderId, ProductId, Quantity, Price) 

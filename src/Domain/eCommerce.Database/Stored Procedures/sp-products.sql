@@ -31,10 +31,8 @@ CREATE PROC sp_Products
 @IsBestSelling                  BIT                 =       NULL,
 @IsNew                          BIT                 =       NULL,
 
-@CreatedTime                    DATETIME            =       NULL,
-@CreatorId                      UNIQUEIDENTIFIER    =       NULL,
-@ModifiedTime                   DATETIME            =       NULL,
-@ModifierId                     UNIQUEIDENTIFIER    =       NULL,
+@Created                        DATETIME            =       NULL,
+@Modified                       DATETIME            =       NULL,
 @IsDeleted                      BIT                 =       0   ,
 
 @ListId							VARCHAR(MAX)        =       NULL,

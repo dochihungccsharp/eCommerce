@@ -83,9 +83,8 @@ public class RoleService : IRoleService
         var role = _mapper.Map<Role>(editRoleModel);
         role.Id = roleId;
 
-        var resultUpdated = await _roleRepository.UpdateRoleAsync(role, cancellationToken).ConfigureAwait(false);
-        if(!resultUpdated)
-            throw new InternalServerException("Update role fail");
+        await _roleRepository.UpdateRoleAsync(role, cancellationToken).ConfigureAwait(false);
+
         return new BaseResponseModel("Update role success");
     }
 
@@ -95,9 +94,8 @@ public class RoleService : IRoleService
         if (r != null)
             throw new BadRequestException("The role id is not found");
         
-        var resultDeleted = await _roleRepository.DeleteRoleAsync(roleId, cancellationToken).ConfigureAwait(false);
-        if(!resultDeleted)
-            throw new InternalServerException("Deleted role fail");
+        await _roleRepository.DeleteRoleAsync(roleId, cancellationToken).ConfigureAwait(false);
+        
         return new BaseResponseModel("Deleted role success");
         
     }

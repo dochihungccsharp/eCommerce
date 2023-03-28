@@ -18,7 +18,6 @@ try
 
     builder.Services.AddAuthenticationService(builder.Configuration);
     
-    
     // add swagger service
     builder.Services.AddSwaggerService();
     
@@ -45,7 +44,7 @@ try
     builder.Services.AddUserContextModelService(builder.Configuration);
     
     // add service hangfire
-    builder.Services.AddHangfire(builder);
+    // builder.Services.AddHangfire(builder);
 
     var app = builder.Build();
     
@@ -66,9 +65,9 @@ try
     
     app.UseAuthorization();
     
-    app.UseHangfireDashboard();
+    // app.UseHangfireDashboard();
     
-    app.UseHangfireServer();
+    //app.UseHangfireServer();
     
     app.MapControllers();
     
