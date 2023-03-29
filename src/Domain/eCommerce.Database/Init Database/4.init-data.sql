@@ -46,7 +46,7 @@ DECLARE @UserAddressId UNIQUEIDENTIFIER = NEWID();
 INSERT INTO [User] 
 (Id, Username, Fullname, Email, EmailConfirmed, PasswordHash, PhoneNumber, Avatar, [Address], [TotalAmountOwed], UserAddressId, [Status], Created, IsDeleted)
 VALUES 
-(@UserId, 'admin', N'Đỗ Chung', 'dohung.csharp@gmail.com', 1, '21232f297a57a5a743894a0e4a801fc3', '0999999999', NULL, N'Đông Kết, Khoái Châu, Hưng Yên', 999999999, @UserAddressId, 1, GETDATE(), 0);
+(@UserId, 'dohung.csharp@gmail.com', N'Đỗ Chung', 'dohung.csharp@gmail.com', 1, '00a666c06d72c25ab9d74d1fa687d2b8', '0999999999', NULL, N'Đông Kết, Khoái Châu, Hưng Yên', 999999999, @UserAddressId, 1, GETDATE(), 0);
 
 -- CREATE USER ADDRESS
 INSERT INTO UserAddress

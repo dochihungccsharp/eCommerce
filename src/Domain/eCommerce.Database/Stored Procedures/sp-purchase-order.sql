@@ -1,13 +1,13 @@
 ﻿USE eCommerce
 GO
 
-CREATE TYPE PurchaseOrderDetailsTableType AS TABLE
-(
-   ProductId UNIQUEIDENTIFIER,
-   Quantity INT,
-   Price DECIMAL(18, 2)
-);
-GO
+--CREATE TYPE PurchaseOrderDetailsTableType AS TABLE
+--(
+--   ProductId UNIQUEIDENTIFIER,
+--   Quantity INT,
+--   Price DECIMAL(18, 2)
+--);
+--GO
 
 
 

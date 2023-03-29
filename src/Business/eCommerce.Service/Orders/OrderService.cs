@@ -1,6 +1,6 @@
 namespace eCommerce.Service.Orders;
 
-public class IOrderDetailService
+public class OrderService
 {
     
 }

@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Orders" />
+      <Folder Include="OrderDetails" />
       <Folder Include="Validators\Orders" />
       <Folder Include="Validators\ReturnOrders" />
       <Folder Include="Validators\Shoppings" />
