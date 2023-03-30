@@ -3,14 +3,14 @@ using eCommerce.Model.UserAddresses;
 
 namespace eCommerce.Service.UserAddresses;
 
-public interface IUserAddress
+public interface IUserAddressService
 {
-    Task<OkResponseModel<IList<UserAddressModel>>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<OkResponseModel<UserAddressModel>> GetAsync(CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> CreateUserAddressAsync(EditUserAddressModel editUserAddressModel,
+    Task<OkResponseModel<IEnumerable<UserAddressModel>>> GetAllByUserIdAsync(CancellationToken cancellationToken = default);
+    Task<OkResponseModel<UserAddressModel>> GetAsync(Guid userAddressId, CancellationToken cancellationToken = default);
+    Task<BaseResponseModel> CreateAsync(EditUserAddressModel editUserAddressModel,
         CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> UpdateUserAddressAsync(Guid userAddressId, EditUserAddressModel editUserAddressModel,
+    Task<BaseResponseModel> UpdateAsync(Guid userAddressId, EditUserAddressModel editUserAddressModel,
         CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> DeleteUserAddressAsync(Guid userAddressId, CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> SetDefaultUserAddressAsync(Guid userAddressId, CancellationToken cancellationToken = default);
+    Task<BaseResponseModel> DeleteAsync(Guid userAddressId, CancellationToken cancellationToken = default);
+    Task<BaseResponseModel> SetDefaultAddressForUserAsync(Guid userAddressId, CancellationToken cancellationToken = default);
 }
