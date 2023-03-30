@@ -11,7 +11,7 @@ GO
 
 
 
-ALTER PROC [dbo].[sp_PurchaseOrders]
+CREATE PROC [dbo].[sp_PurchaseOrders]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,
@@ -95,13 +95,8 @@ BEGIN
 
 								-- CHECK THE PRODUCT EXISTENCE
 								IF NOT EXISTS (SELECT * FROM Product WHERE Id = @ProductId)
-									BEGIN
-										SELECT 
-											@ErrorMessage = 'Product in purchase order does not exist', -- Sản phẩm trong purchase order không tồn tại
-											@ErrorSeverity = ERROR_SEVERITY(),
-											@ErrorState = ERROR_STATE();
-										RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-									END
+									THROW 99001, 'Product in purchase order does not exist', 1;
+										
 
 								-- CREATE PURCHASE ORDER DETAIL
 								INSERT INTO PurchaseOrderDetail (PurchaseOrderId, ProductId, Quantity, Price) 
@@ -148,31 +143,17 @@ BEGIN
 							END
 						END
 					ELSE
-						BEGIN
-							SELECT 
-							@ErrorMessage = 'Order status invalid',
-							@ErrorSeverity = ERROR_SEVERITY(),
-							@ErrorState = ERROR_STATE();
-							RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-						END
+						THROW 99001, 'Order status invalid', 1
 				END
 			ELSE 
-				BEGIN
-					SELECT 
-					@ErrorMessage = 'Your order has no products?',
-					@ErrorSeverity = ERROR_SEVERITY(),
-					@ErrorState = ERROR_STATE();
-					RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-				END
+				THROW 99001, 'Your order has no products?', 1
 		END
 		COMMIT TRANSACTION
 	END TRY
 	BEGIN CATCH
 		SELECT 
-			@ErrorMessage =  ERROR_MESSAGE(),
-			@ErrorSeverity = ERROR_SEVERITY(),
-			@ErrorState = ERROR_STATE();
-		RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+			@ErrorMessage =  ERROR_MESSAGE();
+		THROW 99001, @ErrorMessage , 1
 		ROLLBACK TRANSACTION
 	END CATCH
 END

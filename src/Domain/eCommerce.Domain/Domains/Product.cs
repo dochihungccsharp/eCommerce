@@ -17,6 +17,10 @@ public class Product : IFullAuditDomain, IPagedDomain
     public bool IsBestSelling { get; set; }
     public bool IsNew { get; set; }
     
+    public string DiscountType { get; set; }
+    public decimal DiscountValue { get; set; }
+    public decimal DiscountPrice { get; set; }
+    
     public Guid CategoryId { get; set; }
     public Guid SupplierId { get; set; }
     public Guid BrandId { get; set; }

@@ -38,7 +38,6 @@ BEGIN
 			THROW 99001, 'Product in cart does not exist', 1
 
 
-
 		-- ADD OR UPDATE CART ITEM
 		IF EXISTS (SELECT TOP 1 1 FROM CartItem WHERE UserId = @UserId AND ProductId = @ProductId)
 			BEGIN

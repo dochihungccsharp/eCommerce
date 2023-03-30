@@ -36,7 +36,18 @@ public class HandleExceptionMiddleware : IMiddleware
         {
             case SqlException:
             {
-                baseResponseModel.StatusCode = HttpStatusCode.InternalServerError;
+                var innerException = exception.InnerException as SqlException;
+                if (innerException == null)
+                {
+                    baseResponseModel.StatusCode = HttpStatusCode.InternalServerError;
+                    break;
+                }
+                if(innerException.Number == 400)
+                    baseResponseModel.StatusCode = HttpStatusCode.BadRequest;  
+                
+                else if (innerException.Number == 404)
+                    baseResponseModel.StatusCode = HttpStatusCode.NotFound;
+                
                 break;
             }
             case UnauthorizedException:

@@ -1,4 +1,4 @@
--- Create database with database name eCommerce
+﻿-- Create database with database name eCommerce
 CREATE DATABASE eCommerce
 GO
 
@@ -248,7 +248,6 @@ CREATE TABLE PurchaseOrderDetail
 GO
 
 
-
 -- CREATE TABLE CART ITEM
 CREATE TABLE CartItem
 (
@@ -265,21 +264,83 @@ CREATE TABLE CartItem
 )
 GO
 
+-- CREATE TABLE CATEGORY DISCOUNT
+CREATE TABLE CategoryDiscount (
+	Id UNIQUEIDENTIFIER,
+	UserId UNIQUEIDENTIFIER NOT NULL,
+	CategoryId UNIQUEIDENTIFIER NOT NULL,
+	Code VARCHAR(50) NOT NULL,
+	DiscountType VARCHAR(10) NOT NULL,
+	DiscountValue DECIMAL(10,2) NOT NULL,
+	MinimumOrderAmount DECIMAL(10,2) NOT NULL,
+	Created DATETIME NOT NULL,
+	Modified DATETIME NULL,
+	IsActive BIT NOT NULL DEFAULT 0,
+	StartDate DATETIME NOT NULL,
+	EndDate DATETIME NOT NULL,
 
--- CREATE TABLE ORDER DETAIL
-CREATE TABLE OrderDetail
+	CONSTRAINT [Pk_CategoryDiscount] PRIMARY KEY CLUSTERED (Id ASC),
+
+	CONSTRAINT [Fk_User_UserId] FOREIGN KEY(UserId) REFERENCES [User](Id),
+
+	CONSTRAINT [Fk_Category_CategoryId] FOREIGN KEY(CategoryId) REFERENCES Category(Id)
+);
+
+-- CREATE TABLE CATEGORY DISCOUNT Exclusion
+CREATE TABLE CategoryProductExclusion (
+    Id UNIQUEIDENTIFIER,
+    CategoryDiscountId UNIQUEIDENTIFIER NOT NULL,
+	CategoryId UNIQUEIDENTIFIER NOT NULL,
+    ProductId UNIQUEIDENTIFIER NOT NULL,
+
+    CONSTRAINT [PK_CategoryProductExclusion] PRIMARY KEY CLUSTERED (Id ASC),
+
+    CONSTRAINT [FK_CategoryProductExclusion_CategoryDiscountId] FOREIGN KEY (CategoryDiscountId) REFERENCES CategoryDiscount(Id),
+
+    CONSTRAINT [FK_CategoryProductExclusion_ProductId] FOREIGN KEY (ProductId) REFERENCES Product(Id)
+);
+
+-- CREATE TABLE PROMOTION
+CREATE TABLE Promotion (
+	Id UNIQUEIDENTIFIER,
+	UserId UNIQUEIDENTIFIER NOT NULL,
+	Code VARCHAR(50) NOT NULL,
+	DiscountType VARCHAR(10) NOT NULL,
+	DiscountValue DECIMAL(10,2) NOT NULL,
+	MinimumOrderAmount DECIMAL(10,2) NOT NULL,
+	Created DATETIME NOT NULL,
+	Modified DATETIME NULL,
+	IsActive BIT NOT NULL DEFAULT 0,
+	StartDate DATETIME NOT NULL,
+	EndDate DATETIME NOT NULL,
+
+	CONSTRAINT [Pk_Promotion] PRIMARY KEY CLUSTERED (Id ASC),
+
+	CONSTRAINT [Fk_Promotion_UserId] FOREIGN KEY(UserId) REFERENCES [User](Id)
+);
+
+
+
+-- CREATE TABLE ORDER
+CREATE TABLE [Order]
 (
     Id UNIQUEIDENTIFIER NOT NULL,
-    UserId UNIQUEIDENTIFIER,
+    UserId UNIQUEIDENTIFIER NOT NULL,
+    PaymentId UNIQUEIDENTIFIER NULL,
+    PromotionId UNIQUEIDENTIFIER NULL,
+	PaymentStatus NVARCHAR(20), -- PAID, UNPAID
+    PaymentMethod NVARCHAR(20), -- COD, VNPAY
+	OrderStatus NVARCHAR(20),  -- Pending, Processing, Shipped, Delivered, Cancelled
     ToTal DECIMAL(18, 2),
-    PaymentId UNIQUEIDENTIFIER,
+	Note NVARCHAR(MAX) NULL,
     Created DATETIME NULL,
     Modified DATETIME NULL,
+	IsCancelled BIT DEFAULT 0, -- đã hủy
 	IsDeleted BIT,
 
-    CONSTRAINT [Pk_OrderDetail] PRIMARY KEY CLUSTERED (Id ASC),
-
-    CONSTRAINT [Fk_OrderDetail_UserId] FOREIGN KEY(UserId) REFERENCES [User](Id),
+    CONSTRAINT [Pk_Order] PRIMARY KEY CLUSTERED (Id ASC),
+    CONSTRAINT [Fk_Order_UserId] FOREIGN KEY(UserId) REFERENCES [User](Id),
+    CONSTRAINT [Fk_Order_PromotionId] FOREIGN KEY(PromotionId) REFERENCES [Promotion](Id)
 )
 GO
 
@@ -297,12 +358,15 @@ CREATE TABLE PaymentDetail
 
     CONSTRAINT [Pk_PaymentDetail] PRIMARY KEY CLUSTERED (Id ASC),
 
-    CONSTRAINT [Fk_PaymentDetail_OrderId] FOREIGN KEY(OrderId) REFERENCES OrderDetail(Id)
+    CONSTRAINT [Fk_PaymentDetail_OrderId] FOREIGN KEY(OrderId) REFERENCES [Order](Id)
 )
 GO
 
-ALTER TABLE OrderDetail ADD CONSTRAINT [Fk_OrderDetail_PaymentId] FOREIGN KEY(PaymentId) REFERENCES PaymentDetail(Id)
+
+ALTER TABLE [Order] ADD CONSTRAINT [Fk_OrderDetail_PaymentId] FOREIGN KEY(PaymentId) REFERENCES PaymentDetail(Id)
 GO
+
+
 
 -- CREATE TABLE ORDER DETAIL
 CREATE TABLE OrderItem
@@ -318,9 +382,9 @@ CREATE TABLE OrderItem
     CONSTRAINT [Pk_OrderItem] PRIMARY KEY CLUSTERED (Id ASC),
 
     CONSTRAINT [Fk_OrderItem_OrderId]
-        FOREIGN KEY(OrderId) REFERENCES OrderDetail(Id),
+        FOREIGN KEY(OrderId) REFERENCES [Order](Id),
 
-    CONSTRAINT [Fk_OrderItem_ProductId]
+    CONSTRAINT [Fk_Product_ProductId]
         FOREIGN KEY(ProductId) REFERENCES Product(id)
 )
 GO

@@ -122,7 +122,6 @@ public class CartService : ICartService
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
-
         
         return new BaseResponseModel("Product added to cart successfully");
 
