@@ -13,7 +13,11 @@ ALTER PROC [dbo].[sp_UserAddresses]
 @Active                         BIT                  =       NULL,
 @Created                        DATETIME            =       NULL,
 @Modified                       DATETIME            =       NULL,
-@IsDeleted						BIT                 =       0
+@IsDeleted						BIT                 =       0,
+-----------------------------------------------------------------
+@ErrorMessage                   NVARCHAR(MAX)       =       NULL,
+@ErrorSeverity                  INT                 =       NULL,
+@ErrorState                     INT                 =       NULL
 -----------------------------------------------------------------
 AS
 -----------------------------------------------------------------
@@ -32,8 +36,8 @@ ELSE IF @Activity = 'CREATE_USER_ADDRESS'
 BEGIN
 BEGIN TRANSACTION
 BEGIN TRY
-	IF NOT EXISTS (SELECT TOP 1 1 FROM UserAddress AS ua (NOLOCK) WHERE ua.[Name] = @Name AND ua.Telephone = @Telephone AND ua.DeliveryAddress = @DeliveryAddress AND (@Id IS NULL OR Id <> @Id))
-		THROW 400, 'Brand with the same name already exits.',  1
+	IF NOT EXISTS (SELECT TOP 1 1 FROM UserAddress AS ua (NOLOCK) WHERE ua.DeliveryAddress = @DeliveryAddress)
+		THROW 400000, 'User addresss with the same address already exits.',  1
 
 	IF(@Active = 1)
 		BEGIN
@@ -46,7 +50,8 @@ BEGIN TRY
 	COMMIT TRANSACTION
 END TRY
 BEGIN CATCH
-	THROW 99001, 'Create user address fail', 1
+	SELECT @ErrorMessage =  ERROR_MESSAGE();
+	THROW 500000, @ErrorMessage , 1
 	ROLLBACK TRANSACTION
 END CATCH
 END 
@@ -73,7 +78,7 @@ BEGIN TRY
 
 END TRY
 BEGIN CATCH
-	THROW 99001, 'update user address fail', 1
+	THROW 50000, 'Update user address fail', 1
 	ROLLBACK TRANSACTION
 END CATCH
 END
@@ -99,7 +104,7 @@ BEGIN TRY
 	COMMIT TRANSACTION
 END TRY
 BEGIN CATCH
-	THROW 99001, 'delete user address fail', 1
+	THROW 500, 'Delete user address fail', 1
 	ROLLBACK TRANSACTION
 END CATCH
 END
@@ -115,7 +120,7 @@ BEGIN TRY
 	END
 END TRY
 BEGIN CATCH
-	THROW 99001, 'set default user address for user fail', 1
+	THROW 500, 'Set default user address for user fail', 1
 	ROLLBACK TRANSACTION
 END CATCH
 END

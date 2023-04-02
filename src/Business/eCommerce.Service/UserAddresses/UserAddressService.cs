@@ -12,7 +12,7 @@ public class UserAddressService : IUserAddressService
     private readonly IDatabaseRepository _databaseRepository;
     private readonly IUserRepository _userRepository;
     private readonly UserContextModel _userContextModel;
-    private const string SQL_QUERY = "sp_UserAddress";
+    private const string SQL_QUERY = "sp_UserAddresses";
 
     public UserAddressService(
         IDatabaseRepository databaseRepository,

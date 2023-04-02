@@ -3,7 +3,9 @@ using eCommerce.Service.Brands;
 using eCommerce.Service.Cache.RoleCache;
 using eCommerce.Service.Carts;
 using eCommerce.Service.Categories;
+using eCommerce.Service.CategoryDiscounts;
 using eCommerce.Service.Products;
+using eCommerce.Service.Promotions;
 using eCommerce.Service.Provinces;
 using eCommerce.Service.PurchaseOrders;
 using eCommerce.Service.Roles;
@@ -42,7 +44,8 @@ public static class ServiceExtensions
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IUploadService, UploadService>();
         services.AddScoped<IUserAddressService, UserAddressService>();
-
+        services.AddScoped<ICategoryDiscountService, CategoryDiscountService>();
+        services.AddScoped<IPromotionService, PromotionService>();
 
 
     }

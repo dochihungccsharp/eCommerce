@@ -3,9 +3,11 @@ using eCommerce.Domain.Abstractions.Paginations;
 using eCommerce.Domain.Domains;
 using eCommerce.Model.Brands;
 using eCommerce.Model.Categories;
+using eCommerce.Model.CategoryDiscounts;
 using eCommerce.Model.Inventories;
 using eCommerce.Model.Paginations;
 using eCommerce.Model.Products;
+using eCommerce.Model.Promotions;
 using eCommerce.Model.PurchaseOrders;
 using eCommerce.Model.Roles;
 using eCommerce.Model.Suppliers;
@@ -86,6 +88,21 @@ public class AutoMapperProfile : Profile
         CreateMap<PurchaseOrderDetail, eCommerce.Model.PurchaseOrderDetails.PurchaseOrderDetailsModel>().ReverseMap();
         CreateMap<PurchaseOrder, PurchaseOrderModel>().ReverseMap();
         CreateMap<PaginationModel<PurchaseOrderModel>, PagedList<PurchaseOrder>>().ReverseMap();
+        #endregion
+
+        #region CREATE MAPPER CATEGORY DISCOUNT
+        CreateMap<CategoryDiscount, CategoryDiscountModel>().ReverseMap();
+        CreateMap<PaginationModel<CategoryDiscountModel>, PagedList<CategoryDiscount>>().ReverseMap();
+        #endregion
+
+        #region CREATE MAPPER PROMOTIONS
+        CreateMap<Promotion, PromotionModel>().ReverseMap();
+        CreateMap<PaginationModel<PromotionModel>, PagedList<Promotion>>().ReverseMap();
+        #endregion
+
+        #region CREATE MAPPER ORDERS
+        CreateMap<Promotion, PromotionModel>().ReverseMap();
+        CreateMap<PaginationModel<PromotionModel>, PagedList<Promotion>>().ReverseMap();
         #endregion
     }
 }

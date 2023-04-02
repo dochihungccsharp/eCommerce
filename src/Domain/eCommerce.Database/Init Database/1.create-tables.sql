@@ -272,7 +272,6 @@ CREATE TABLE CategoryDiscount (
 	Code VARCHAR(50) NOT NULL,
 	DiscountType VARCHAR(10) NOT NULL,
 	DiscountValue DECIMAL(10,2) NOT NULL,
-	MinimumOrderAmount DECIMAL(10,2) NOT NULL,
 	Created DATETIME NOT NULL,
 	Modified DATETIME NULL,
 	IsActive BIT NOT NULL DEFAULT 0,

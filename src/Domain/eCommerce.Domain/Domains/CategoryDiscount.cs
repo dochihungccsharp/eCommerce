@@ -1,8 +1,9 @@
 using eCommerce.Domain.Abstractions.Audits;
+using eCommerce.Domain.Abstractions.Paginations;
 
 namespace eCommerce.Domain.Domains;
 
-public class CategoryDiscount : IAuditDomain
+public class CategoryDiscount : IAuditDomain, IPagedDomain
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
@@ -18,5 +19,9 @@ public class CategoryDiscount : IAuditDomain
     public DateTime Created { get; set; }
     public DateTime Modified { get; set; }
     public bool IsDeleted { get; set; }
+    #endregion
+
+    #region Paged domain
+    public int TotalRows { get; set; }
     #endregion
 }

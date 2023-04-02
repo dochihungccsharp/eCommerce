@@ -1,3 +1,4 @@
+using eCommerce.Shared.Extensions;
 using eCommerce.Shared.Serilog;
 using eCommerce.WebAPI.Extensions;
 using eCommerce.WebAPI.Middlewares;
@@ -44,7 +45,7 @@ try
     builder.Services.AddUserContextModelService(builder.Configuration);
     
     // add service hangfire
-    // builder.Services.AddHangfire(builder);
+    //builder.Services.AddHangfire(builder);
 
     var app = builder.Build();
     
@@ -66,8 +67,13 @@ try
     app.UseAuthorization();
     
     // app.UseHangfireDashboard();
+    //
+    // app.UseHangfireServer();
+    //
+    // var path = Path.Combine(builder.Environment.WebRootPath, "upload");
+    // RecurringJob.AddOrUpdate(() => ImageExtensions.DeleteFilesInDirectory(path), "0 0 */12 * *");
     
-    //app.UseHangfireServer();
+    
     
     app.MapControllers();
     

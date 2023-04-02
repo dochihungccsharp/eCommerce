@@ -6,14 +6,27 @@ namespace eCommerce.Service.Orders;
 
 public interface IOrderService
 {
+
+    #region Admin
     Task<OkResponseModel<PaginationModel<OrderModel>>> GetAllOrder(OrderFilterRequestModel filter,
         CancellationToken cancellationToken = default);
-    Task<OkResponseModel<PaginationModel<OrderModel>>> GetAllOrderByUserId(OrderFilterRequestModel filter,
+    Task<BaseResponseModel> UpdateOrderAsync(Guid orderId, UpdateOrderModel updateOrderModel,
         CancellationToken cancellationToken = default);
-    Task<OkResponseModel<OderDetailsModel>> GetOrderDetailsAsync(Guid orderId, CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> OrderAsync(EditOrderModel editOrderModel, CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> CancelOrderAsync(EditOrderModel editOrderModel,
+    #endregion
+
+    #region Customer And Admin
+    Task<OkResponseModel<IEnumerable<OrderModel>>> GetAllOrderByUserId(Guid orderId,
         CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> UpdateOrderAsync(EditOrderModel editOrderModel,
+    
+    Task<OkResponseModel<OrderDetailsModel>> GetOrderDetailsAsync(Guid orderId, 
         CancellationToken cancellationToken = default);
+
+    #endregion
+
+    #region Customer
+    Task<BaseResponseModel> OrderAsync(CreateOrderModel createOrderModel, CancellationToken cancellationToken = default);
+    Task<BaseResponseModel> CancelOrderAsync(Guid orderId, CancellationToken cancellationToken = default);
+
+    #endregion
+    
 }

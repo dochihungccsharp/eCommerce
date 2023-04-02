@@ -21,19 +21,15 @@ public static class ServiceExtensions
         var databaseSetting = builder.Configuration.GetOptions<DatabaseSetting>();
         
         //Register Hangfire services
-        // services.AddHangfire(configuration => configuration
-        //     .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-        //     .UseRecommendedSerializerSettings()
-        //     .UseSqlServerStorage(databaseSetting.Default)
-        // );
+        services.AddHangfire(configuration => configuration
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(databaseSetting.Default)
+        );
 
         // Register the Hangfire dashboard authorization filter
-        // services.AddHangfireDashboardAuthorization(env);
+        //services.AddHangfireDashboardAuthorization();
         
-        // create scheduled job
-        // var path = Path.Combine(builder.Environment.WebRootPath, "upload");
-        // RecurringJob.AddOrUpdate(() => ImageExtensions.DeleteFilesInDirectory(path), "0 0 */12 * *");
-
         return services;
     }
     public static IServiceCollection AddControllerService(this IServiceCollection services)

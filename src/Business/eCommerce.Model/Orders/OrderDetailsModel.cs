@@ -1,9 +1,10 @@
-using eCommerce.Domain.Abstractions.Audits;
-using eCommerce.Domain.Abstractions.Paginations;
+using eCommerce.Model.OrderItems;
+using eCommerce.Model.Promotions;
+using eCommerce.Model.Users;
 
-namespace eCommerce.Domain.Domains;
+namespace eCommerce.Model.Orders;
 
-public class Order : IAuditDomain, IPagedDomain
+public class OrderDetailsModel
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
@@ -15,11 +16,15 @@ public class Order : IAuditDomain, IPagedDomain
     public string OrderStatus { get; set; }
     public string Note { get; set; }
     public bool IsCancelled { get; set; }
-    #region Audit Domain
+    
+    public UserModel _User { get; set; }
+    public PromotionModel _Promotion { get; set; }
+    public IList<OrderItemModel> _OrderItems { get; set; }
+
+
+    #region Audit Model
     public DateTime Created { get; set; }
-    public DateTime Modified { get; set; }
-    public bool IsDeleted { get; set; }
+    public DateTime? Modified { get; set; }
     #endregion
 
-    public int TotalRows { get; set; }
 }

@@ -1,9 +1,6 @@
-using eCommerce.Domain.Abstractions.Audits;
-using eCommerce.Domain.Abstractions.Paginations;
+namespace eCommerce.Model.Promotions;
 
-namespace eCommerce.Domain.Domains;
-
-public class Promotion : IPagedDomain
+public class PromotionModel
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
@@ -16,5 +13,4 @@ public class Promotion : IPagedDomain
     public bool IsActive { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public int TotalRows { get; set; }
 }
