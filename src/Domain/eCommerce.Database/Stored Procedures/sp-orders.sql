@@ -110,7 +110,7 @@ BEGIN
 		END
 	FROM Promotion AS pr 
 	WHERE pr.Id = @PromotionId AND pr.IsActive = 1 
-		AND GETDATE() BETWEEN pr.StartDate AND pr.EndDate;
+		AND GETDATE() BETWEEN pr.StartDate AND pr.EndDate AND @TotalTemp > MinimumOrderAmount;
 END
 
 -- IF (@Total != @TotalTemp) .....
