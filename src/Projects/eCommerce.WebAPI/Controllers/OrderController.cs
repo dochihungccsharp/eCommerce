@@ -42,7 +42,7 @@ public class OrderController : BaseController
         => Ok(await _orderService.GetAllOrder(filter, cancellationToken).ConfigureAwait(false));
     
     [HttpPut]
-    [Route("api/orders")]
+    [Route("api/orders/{id:guid}")]
     [Authorize("Admin")]
     public async  Task<IActionResult> UpdateOrderAsync([FromRoute(Name = "id")]Guid orderId, [FromBody] UpdateOrderModel updateOrderModel,
         CancellationToken cancellationToken = default)

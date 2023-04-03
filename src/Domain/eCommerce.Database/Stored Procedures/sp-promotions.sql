@@ -40,6 +40,7 @@ IF EXISTS (SELECT TOP 1 1 FROM Promotion WHERE Code = @Code)
 
 INSERT INTO Promotion (Id, UserId, Code, DiscountType, DiscountValue, MinimumOrderAmount,IsActive, StartDate, EndDate, Created)
 VALUES(@Id, @UserId, @Code, @DiscountType, @DiscountValue, @MinimumOrderAmount, @IsActive, @StartDate, @EndDate, GETDATE())
+
 COMMIT TRANSACTION
 
 END TRY

@@ -35,7 +35,7 @@ BEGIN
 	BEGIN TRY
 		-- CHECK THE PRODUCT EXISTENCE
 		IF NOT EXISTS (SELECT TOP 1 1 FROM Product WHERE Id = @ProductId)
-			THROW 99001, 'Product in cart does not exist', 1
+			THROW 400000, 'Product in cart does not exist', 1
 
 
 		-- ADD OR UPDATE CART ITEM
@@ -51,7 +51,7 @@ BEGIN
 		COMMIT TRANSACTION
 	END TRY
 	BEGIN CATCH
-		;THROW 99001, 'Add or update cart fail', 1;
+		;THROW 400000, 'Add or update cart fail', 1;
 		ROLLBACK TRANSACTION
 	END CATCH
 END
@@ -62,7 +62,7 @@ BEGIN
 	BEGIN TRY
 		IF NOT EXISTS (SELECT TOP 1 1 FROM CartItem WHERE Id = @Id OR (UserId = @UserId AND ProductId = @ProductId))
 			BEGIN
-				;THROW 99001, 'Product in cart does not exist', 1;
+				;THROW 400000, 'Product in cart does not exist', 1;
 			END
 
 		-- Remove Cart Item
@@ -70,7 +70,7 @@ BEGIN
 		COMMIT TRANSACTION
 	END TRY
 	BEGIN CATCH
-		;THROW 99001, 'Remove cart item fail', 1;
+		;THROW 400000, 'Remove cart item fail', 1;
 		ROLLBACK TRANSACTION
 	END CATCH
 END
@@ -96,7 +96,7 @@ BEGIN
 		COMMIT TRANSACTION
 	END TRY
 	BEGIN CATCH
-		;THROW 99001, 'Remove list cart item fail', 1;
+		;THROW 400000, 'Remove list cart item fail', 1;
 		ROLLBACK TRANSACTION
 	END CATCH
 END
@@ -112,27 +112,26 @@ BEGIN
 	BEGIN TRY
 		BEGIN
 			IF NOT EXISTS (SELECT TOP 1 1 FROM CartItem WHERE UserId = @UserId)
-			BEGIN
-				;THROW 99001, 'User is cart does not exist', 1;
-			END
+				THROW 400000, 'User is cart does not exist', 1;
 
 			SET @RowCount = (SELECT COUNT(1) FROM @CartItems);
 			SET @Index = 1;
 
 			WHILE @Index <= @RowCount
 				BEGIN
+
+					print @RowCount;
+					print @Index;
 					-- GET @Id OF @CartItems
 					SELECT @Id = Id
 					FROM @CartItems
 					ORDER BY (SELECT NULL) OFFSET @Index-1 ROWS FETCH NEXT 1 ROWS ONLY;
+
+					IF NOT EXISTS (SELECT TOP 1 1 FROM CartItem WHERE Id = @Id)
+						THROW 400000, 'Cart item does not exist', 1;
 					
 					-- GET @ProductId OF CartItem
 					SELECT @ProductId = ProductId, @Quantity = Quantity FROM CartItem WHERE Id = @Id
-
-					IF (@ProductId IS NULL)
-					BEGIN
-						;THROW 99001, 'Cart item does not exist', 1;
-					END
 
 					-- GET Price Product
 					 SELECT @Price = Price FROM Product WHERE Id = @ProductId
@@ -151,51 +150,43 @@ BEGIN
 		COMMIT TRANSACTION
 	END TRY
 	BEGIN CATCH
-		ROLLBACK TRANSACTION
 		DECLARE @Message NVARCHAR(MAX) =  ERROR_MESSAGE();
-		;THROW 99001, @Message, 1;
+		;THROW 400000, @Message, 1;
+		ROLLBACK TRANSACTION
 	END CATCH
 END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'GET_CART_BY_USER_ID'
 BEGIN
-	BEGIN TRANSACTION;
-	BEGIN TRY
+	IF NOT EXISTS (SELECT TOP 1 1 FROM CartItem WHERE UserId = @UserId)
+	BEGIN
+		;THROW 99001, 'User is cart does not exist', 1;
+	END
+
+	SET @RowCount = (SELECT COUNT(1) FROM CartItem WHERE UserId = @UserId);
+	SET @Index = 1;
+
+	WHILE @Index <= @RowCount
 		BEGIN
-			IF NOT EXISTS (SELECT TOP 1 1 FROM CartItem WHERE UserId = @UserId)
-			BEGIN
-				;THROW 99001, 'User is cart does not exist', 1;
-			END
-
-			SET @RowCount = (SELECT COUNT(1) FROM CartItem WHERE UserId = @UserId);
-			SET @Index = 1;
-
-			WHILE @Index <= @RowCount
-				BEGIN
-					-- GET @ProductId, @Quantity 
-					SELECT @ProductId = ProductId, @Quantity = Quantity
-					FROM CartItem
-					ORDER BY (SELECT NULL) OFFSET @Index-1 ROWS FETCH NEXT 1 ROWS ONLY;
+			-- GET @ProductId, @Quantity 
+			SELECT @ProductId = ProductId, @Quantity = Quantity
+			FROM CartItem
+			ORDER BY (SELECT NULL) OFFSET @Index-1 ROWS FETCH NEXT 1 ROWS ONLY;
 			
-					-- GET Price Product
-					SELECT @Price = Price FROM Product WHERE Id = @ProductId
+			-- GET Price Product
+			SELECT @Price = Price FROM Product WHERE Id = @ProductId
 
-					-- SET Total
-					SET @Total = COALESCE(@Total, 0) + @Quantity * @Price;
+			-- SET Total
+			SET @Total = COALESCE(@Total, 0) + @Quantity * @Price;
 
-					SET @Index = @Index + 1;
-				END
-
-
-			SELECT  @Total as Total,
-			(SELECT *, (SELECT JSON_QUERY((SELECT TOP(1) * FROM Product AS s WHERE s.Id = c.ProductId FOR JSON PATH), '$[0]')) AS _Product
-			FROM CartItem AS c WHERE UserId = @UserId FOR JSON PATH) AS _CartItems
+			SET @Index = @Index + 1;
 		END
-		COMMIT TRANSACTION
-	END TRY
-	BEGIN CATCH
-		;THROW 99001, 'Get cart by user id fail', 1;
-	END CATCH
+
+
+	SELECT  @Total as Total,
+	(SELECT *, (SELECT JSON_QUERY((SELECT TOP(1) * FROM Product AS s WHERE s.Id = c.ProductId FOR JSON PATH), '$[0]')) AS _Product
+	FROM CartItem AS c WHERE UserId = @UserId FOR JSON PATH) AS _CartItems
 END
 GO
+
 

@@ -100,6 +100,10 @@ public class PurchaseOrderService : IPurchaseOrderService
         if (editPurchaseOrderModel.EditPurchaseOrderDetailsModels == null ||
             editPurchaseOrderModel.EditPurchaseOrderDetailsModels?.Count < 1)
             throw new BadRequestException("Your order has no products?");
+
+        var duplicate = editPurchaseOrderModel.EditPurchaseOrderDetailsModels.HasDuplicated(x => x.ProductId);
+        if (duplicate)
+            throw new NotFoundException("purchase order item is duplicate");
         
         // check is already exist supplier
         var checkAlreadyExistSupplier = await _supplierService

@@ -66,6 +66,9 @@ IF (@PromotionId IS NOT NULL)
 	IF NOT EXISTS (SELECT TOP 1 1 FROM Promotion WHERE Id = @PromotionId AND IsActive = 1)
 		THROW 404000, 'Promotion is not found', 1
 
+INSERT INTO [Order] (Id, [UserId], PaymentId, PromotionId, PaymentStatus, PaymentMethod, OrderStatus, ToTal, Note, Created, IsCancelled, IsDeleted)
+VALUES (@Id, @UserId, @PaymentId, @PromotionId, @PaymentStatus, @PaymentMethod, 'PENDING', @Total, @Note, GETDATE(), 0, 0)
+
 SET @RowCount = (SELECT COUNT(*) FROM @OrderItems);
 SET @Index = 1;
 WHILE @Index <= @RowCount
@@ -74,15 +77,22 @@ BEGIN
 	FROM @OrderItems
 	ORDER BY (SELECT NULL) OFFSET @Index-1 ROWS FETCH NEXT 1 ROWS ONLY;
 
-	SELECT @Price = Price, @InventoryId = InventoryId FROM Product WHERE Id = @ProductId ;
-	IF (@Price IS NULL)
+	IF NOT EXISTS (SELECT TOP 1 1 FROM Product WHERE Id = @ProductId)
 		THROW 400000, 'Product in order item does not exist', 1;
+
+	SELECT @Price = Price, @InventoryId = InventoryId FROM Product WHERE Id = @ProductId ;
 
 	IF NOT EXISTS (SELECT TOP 1 1 FROM Inventory WHERE Id = @InventoryId AND @Quantity <= Quantity)
 		THROW 400000, 'The number of products in stock is not enough', 1;
 
 	--- calculate total product
 	SET @TotalTemp = COALESCE(@TotalTemp, 0) + @Price * @Quantity
+
+	--- update Inventory
+	UPDATE Inventory SET Quantity = (Quantity - @Quantity) WHERE Id = @InventoryId
+
+	-- remove cart 
+	DELETE CartItem WHERE UserId = @UserId AND ProductId = @ProductId;
 
 	-- CREATE ORDER ITEM
 	INSERT INTO OrderItem (Id, OrderId, ProductId, Quantity) 
@@ -100,6 +110,9 @@ BEGIN
 	IF NOT EXISTS (SELECT TOP 1 1 FROM [Promotion] WHERE Id = @PromotionId AND GETDATE() BETWEEN StartDate AND EndDate)
 		THROW 404000, 'Promotion has expired or not started', 1;
 
+	IF NOT EXISTS (SELECT TOP 1 1 FROM [Promotion] WHERE Id = @PromotionId AND @TotalTemp >= MinimumOrderAmount)
+		THROW 404000, 'promotion is not valid', 1;
+
 	SELECT @TotalTemp = 
 		CASE 
 			WHEN pr.DiscountType = 'PERCENT' 
@@ -110,13 +123,13 @@ BEGIN
 		END
 	FROM Promotion AS pr 
 	WHERE pr.Id = @PromotionId AND pr.IsActive = 1 
-		AND GETDATE() BETWEEN pr.StartDate AND pr.EndDate AND @TotalTemp > MinimumOrderAmount;
+		AND GETDATE() BETWEEN pr.StartDate AND pr.EndDate AND @TotalTemp >= MinimumOrderAmount;
 END
 
--- IF (@Total != @TotalTemp) .....
+SELECT @Total = FLOOR(@Total), @TotalTemp = FLOOR(@TotalTemp)
 
-INSERT INTO [Order] (Id, [UserId], PaymentId, PromotionId, PaymentStatus, PaymentMethod, OrderStatus, ToTal, Note, Created, IsCancelled, IsDeleted)
-VALUES (@Id, @UserId, @PaymentId, @PromotionId, @PaymentStatus, @PaymentMethod, @OrderStatus, @TotalTemp, @Note, GETDATE(), 0, 0)
+IF (@Total != @TotalTemp)
+	THROW 404000, 'Invalid total payment', 1;
 
 
 COMMIT TRANSACTION

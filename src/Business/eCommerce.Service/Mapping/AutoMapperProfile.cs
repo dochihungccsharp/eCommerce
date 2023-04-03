@@ -5,6 +5,7 @@ using eCommerce.Model.Brands;
 using eCommerce.Model.Categories;
 using eCommerce.Model.CategoryDiscounts;
 using eCommerce.Model.Inventories;
+using eCommerce.Model.Orders;
 using eCommerce.Model.Paginations;
 using eCommerce.Model.Products;
 using eCommerce.Model.Promotions;
@@ -101,8 +102,8 @@ public class AutoMapperProfile : Profile
         #endregion
 
         #region CREATE MAPPER ORDERS
-        CreateMap<Promotion, PromotionModel>().ReverseMap();
-        CreateMap<PaginationModel<PromotionModel>, PagedList<Promotion>>().ReverseMap();
+        CreateMap<Order, OrderModel>().ReverseMap();
+        CreateMap<PaginationModel<OrderModel>, PagedList<Order>>().ReverseMap();
         #endregion
     }
 }

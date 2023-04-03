@@ -109,14 +109,14 @@ public class OrderService : IOrderService
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
             {
-                { "Activity", "CREATE_ORDER" },
+                { "Activity", "INSERT" },
+                {"Id", Guid.NewGuid()},
                 { "UserId", createOrderModel.UserId},
                 { "PaymentId", createOrderModel.PaymentId},
                 { "PromotionId", createOrderModel.PromotionId},
                 { "Total", createOrderModel.Total},
                 { "PaymentStatus", createOrderModel.PaymentStatus.Trim().ToUpper()},
                 { "PaymentMethod", createOrderModel.PaymentMethod.Trim().ToUpper()},
-                { "OrderStatus", createOrderModel.OrderStatus.Trim().ToUpper()},
                 { "Note", createOrderModel.Note},
                 { "OrderItems", createOrderModel.OrderItems.ToDataTable()},
                 
