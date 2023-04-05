@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Hangfire" Version="1.8.0-rc2" />
+        <PackageReference Include="Hangfire.AspNet" Version="0.2.0" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.8.0-rc2" />
+        <PackageReference Include="Hangfire.Core" Version="1.8.0-rc2" />
+        <PackageReference Include="Hangfire.Dashboard.Authorization" Version="3.0.1" />
+        <PackageReference Include="Hangfire.NetCore" Version="1.8.0-rc2" />
+        <PackageReference Include="Hangfire.SqlServer" Version="1.8.0-rc2" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Business\eCommerce.Model\eCommerce.Model.csproj" />
+      <ProjectReference Include="..\..\Business\eCommerce.Service\eCommerce.Service.csproj" />
+      <ProjectReference Include="..\..\Domain\eCommerce.Database\eCommerce.Database.csproj" />
+      <ProjectReference Include="..\..\Domain\eCommerce.Domain\eCommerce.Domain.csproj" />
+      <ProjectReference Include="..\..\Domain\eCommerce.Infrastructure\eCommerce.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Shared\eCommerce.Shared\eCommerce.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\images\brands\future.txt" />
+      <None Include="wwwroot\images\categories\future.txt" />
+      <None Include="wwwroot\images\products\future.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\uploads" />
+    </ItemGroup>
+
+</Project>
