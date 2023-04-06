@@ -1,4 +1,7 @@
-﻿-- + + + + + INIT DATA TABLE BRAND + + + + + --
+﻿USE eCommerce
+GO
+
+-- + + + + + INIT DATA TABLE BRAND + + + + + --
 INSERT INTO Brand (Id, Name, LogoURL, Description, Status, Created, Modified, IsDeleted)
 SELECT TOP 10 NEWID(), 
        CONCAT('Brand ', ROW_NUMBER() OVER(ORDER BY (SELECT NULL))), 

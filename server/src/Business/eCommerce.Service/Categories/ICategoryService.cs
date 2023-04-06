@@ -9,6 +9,8 @@ public interface ICategoryService
 {
     Task<OkResponseModel<PaginationModel<CategoryModel>>> GetAllAsync(CategoryFilterRequestModel filter,
         CancellationToken cancellationToken = default);
+    Task<OkResponseModel<PaginationModel<CategoryModel>>> GetAllRootAsync(
+        CancellationToken cancellationToken = default);
     Task<OkResponseModel<CategoryModel>> GetAsync(Guid categoryId, CancellationToken cancellationToken = default);
     Task<OkResponseModel<CategoryDetailsModel>> GetDetailsAsync(Guid categoryId, CancellationToken cancellationToken = default);
     Task<BaseResponseModel> CreateAsync(EditCategoryModel editCategoryModel, CancellationToken cancellationToken = default);

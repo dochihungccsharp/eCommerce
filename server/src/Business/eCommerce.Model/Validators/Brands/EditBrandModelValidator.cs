@@ -17,6 +17,9 @@ public class EditBrandModelValidator : AbstractValidator<EditBrandModel>
         RuleFor(x => x.Description)
             .NotNull()
             .WithMessage("Mô tả nhãn hiệu không được để trống.");
-
+        
+        RuleFor(x => x.LogoURL)
+            .Must(path => string.IsNullOrEmpty(path) || File.Exists(path))
+            .WithMessage("Image không tồn tại trong hệ thống.");
     }
 }

@@ -44,6 +44,21 @@ public class CategoryService : ICategoryService
             _mapper.Map<PaginationModel<CategoryModel>>(categories));
     }
 
+    public async Task<OkResponseModel<PaginationModel<CategoryModel>>> GetAllRootAsync(CancellationToken cancellationToken = default)
+    {
+        var categories = await _databaseRepository.GetAllAsync<CategoryModel>(
+            sqlQuery: SQL_QUERY,
+            parameters: new Dictionary<string, object>()
+            {
+                {"Activity", "GET_ALL_ROOT"},
+            },
+            cancellationToken: cancellationToken
+        ).ConfigureAwait(false);
+        
+        return new OkResponseModel<PaginationModel<CategoryModel>>(
+            _mapper.Map<PaginationModel<CategoryModel>>(categories));
+    }
+
     public async Task<OkResponseModel<CategoryModel>> GetAsync(Guid categoryId, CancellationToken cancellationToken = default)
     {
         var category = await _databaseRepository.GetAsync<CategoryModel>(

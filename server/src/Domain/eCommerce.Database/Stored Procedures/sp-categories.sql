@@ -2,7 +2,7 @@ USE eCommerce
 GO
 
 
-CREATE PROC [dbo].[sp_Categories]
+ALTER PROC [dbo].[sp_Categories]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,
@@ -86,7 +86,7 @@ BEGIN
 		FROM Category (NOLOCK) cate
 		WHERE (@SearchString IS NULL OR @SearchString = '' OR cate.[Name] LIKE N'%'+@SearchString+'%' OR  cate.[Description] LIKE N'%'+@SearchString+'%') AND Cate.IsDeleted = 0
 	)
-	SELECT c.Id, c.[Name], c.[Description], c.ImageUrl, C.[Status], RecordCount.TotalRows as TotalRows
+	SELECT c.Id, c.[Name], c.[Description], c.ImageUrl, C.[Status], c.Created, RecordCount.TotalRows as TotalRows
 	FROM CategoriesTemp AS ct 
 		CROSS JOIN 
 		(
@@ -98,7 +98,15 @@ BEGIN
 	OFFSET ((@PageIndex - 1) * @PageSize) ROWS
     FETCH NEXT @PageSize ROWS ONLY
 END
+-----------------------------------------------------------------
+ELSE IF @Activity = 'GET_ALL_ROOT'
+BEGIN
+	SELECT c.Id, c.[Name], c.[Description], c.ImageUrl, c.[Status], c.Created, c.Modified, c.ParentId
+	FROM Category AS c (NOLOCK)
+	WHERE c.Id = @Id AND c.IsDeleted = 0 AND c.ParentId IS NULL
+END
 GO
+
 
 
 

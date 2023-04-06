@@ -86,16 +86,10 @@ public class BrandService : IBrandService
             throw new InvalidOperationException("Brand with the same name already exits.");
 
         var targetPath = string.Empty;
-        var path = string.Empty;
-        var sourcePath = string.Empty;
         if (!string.IsNullOrEmpty(editBrandModel.LogoURL))
-        {
-            path = Path.Combine("images","brands", Path.GetFileName(editBrandModel.LogoURL));
-            sourcePath = Path.Combine(_env.WebRootPath, "uploads", Path.GetFileName(editBrandModel.LogoURL));
-            targetPath = Path.Combine(_env.WebRootPath, path);
-        }
+            targetPath = Path.Combine(_env.WebRootPath, "images","brands", Path.GetFileName(editBrandModel.LogoURL));
 
-            
+
         await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
             parameters: new Dictionary<string, object>()
@@ -103,14 +97,14 @@ public class BrandService : IBrandService
                 { "Activity", "INSERT" },
                 { "Id", Guid.NewGuid() },
                 { "Name", editBrandModel.Name },
-                { "LogoURL",  path },
+                { "LogoURL",  targetPath },
                 { "Description", editBrandModel.Description }
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(targetPath))
-            await ImageExtensions.MoveFile(sourcePath, targetPath);
+            await ImageExtensions.MoveFile(editBrandModel.LogoURL, targetPath);
 
       
         return new BaseResponseModel("Create brand success");
@@ -128,12 +122,12 @@ public class BrandService : IBrandService
         {
             if (string.IsNullOrEmpty(b.LogoURL)) // db không có ảnh
             {
-                targetPath = Path.Combine(_env.WebRootPath, "brands", Path.GetFileName(editBrandModel.LogoURL));
+                targetPath = Path.Combine(_env.WebRootPath, "images", "brands", Path.GetFileName(editBrandModel.LogoURL));
             }
             else if (b.LogoURL != editBrandModel.LogoURL) // db có ảnh , != ảnh mới gửi lên
             {
                 await b.LogoURL.DeleteImageAsync();
-                targetPath = Path.Combine(_env.WebRootPath, "brands", Path.GetFileName(editBrandModel.LogoURL));
+                targetPath = Path.Combine(_env.WebRootPath, "images","brands", Path.GetFileName(editBrandModel.LogoURL));
             }
         }
         else // không có ảnh gửi lên

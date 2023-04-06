@@ -24,6 +24,13 @@ public class CategoryController : BaseController
             .ConfigureAwait(false));
     
     [HttpGet]
+    [Route("api/categories/root")]
+    public async Task<IActionResult> GetAllRootAsync(
+        CancellationToken cancellationToken = default)
+        => Ok(await _categoryService.GetAllRootAsync(cancellationToken)
+            .ConfigureAwait(false));
+    
+    [HttpGet]
     [Route("api/categories/{id:guid}")]
     public async Task<IActionResult> GetAsync([FromRoute(Name = "id")] Guid categoryId,
         CancellationToken cancellationToken = default)

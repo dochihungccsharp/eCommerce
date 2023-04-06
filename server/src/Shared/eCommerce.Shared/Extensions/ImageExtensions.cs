@@ -13,11 +13,10 @@ public static class ImageExtensions
         string fileName = Path.GetFileNameWithoutExtension(file.FileName);
         string fileExtension = Path.GetExtension(file.FileName);
         string newFileName = fileName + "_" + Guid.NewGuid() + fileExtension;
-        string path = Path.Combine("uploads", newFileName);
-        string filePath  = Path.Combine(_env.WebRootPath, path);
+        string filePath  = Path.Combine(_env.WebRootPath, "uploads", newFileName);
         using var fileStream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(fileStream);
-        return path.Trim();
+        return filePath.Trim();
 
     }
 
