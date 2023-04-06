@@ -1,6 +1,7 @@
 using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Model.Users;
 using eCommerce.Service.Users;
+using eCommerce.Shared.Consts;
 using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
@@ -60,12 +61,12 @@ public class UserController : BaseController
     [HttpGet]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> GetAllAsync([FromQuery] UserFilterRequestModel filter,
         CancellationToken cancellationToken = default)
         => Ok(await _userService.GetAllAsync(filter, cancellationToken).ConfigureAwait(false));
 
-    [Filters.Authorize("Admin")]
+    [Filters.Authorize(Roles.Admin)]
     [HttpGet]
     [ProducesResponseType(typeof(OkResponseModel<BaseResponseModel>), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
@@ -73,7 +74,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.GetAsync(userId, cancellationToken).ConfigureAwait(false));
 
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     [HttpPost]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users")]
@@ -81,7 +82,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.CreateAsync(editUserModel, cancellationToken).ConfigureAwait(false));
 
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     [HttpPut]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]
@@ -89,7 +90,7 @@ public class UserController : BaseController
         CancellationToken cancellationToken = default)
         => Ok(await _userService.UpdateAsync(userId, editUserModel, cancellationToken).ConfigureAwait(false));
 
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     [HttpDelete]
     [ProducesResponseType(typeof(BaseResponseModel), StatusCodes.Status200OK)]
     [Route("api/users/{id:guid}")]

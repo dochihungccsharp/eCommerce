@@ -1,0 +1,50 @@
+﻿<div>
+  <div ng-hide="(!pagesCount || pagesCount < 2)" style="display: inline">
+    <div
+      class="dataTables_paginate paging_simple_numbers"
+      id="example_paginate"
+    >
+      <ul class="pagination">
+        <li
+          ng-class="{'paginate_button page-item previous': page !== 1 , 'paginate_button page-item previous disabled': page == 1}"
+          id="example_previous"
+        >
+          <a
+            ng-click="search(page - 1)"
+            aria-controls="example"
+            data-dt-idx="0"
+            tabindex="0"
+            class="page-link"
+            >Prev</a
+          >
+        </li>
+        <li
+          ng-repeat="n in range()"
+          ng-class="{'active paginate_button page-item': n == page - 1, 'paginate_button page-item': n != page - 1}"
+        >
+          <a
+            ng-click="search(n + 1)"
+            aria-controls="example"
+            data-dt-idx="{{n + 1}}"
+            tabindex="0"
+            class="page-link"
+            >{{n+1}}</a
+          >
+        </li>
+        <li
+          ng-class="{'paginate_button page-item next': page !== pagesCount  , 'paginate_button page-item next disabled': page == pagesCount}"
+          id="example_next"
+        >
+          <a
+            ng-click="search(pagePlus(1))"
+            aria-controls="example"
+            data-dt-idx="{{pagesCount - 1}}"
+            tabindex="0"
+            class="page-link"
+            >Next</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

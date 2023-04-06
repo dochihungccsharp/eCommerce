@@ -1,6 +1,7 @@
 using eCommerce.Model.Orders;
 using eCommerce.Service.Orders;
 using eCommerce.Service.Users;
+using eCommerce.Shared.Consts;
 using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,14 +37,14 @@ public class OrderController : BaseController
     #region Admin
     [HttpGet]
     [Route("api/orders")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async  Task<IActionResult> GetAllOrder([FromQuery] OrderFilterRequestModel filter,
         CancellationToken cancellationToken = default)
         => Ok(await _orderService.GetAllOrder(filter, cancellationToken).ConfigureAwait(false));
     
     [HttpPut]
     [Route("api/orders/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async  Task<IActionResult> UpdateOrderAsync([FromRoute(Name = "id")]Guid orderId, [FromBody] UpdateOrderModel updateOrderModel,
         CancellationToken cancellationToken = default)
         => Ok(await _orderService.UpdateOrderAsync(orderId, updateOrderModel, cancellationToken).ConfigureAwait(false));

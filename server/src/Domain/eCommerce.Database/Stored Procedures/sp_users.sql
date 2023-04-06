@@ -3,12 +3,12 @@ GO
 
 
 
-CREATE TYPE RolesTableType AS TABLE
-(
-  [Id]                   UNIQUEIDENTIFIER   NOT NULL,
-  [Name]                 NVARCHAR (256)     NOT NULL
-);
-GO
+--CREATE TYPE RolesTableType AS TABLE
+--(
+--  [Id]                   UNIQUEIDENTIFIER   NOT NULL,
+--  [Name]                 NVARCHAR (256)     NOT NULL
+--);
+--GO
 
 
 ALTER PROC sp_Users

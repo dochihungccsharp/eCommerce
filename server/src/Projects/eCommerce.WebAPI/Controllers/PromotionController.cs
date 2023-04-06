@@ -1,6 +1,7 @@
 using eCommerce.Model.CategoryDiscounts;
 using eCommerce.Model.Promotions;
 using eCommerce.Service.Promotions;
+using eCommerce.Shared.Consts;
 using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,21 +36,21 @@ public class PromotionController : BaseController
 
     [HttpPost]
     [Route("api/promotions")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] EditPromotionModel editPromotionModel,
         CancellationToken cancellationToken = default)
         => Ok(await _promotionService.CreateAsync(editPromotionModel, cancellationToken).ConfigureAwait(false));
 
     [HttpPut]
     [Route("api/promotions/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid promotionId,
         [FromBody] EditPromotionModel editPromotionModel, CancellationToken cancellationToken = default)
         => Ok(await _promotionService.UpdateAsync(promotionId, editPromotionModel, cancellationToken).ConfigureAwait(false));
     
     [HttpDelete]
     [Route("api/promotions/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute(Name = "id")] Guid promotionId, 
         CancellationToken cancellationToken = default)
         => Ok(await _promotionService.DeleteAsync(promotionId, cancellationToken).ConfigureAwait(false));

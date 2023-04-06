@@ -17,7 +17,7 @@ public class EditCategoryModelValidator : AbstractValidator<EditCategoryModel>
         RuleFor(x => x.Description)
             .NotEmpty()
             .WithMessage("Mô tả danh mục không được để trống.")
-            .Length(3, 50)
+            .MinimumLength(3)
             .WithMessage("Mô tả danh mục tối thiểu phải có 3 ký tự.");
 
         RuleFor(x => x.ImageUrl)

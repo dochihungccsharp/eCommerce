@@ -104,7 +104,7 @@ public class CategoryService : ICategoryService
 
         var targetPath = string.Empty;
         if (!string.IsNullOrEmpty(editCategoryModel.ImageUrl))
-            targetPath = Path.Combine(_env.WebRootPath, "categories", Path.GetFileName(editCategoryModel.ImageUrl));
+            targetPath = Path.Combine(_env.WebRootPath, "images", "categories", Path.GetFileName(editCategoryModel.ImageUrl));
         
         await _databaseRepository.ExecuteAsync(
             sqlQuery: SQL_QUERY,
@@ -115,7 +115,7 @@ public class CategoryService : ICategoryService
                 {"Name", editCategoryModel.Name},
                 {"Description", editCategoryModel.Description},
                 {"ImageUrl", targetPath },
-                {"CategoryParentId", editCategoryModel.ParentId }
+                {"ParentId", editCategoryModel.ParentId }
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -149,12 +149,12 @@ public class CategoryService : ICategoryService
         {
             if (string.IsNullOrEmpty(c.ImageUrl))
             {
-                targetPath = Path.Combine(_env.WebRootPath, "categories", Path.GetFileName(editCategoryModel.ImageUrl));
+                targetPath = Path.Combine(_env.WebRootPath, "images", "categories", Path.GetFileName(editCategoryModel.ImageUrl));
             }
             else if (c.ImageUrl != editCategoryModel.ImageUrl)
             {
                 await c.ImageUrl.DeleteImageAsync();
-                targetPath = Path.Combine(_env.WebRootPath, "categories", Path.GetFileName(editCategoryModel.ImageUrl));
+                targetPath = Path.Combine(_env.WebRootPath,"images", "categories", Path.GetFileName(editCategoryModel.ImageUrl));
             }
         }
         else

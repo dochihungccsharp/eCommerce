@@ -1,6 +1,7 @@
 using eCommerce.Model.Models.PurchaseOrder;
 using eCommerce.Model.PurchaseOrders;
 using eCommerce.Service.PurchaseOrders;
+using eCommerce.Shared.Consts;
 using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ public class PurchaseOrderController : BaseController
 
     [HttpGet]
     [Route("api/purchase-orders")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery] PurchaseOrderFilterRequestModel filter,
         CancellationToken cancellationToken)
@@ -27,7 +28,7 @@ public class PurchaseOrderController : BaseController
 
     [HttpGet]
     [Route("api/purchase-orders/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> GetAsync([FromRoute(Name = "id")] Guid purchaseOrderId,
         CancellationToken cancellationToken = default)
         => Ok(await _purchaseOrderService.GetAsync(purchaseOrderId, cancellationToken)
@@ -35,7 +36,7 @@ public class PurchaseOrderController : BaseController
 
     [HttpGet]
     [Route("api/purchase-orders/{id:guid}/details")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> GetDetailsAsync([FromRoute(Name = "id")] Guid purchaseOrderId,
         CancellationToken cancellationToken = default)
         => Ok(await _purchaseOrderService.GetDetailsAsync(purchaseOrderId, cancellationToken)
@@ -43,14 +44,14 @@ public class PurchaseOrderController : BaseController
 
     [HttpPost]
     [Route("api/purchase-orders")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] EditPurchaseOrderModel editPurchaseOrderModel,
         CancellationToken cancellationToken = default)
         => Ok(await _purchaseOrderService.CreateAsync(editPurchaseOrderModel, cancellationToken).ConfigureAwait(false));
 
     [HttpPut]
     [Route("api/purchase-orders/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid purchaseOrderId,
         [FromBody] EditPurchaseOrderModel editPurchaseOrderModel,
         CancellationToken cancellationToken = default)
@@ -61,7 +62,7 @@ public class PurchaseOrderController : BaseController
 
     [HttpDelete]
     [Route("api/purchase-orders/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute(Name = "id")] Guid purchaseOrderId,
         CancellationToken cancellationToken = default)
         => Ok(await _purchaseOrderService.DeleteAsync(purchaseOrderId, cancellationToken).ConfigureAwait(false));

@@ -1,5 +1,6 @@
 using eCommerce.Model.CategoryDiscounts;
 using eCommerce.Service.CategoryDiscounts;
+using eCommerce.Shared.Consts;
 using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,21 +43,21 @@ public class CategoryDiscountController : BaseController
 
     [HttpPost]
     [Route("api/category-discounts")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] EditCategoryDiscountModel editCategoryDiscountModel,
         CancellationToken cancellationToken = default)
         => Ok(await _categoryDiscountService.CreateAsync(editCategoryDiscountModel, cancellationToken).ConfigureAwait(false));
 
     [HttpPut]
     [Route("api/category-discounts/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid categoryDiscountId,
         [FromBody] EditCategoryDiscountModel editCategoryDiscountModel, CancellationToken cancellationToken = default)
         => Ok(await _categoryDiscountService.UpdateAsync(categoryDiscountId, editCategoryDiscountModel, cancellationToken).ConfigureAwait(false));
     
     [HttpDelete]
     [Route("api/category-discounts/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute(Name = "id")] Guid productId, 
         CancellationToken cancellationToken = default)
         => Ok(await _categoryDiscountService.DeleteAsync(productId, cancellationToken).ConfigureAwait(false));

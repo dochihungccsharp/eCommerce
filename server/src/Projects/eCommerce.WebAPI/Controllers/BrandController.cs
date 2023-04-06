@@ -1,5 +1,6 @@
 using eCommerce.Model.Brands;
 using eCommerce.Service.Brands;
+using eCommerce.Shared.Consts;
 using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,7 +41,7 @@ public class BrandController : BaseController
 
     [HttpPost]
     [Route("api/brands")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> CreateAsync([FromBody] EditBrandModel editBrandModel,
         CancellationToken cancellationToken)
     {
@@ -49,7 +50,8 @@ public class BrandController : BaseController
 
     [HttpPut]
     [Route("api/brands/{id:guid}")]
-    [Authorize("Admin")]
+        [Authorize(Roles.Admin)]
+
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid brandId,
         [FromBody] EditBrandModel editBrandModel, CancellationToken cancellationToken = default)
     {
@@ -57,7 +59,7 @@ public class BrandController : BaseController
     }
 
     [HttpDelete]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     [Route("api/brands/{id:guid}")]
     public async Task<IActionResult> DeleteAsync([FromRoute(Name = "id")] Guid brandId,
         CancellationToken cancellationToken = default)
@@ -67,7 +69,7 @@ public class BrandController : BaseController
 
     [HttpPut]
     [Route("api/brands/{id:guid}/brand-status")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> ChangeStatusAsync([FromRoute(Name = "id")] Guid brandId,
         CancellationToken cancellationToken)
     {

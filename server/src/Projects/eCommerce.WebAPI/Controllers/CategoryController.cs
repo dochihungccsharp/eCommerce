@@ -1,5 +1,6 @@
 using eCommerce.Model.Categories;
 using eCommerce.Service.Categories;
+using eCommerce.Shared.Consts;
 using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,30 +49,30 @@ public class CategoryController : BaseController
 
     [HttpPost]
     [Route("api/categories")]
-    [Authorize("Admin")]
-    public async Task<IActionResult> CreateAsync([FromForm] EditCategoryModel editCategoryModel,
+    [Authorize(Roles.Admin)]
+    public async Task<IActionResult> CreateAsync([FromBody] EditCategoryModel editCategoryModel,
         CancellationToken cancellationToken = default)
         => Ok(await _categoryService.CreateAsync(editCategoryModel, cancellationToken).ConfigureAwait(false));
 
     [HttpPut]
     [Route("api/categories/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid categoryId,
-        [FromForm] EditCategoryModel editCategoryModel, CancellationToken cancellationToken = default)
+        [FromBody] EditCategoryModel editCategoryModel, CancellationToken cancellationToken = default)
         => Ok(await _categoryService.UpdateAsync(categoryId, editCategoryModel, cancellationToken)
             .ConfigureAwait(false));
 
 
     [HttpDelete]
     [Route("api/categories/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute(Name = "id")] Guid categoryId,
         CancellationToken cancellationToken = default)
         => Ok(await _categoryService.DeleteAsync(categoryId, cancellationToken).ConfigureAwait(false));
     
     [HttpPut]
     [Route("api/categories/{id:guid}/status")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> ChangeStatusAsync([FromRoute(Name = "id")] Guid categoryId,
         CancellationToken cancellationToken = default)
         => Ok(await _categoryService.ChangeStatusAsync(categoryId, cancellationToken).ConfigureAwait(false));

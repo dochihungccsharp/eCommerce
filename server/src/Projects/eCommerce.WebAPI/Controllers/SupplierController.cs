@@ -1,5 +1,6 @@
 using eCommerce.Model.Suppliers;
 using eCommerce.Service.Suppliers;
+using eCommerce.Shared.Consts;
 using eCommerce.WebAPI.Filters;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,21 +27,21 @@ public class SupplierController : BaseController
     #region API Private
     [HttpGet]
     [Route("api/suppliers/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> GetAsync([FromRoute(Name = "id")] Guid supplierId,
         CancellationToken cancellationToken = default)
         => Ok(await _supplierService.GetAsync(supplierId, cancellationToken).ConfigureAwait(false));
     
     [HttpGet]
     [Route("api/suppliers/{id:guid}/details")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> GetDetailsAsync([FromRoute(Name = "id")] Guid supplierId,
         CancellationToken cancellationToken = default)
         => Ok(await _supplierService.GetDetailsAsync(supplierId, cancellationToken).ConfigureAwait(false));
     
     [HttpPost]
     [Route("api/suppliers")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> CreateAsync([FromForm] EditSupplierModel editSupplierModel,
         CancellationToken cancellationToken)
         => Ok(await _supplierService.CreateAsync(editSupplierModel, cancellationToken).ConfigureAwait(false));
@@ -48,20 +49,20 @@ public class SupplierController : BaseController
 
     [HttpPut]
     [Route("api/suppliers/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid supplierId,
         [FromForm] EditSupplierModel editSupplierModel, CancellationToken cancellationToken = default)
         => Ok(await _supplierService.UpdateAsync(supplierId, editSupplierModel, cancellationToken).ConfigureAwait(false));
 
     [HttpDelete]
     [Route("api/suppliers/{id:guid}")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> DeleteAsync([FromRoute(Name = "id")] Guid supplierId, CancellationToken cancellationToken = default)
         => Ok(await _supplierService.DeleteAsync(supplierId, cancellationToken).ConfigureAwait(false));
 
     [HttpPut]
     [Route("api/suppliers/{id:guid}/status")]
-    [Authorize("Admin")]
+    [Authorize(Roles.Admin)]
     public async Task<IActionResult> ChangeStatusAsync([FromRoute(Name = "id")] Guid supplierId, CancellationToken cancellationToken = default)
         => Ok(await _supplierService.ChangeStatusAsync(supplierId, cancellationToken).ConfigureAwait(false));
     

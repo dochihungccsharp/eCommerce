@@ -1,0 +1,176 @@
+﻿﻿<!--breadcrumb-->
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">Sản phẩm</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item">
+          <a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          Loại sản phẩm
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!--end breadcrumb-->
+<div class="row">
+  <div class="col-xl-11 mx-auto mt-1">
+    <div class="card">
+      <div class="card-body">
+        <div class="border p-4 rounded">
+          <div class="card-title d-flex align-items-center">
+            <h5 class="mb-0">Thêm loại sản phẩm</h5>
+          </div>
+          <hr />
+          <form
+            novalidate
+            name="frmAddProductCategory"
+            role="form"
+            ng-submit="AddCategory()"
+          >
+            <div class="row mb-3">
+              <label for="inputEnterName" class="col-sm-3 col-form-label"
+                >Tên loại</label
+              >
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inputEnterName"
+                  name="name"
+                  ng-maxlength="256"
+                  required
+                  ng-model="category.name"
+                />
+                <div
+                  ng-show="frmAddProductCategory.name.$invalid"
+                  class="invalid-feedback d-block"
+                >
+                  Tên danh mục không được để trống.
+                </div>
+                <div
+                  ng-show="frmAddProductCategory.name.$error.maxlength"
+                  class="invalid-feedback d-block"
+                >
+                  Tên danh mục quá dài ( phải < 256 ký tự ).
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label class="col-sm-3 col-form-label">Hình ảnh</label>
+              <div class="col-sm-9">
+                <div class="input-group">
+                  <input
+                    type="file"
+                    class="form-control"
+                    name="image"
+                    ng-hide="category.imageUrl"
+                    on-file-change="UploadImage"
+                    title="Thêm hình ảnh"
+                    placeholder="Chọn hình ảnh"
+                  />
+                </div>
+                <div
+                  ng-hide="!category.imageUrl"
+                  class="p-3 border border-1 rounded position-relative"
+                  style="width: 180px"
+                >
+                  <img
+                    display-image="{{category.imageUrl}}"
+                    style="width: 120px"
+                  />
+                  <button
+                    ng-click="DeleteImage()"
+                    type="button"
+                    class="btn-close position-absolute"
+                    style="top: 10px; right: 10px; font-size: 12px"
+                    aria-label="Close"
+                  ></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="inputEnterDescription" class="col-sm-3 col-form-label"
+                >Mô tả</label
+              >
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inputEnterDescription"
+                  name="description"
+                  ng-maxlength="500"
+                  ng-model="category.description"
+                />
+                <div
+                  ng-show="frmAddProductCategory.description.$error.maxlength"
+                  class="invalid-feedback d-block"
+                >
+                  Mô tả quá dài ( phải < 500 ký tự ).
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="inputEnterParentId" class="col-sm-3 col-form-label"
+                >Danh mục cha</label
+              >
+              <div class="col-sm-9">
+                <select
+                  class="form-select"
+                  name="parentId"
+                  ng-model="category.parentId"
+                  ng-options="option.id as option.name for option in parentCategories"
+                >
+                  <option value="">Danh mục gốc</option>
+                </select>
+                <input type="hidden" name="parentId" ng-model="category.id" />
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label
+                for="inputCheckStatus"
+                class="col-sm-3 col-form-label"
+              ></label>
+              <div class="col-sm-9">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="inputCheckStatus"
+                    name="status"
+                    ng-model="category.status"
+                    ng-checked="category.status"
+                  />
+                  <label class="form-check-label" for="inputCheckStatus"
+                    >Trạng thái</label
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <label class="col-sm-3 col-form-label"></label>
+              <div class="col-sm-9 d-flex justify-content-end">
+                <button ui-sref="categories" class="btn btn-primary px-5 me-2">
+                  Quay lại
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary px-5"
+                  ng-disabled="frmAddProductCategory.$invalid"
+                >
+                  Tạo mới
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
