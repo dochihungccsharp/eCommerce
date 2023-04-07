@@ -1,17 +1,24 @@
 ﻿(function () {
   angular
-    .module("shop", [
-      "shop.common",
-      "shop.products",
-      "shop.brands",
-      "shop.categories",
-    ])
+    .module("shop", ["shop.common", "shop.brands", "shop.categories"])
     .config(config)
-    .config(configAuth);
+    .config(configAuth)
+    .run(["$rootScope", "$state", "authData",function($rootScope, $state, authData) {
+      $rootScope.$on('$stateChangeStart', function(event, next, current) {
+        if (!authData?.authenticationData?.IsAuthenticated) {
+          // Nếu chưa đăng nhập thì chuyển hướng đến trang đăng nhập
+          $state.go('login');
+        }
+      });
+    }]);
 
-  config.$inject = ["$stateProvider", "$urlRouterProvider"];
+  config.$inject = [
+    "$stateProvider",
+    "$locationProvider",
+    "$urlRouterProvider",
+  ];
 
-  function config($stateProvider, $urlRouterProvider) {
+  function config($stateProvider, $locationProvider, $urlRouterProvider) {
     $stateProvider
       .state("base", {
         url: "",
@@ -21,14 +28,19 @@
       .state("login", {
         url: "/login",
         templateUrl: "app/components/login/login.view.html",
-        controller: "loginController",
+        controller: "loginController"
       })
       .state("home", {
         url: "/home",
         parent: "base",
         templateUrl: "app/components/home/home.view.html",
         controller: "homeController",
+        authenticate: true
       });
+
+    $locationProvider.html5Mode(true);
+
+    $locationProvider.hashPrefix("");
 
     $urlRouterProvider.otherwise("/login");
   }

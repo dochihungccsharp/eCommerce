@@ -358,3 +358,8 @@ Pfv2.Applications/Pfv2.Applications.PfWeb/wwwroot/
 # Ignore ApiInternal aws-logger-errors.txt
 Pfv2.Services/Pfv2.Services.ApiInternal/aws-logger-errors.txt
 
+# Ignore bower
+/bower_components
+/node_modules
+
+

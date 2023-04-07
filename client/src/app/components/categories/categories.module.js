@@ -22,6 +22,7 @@
         parent: "base",
         templateUrl: "app/components/categories/category_edit.view.html",
         controller: "categoryEditController",
-      });
+      })
+      
   }
 })();

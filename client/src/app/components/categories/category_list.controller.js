@@ -8,8 +8,8 @@
     "apiService",
     "notificationService",
     "$ngBootbox",
-    "$filter",
     "authData",
+    "$state",
   ];
 
   function categoryListController(
@@ -17,8 +17,8 @@
     apiService,
     notificationService,
     $ngBootbox,
-    $filter,
-    authData
+    authData,
+    $state,
   ) {
     //#region check auth
     if (!authData?.authenticationData?.IsAuthenticated) {
@@ -38,7 +38,7 @@
 
     //#region function
     $scope.deleteCategory = function (id) {
-      $ngBootbox.confirm("Bạn có chắc chắn muốn xóa không?").then(function () {
+      $ngBootbox.confirm("Are you sure you want to delete?").then(function () {
         var config = {
           params: {
             id: id,

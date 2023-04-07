@@ -5,7 +5,14 @@
     "$injector",
     "notificationService",
     "authData",
-    function ($scope, loginService, $injector, notificationService, authData) {
+    "$state",
+    function ($scope, loginService, $injector, notificationService, authData, $state) {
+
+      if (authData?.authenticationData?.IsAuthenticated) {
+        $state.go("home");
+        return;
+      }
+
       $scope.loginData = {
         userName: "",
         password: "",

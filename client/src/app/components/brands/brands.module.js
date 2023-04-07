@@ -9,7 +9,8 @@
         url: "/brands",
         parent: "base",
         templateUrl: "app/components/brands/brand_list.view.html",
-        controller: "brandListController",
+        controller: "brandListController"
+
       })
       .state("brand_add", {
         url: "/brand_add",

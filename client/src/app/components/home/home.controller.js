@@ -17,11 +17,6 @@
     authData,
     $state
   ) {
-    console.log(authData);
-    if (!authData?.authenticationData?.IsAuthenticated) {
-      $state.go("login");
-      return;
-    }
 
     let url = "https://localhost:44353/api/statistical/statistical";
 

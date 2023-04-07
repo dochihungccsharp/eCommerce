@@ -13,13 +13,7 @@ public class EditCategoryModelValidator : AbstractValidator<EditCategoryModel>
             .WithMessage("Tên danh mục không được để trống.")
             .Length(3, 50)
             .WithMessage("Tên danh mục có độ dài từ 3 đến 50 ký tự.");
-
-        RuleFor(x => x.Description)
-            .NotEmpty()
-            .WithMessage("Mô tả danh mục không được để trống.")
-            .MinimumLength(3)
-            .WithMessage("Mô tả danh mục tối thiểu phải có 3 ký tự.");
-
+        
         RuleFor(x => x.ImageUrl)
             .Must(path => string.IsNullOrEmpty(path) || File.Exists(path))
             .WithMessage("Logo không tồn tại trong hệ thống.");
