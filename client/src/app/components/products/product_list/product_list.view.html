@@ -1,0 +1,382 @@
+﻿<!--breadcrumb-->
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">Hàng hóa</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item">
+          <a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          Danh sách sản phẩm
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!--end breadcrumb-->
+
+<div class="card">
+  <div class="card-body">
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-xl-6">
+        <div ng-cloak>
+          <md-content layout-padding layout="column" style="background: white">
+            <form ng-submit="$event.preventDefault()">
+              <md-autocomplete
+                id="custom-template"
+                ng-disabled="isDisabled"
+                md-no-cache="noCache"
+                md-selected-item="selectedItem"
+                md-search-text="searchText"
+                md-selected-item-change="selectedItemChange(item)"
+                md-items="item in querySearch(searchText)"
+                md-item-text="item.name"
+                md-min-length="0"
+                md-escape-options="clear"
+                input-aria-label="Current Repository"
+                placeholder="Tìm kiếm sản phẩm"
+                md-menu-class="autocomplete-custom-template"
+                md-menu-container-class="custom-container"
+              >
+                <md-item-template>
+                  <div class="d-flex align-items-center gap-3 w-100 h-100">
+                    <div class="product-box border">
+                      <img display-image="{{item.imageUrl}}" alt="" />
+                    </div>
+                    <div class="product-info">
+                      <h5 class="product-name mb-1">{{item.name}}</h5>
+                      <h6 class="product-info mb-1">
+                        {{ item.price | currency : ""}}đ
+                      </h6>
+                    </div>
+                  </div>
+                </md-item-template>
+              </md-autocomplete>
+            </form>
+          </md-content>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-6">
+        <form class="float-lg-end">
+          <div class="row row-cols-lg-auto g-2">
+            <div class="col-12">
+              <a href="javascript:;" class="btn btn-success mb-3 mb-lg-0"
+                ><i class="bi bi-download" style="padding-right: 6px"></i
+                >Export</a
+              >
+            </div>
+            <div class="col-12">
+              <a href="javascript:;" class="btn btn-success mb-3 mb-lg-0"
+                ><i class="bi bi-upload" style="padding-right: 6px"></i
+                >Import</a
+              >
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-3">
+    <!--start sidebar -->
+    <aside class="sidebar-wrapper" data-simplebar="true">
+      <!--navigation-->
+      <ul class="metismenu" id="menu1">
+        <li>
+          <a
+            href="javascript:;"
+            ng-class="{'has-arrow': categories && categories.length > 0, 'no-arrow': !categories || categories.length <= 0}"
+          >
+            <div class="parent-icon">
+              <i class="bi bi-house-door"></i>
+            </div>
+            <div class="menu-title">Loại sản phẩm</div>
+          </a>
+          <ul>
+            <li ng-repeat="item in categories">
+              <a href="javascript:;" class="d-flex align-content-center">
+                <div class="m-1">
+                  <input
+                    id="{{item.id}}"
+                    class="form-check-input ng-valid ng-dirty ng-valid-parse ng-touched ng-not-empty"
+                    type="checkbox"
+                    ng-model="item.checked"
+                    ng-change="HandlerCheckedInputCategory(item.id)"
+                  />
+                  <label
+                    for="{{item.id}}"
+                    class="form-check-label"
+                    style="padding-left: 5px"
+                    >{{item.name}}</label
+                  >
+                </div>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a
+            href="javascript:;"
+            ng-class="{'has-arrow': suppliers && suppliers.length > 0, 'no-arrow': !suppliers || suppliers.length <= 0}"
+          >
+            <div class="parent-icon">
+              <i class="bi bi-house-door"></i>
+            </div>
+            <div class="menu-title">Nhà cung cấp</div>
+          </a>
+          <ul>
+            <li ng-repeat="item in suppliers">
+              <a href="javascript:;" class="d-flex align-content-center">
+                <div class="m-1">
+                  <input
+                    id="{{item.id}}"
+                    class="form-check-input ng-valid ng-dirty ng-valid-parse ng-touched ng-not-empty"
+                    type="checkbox"
+                    ng-model="item.checked"
+                    ng-change="HandlerCheckedInputSupplier(item.id)"
+                  />
+                  <label
+                    for="{{item.id}}"
+                    class="form-check-label"
+                    style="padding-left: 5px"
+                    >{{item.name}}</label
+                  >
+                </div>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a
+            href="javascript:;"
+            ng-class="{'has-arrow': brands && brands.length > 0, 'no-arrow': !brands || brands.length <= 0}"
+          >
+            <div class="parent-icon">
+              <i class="bi bi-house-door"></i>
+            </div>
+            <div class="menu-title">Thương hiệu</div>
+          </a>
+          <ul>
+            <li ng-repeat="item in brands">
+              <a href="javascript:;" class="d-flex align-content-center">
+                <div class="m-1">
+                  <input
+                    id="{{item.id}}"
+                    class="form-check-input ng-valid ng-dirty ng-valid-parse ng-touched ng-not-empty"
+                    type="checkbox"
+                    ng-model="item.checked"
+                    ng-change="HandlerCheckedInputBrand(item.id)"
+                  />
+                  <label
+                    for="{{item.id}}"
+                    class="form-check-label"
+                    style="padding-left: 5px"
+                    >{{item.name}}</label
+                  >
+                </div>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <!--end navigation-->
+    </aside>
+    <!--end sidebar -->
+  </div>
+  <div class="col-9">
+    <div class="card">
+      <div class="card-header py-3">
+        <div class="row align-items-center m-0">
+          <div class="col-md-6 col-12 me-auto mb-md-0 mb-3">
+            <a ui-sref="product_add" class="btn btn-primary mb-3 mb-lg-0"
+              ><i class="bi bi-plus-square-fill" style="padding-right: 6px"></i
+              >Thêm sản phẩm</a
+            >
+            <button
+              ng-click="DeleteMultipleProducts()"
+              id="btnDelete"
+              class="btn btn-primary mb-3 mb-lg-0"
+            >
+              <i class="bi bi-plus-square-fill" style="padding-right: 6px"></i
+              >Xóa sản phẩm
+            </button>
+          </div>
+          <div class="col-md-3 col-6">
+            <select
+              class="form-select"
+              ng-model="status"
+              ng-change="HandlerEventChangeStatus()"
+            >
+              <option ng-value="null">Tất cả</option>
+              <option ng-value="true">Đang mở bán</option>
+              <option ng-value="false">Chưa mở bán</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-12 col-lg-12 d-flex">
+            <div class="card border shadow-none w-100">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>
+                          <label
+                            ><input
+                              name="all"
+                              type="checkbox"
+                              ng-click="SelectAll()"
+                            />
+                            All
+                          </label>
+                        </th>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Giá bán</th>
+                        <th>Trạng thái</th>
+                        <th>Sale</th>
+                        <th>New</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        role="row"
+                        class="old"
+                        ng-repeat="item in products"
+                        ng-init="index = $index + 1"
+                      >
+                        <td>
+                          <input
+                            type="checkbox"
+                            ng-model="item.checked"
+                            name="all"
+                          />
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center gap-3">
+                            <div class="product-box border">
+                              <img display-image="{{item.imageUrl}}" alt="" />
+                            </div>
+                            <div class="product-info">
+                              <h6 class="product-name mb-1">{{item.name}}</h6>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{{item.quantity}}</td>
+                        <td>{{ item.price | currency : ""}}</td>
+                        <td>
+                          <div class="d-flex align-content-center gap-1">
+                            <input
+                              type="checkbox"
+                              ng-model="item.status"
+                              ng-click="handlerEventClickInputStatusProduct($event, item.id)"
+                            />
+                            <div
+                              ng-class="{'badge bg-success':item.status === true, 'badge bg-danger':item.status === false }"
+                            >
+                              {{item.status | statusFilter}}
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-content-center gap-1">
+                            <input
+                              type="checkbox"
+                              ng-model="item.isBestSelling"
+                              ng-click="handlerEventClickInputIsBestSellingProduct($event, item.id)"
+                            />
+                            <div
+                              ng-class="{'badge bg-success':item.isBestSelling === true, 'badge bg-danger':item.isBestSelling === false || item.isBestSelling == null }"
+                            >
+                              {{item.isBestSelling | statusDiscountFilter}}
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-content-center gap-1">
+                            <input
+                              type="checkbox"
+                              ng-model="item.isNew"
+                              ng-click="handlerEventClickInputIsNewProduct($event, item.id)"
+                            />
+                            <div
+                              ng-class="{'badge bg-success':item.isNew === true, 'badge bg-danger':item.isNew === false || item.isNew == null }"
+                            >
+                              {{item.isNew | statusDiscountFilter}}
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <button
+                            ui-sref="product_details({id:item.id})"
+                            class="text-primary"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Xem thông tin"
+                            style="border: none; background: none"
+                          >
+                            <i class="bi bi-eye-fill"></i>
+                          </button>
+                          <button
+                            ui-sref="product_edit({id:item.id})"
+                            class="text-warning"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Sửa sản phẩm"
+                            style="border: none; background: none"
+                          >
+                            <i class="bi bi-pencil-fill"></i>
+                          </button>
+                          <button
+                            ng-click="DeleteProduct(item.id)"
+                            class="text-danger"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title="Xóa sản phẩm"
+                            style="border: none; background: none"
+                          >
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12 col-md-5">
+            <div
+              class="dataTables_info"
+              id="example_info"
+              role="status"
+              aria-live="polite"
+            >
+              Hiển thị từ {{(page - 1) * pageSize}} đến {{(page - 1) * pageSize
+              + products.length}} trong tổng số {{totalCount}}
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-7 d-flex justify-content-end">
+            <pager-directive
+              page="{{page}}"
+              custom-path="{{customPath}}"
+              pages-count="{{pageCount}}"
+              total-count="{{totalCount}}"
+              search-func="getListProduct(page)"
+            ></pager-directive>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

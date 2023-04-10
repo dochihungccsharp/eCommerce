@@ -1,0 +1,287 @@
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">Hàng hóa</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item">
+          <a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          Thêm sản phẩm
+        </li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!--end breadcrumb-->
+
+<div class="row">
+  <div class="col-lg-12 mx-auto">
+    <form novalidate name="frmAddProduct" role="form" ng-submit="AddProduct()">
+      <div class="card">
+        <div class="card-header py-3 bg-transparent">
+          <div class="d-sm-flex align-items-center">
+            <h5 class="mb-2 mb-sm-0">Thêm sản phẩm mới</h5>
+            <div class="ms-auto">
+              <button ui-sref="products" class="btn btn-primary">
+                Quay lại
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                ng-disabled="frmAddProduct.$invalid"
+              >
+                Tạo mới
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-lg-8">
+              <div class="card shadow-none bg-light border">
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="form-label">Tên sản phẩm</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Tên sản phẩm"
+                        name="name"
+                        ng-maxlength="256"
+                        required
+                        ng-model="product.name"
+                      />
+                      <div
+                        ng-show="frmAddProduct.name.$invalid"
+                        class="invalid-feedback d-block"
+                      >
+                        Tên sản phẩm không được để trống.
+                      </div>
+                      <div
+                        ng-show="frmAddProduct.name.$error.maxlength"
+                        class="invalid-feedback d-block"
+                      >
+                        Tên sản phẩm quá dài ( phải < 256 ký tự ).
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Slug</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Slug sản phẩm"
+                        name="slug"
+                        ng-model="product.slug"
+                      />
+                    </div>
+                    <div class="col-sm-12">
+                      <label class="form-label">Loại sản phẩm</label>
+                      <select
+                        class="form-select"
+                        name="categoryId"
+                        required
+                        ng-model="product.categoryId"
+                        ng-options="option.id as option.name for option in categories"
+                      >
+                        <option value="">-- Chọn loại sản phẩm --</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="CategoryId"
+                        ng-model="product.categoryId"
+                      />
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <label class="form-label">Thương hiệu sản phẩm</label>
+                      <select
+                        class="form-select"
+                        name="brandId"
+                        required
+                        ng-model="product.brandId"
+                        ng-options="option.id as option.name for option in brands"
+                      >
+                        <option value="">-- Chọn thương hiệu --</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="brandId"
+                        ng-model="product.brandId"
+                      />
+                    </div>
+                    <div class="col-12 col-lg-6">
+                      <label class="form-label">Nhà cung cấp</label>
+                      <select
+                        class="form-select"
+                        name="supplierId"
+                        required
+                        ng-model="product.supplierId"
+                        ng-options="option.id as option.name for option in suppliers"
+                      >
+                        <option value="">-- Chọn nhà cung cấp --</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="supplierId"
+                        ng-model="product.supplierId"
+                      />
+                    </div>
+
+                    <div class="col-12">
+                      <label class="form-label">Hình ảnh</label>
+                      <div>
+                        <div class="input-group">
+                          <input
+                            type="file"
+                            class="form-control"
+                            name="image"
+                            ng-hide="product.imageUrl"
+                            on-file-change="UploadImage"
+                            title="Thêm hình ảnh"
+                            placeholder="Chọn hình ảnh"
+                          />
+                        </div>
+                        <div
+                          ng-hide="!product.imageUrl"
+                          class="p-3 border border-1 rounded position-relative"
+                          style="width: 240px"
+                        >
+                          <img
+                            display-image="{{product.imageUrl}}"
+                            style="width: 180px"
+                          />
+                          <button
+                            ng-click="DeleteImage()"
+                            type="button"
+                            class="btn-close position-absolute"
+                            style="top: 10px; right: 10px; font-size: 12px"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <label class="form-label">Mô tả sản phẩm</label>
+                      <textarea
+                        class="form-control"
+                        placeholder="Mô tả sản phẩm"
+                        rows="4"
+                        cols="4"
+                        name="content"
+                        ckeditor="ckeditorOptions"
+                        ng-model="product.description"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+              <div class="card shadow-none bg-light border">
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="form-label">Giá gốc</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        placeholder="Giá gốc"
+                        name="originalPrice"
+                        required
+                        min="0"
+                        ng-model="product.originalPrice"
+                      />
+                      <div
+                        ng-show="frmAddProduct.originalPrice.$invalid"
+                        class="invalid-feedback d-block"
+                      >
+                        Phải nhập giá sản phẩm.
+                      </div>
+                      <div
+                        ng-show="frmAddProduct.originalPrice.$error.min"
+                        class="invalid-feedback d-block"
+                      >
+                        Giá sản phẩm không hợp lệ.
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Giá bán</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        placeholder="Giá bán"
+                        name="price"
+                        required
+                        min="0"
+                        ng-model="product.price"
+                      />
+                      <div
+                        ng-show="frmAddProduct.price.$invalid"
+                        class="invalid-feedback d-block"
+                      >
+                        Phải nhập giá bán sản phẩm.
+                      </div>
+                      <div
+                        ng-show="frmAddProduct.price.$error.min"
+                        class="invalid-feedback d-block"
+                      >
+                        Giá bán không hợp lệ.
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <input
+                        id="inputCheckedstatus"
+                        class="form-check-input"
+                        type="checkbox"
+                        name="homeFlag"
+                        ng-model="product.status"
+                        ng-checked="product.status"
+                      />
+                      <label for="inputCheckedstatus" class="form-check-label"
+                        >Trạng thái</label
+                      >
+                    </div>
+                    <div class="col-12">
+                      <input
+                        id="inputCheckedIsBestSelling"
+                        class="form-check-input"
+                        type="checkbox"
+                        name="hotFlag"
+                        ng-model="product.isBestSelling"
+                        ng-checked="product.isBestSelling"
+                      />
+                      <label
+                        for="inputCheckedIsBestSelling"
+                        class="form-check-label"
+                        >Sản phẩm bán chạy</label
+                      >
+                    </div>
+                    <div class="col-12">
+                      <input
+                        id="inputCheckedIsNew"
+                        class="form-check-input"
+                        type="checkbox"
+                        name="hotFlag"
+                        ng-model="product.isNew"
+                        ng-checked="product.isNew"
+                      />
+                      <label for="inputCheckedIsNew" class="form-check-label"
+                        >Sản phẩm mới</label
+                      >
+                    </div>
+                  </div>
+                  <!--end row-->
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--end row-->
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<!--end row-->

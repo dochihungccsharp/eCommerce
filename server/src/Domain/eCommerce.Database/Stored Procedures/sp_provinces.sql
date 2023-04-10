@@ -38,6 +38,7 @@ ELSE IF @Activity = 'GET_ALL_W_BY_D_ID'
 BEGIN
 	SELECT * FROM Ward WHERE DistrictId = @DistrictId
 END
+GO
 
 
 

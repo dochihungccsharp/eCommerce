@@ -1,4 +1,4 @@
-﻿import * as consts from "../../shared/consts/index.js";
+﻿import * as consts from "../../../shared/consts/index.js";
 
 (function (app) {
   app.controller("categoryListController", categoryListController);
@@ -18,7 +18,7 @@
     notificationService,
     $ngBootbox,
     authData,
-    $state,
+    $state
   ) {
     //#region check auth
     if (!authData?.authenticationData?.IsAuthenticated) {

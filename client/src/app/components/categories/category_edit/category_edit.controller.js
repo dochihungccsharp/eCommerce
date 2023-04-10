@@ -1,59 +1,69 @@
-﻿import * as consts from "../../shared/consts/index.js";
+﻿import * as consts from "../../../shared/consts/index.js";
 
 (function (app) {
-  app.controller("categoryAddController", categoryAddController);
+  app.controller("categoryEditController", categoryEditController);
 
-  categoryAddController.$inject = [
-    "$scope",
+  categoryEditController.$inject = [
     "apiService",
-    "$state",
+    "$scope",
     "notificationService",
-    "commonService",
+    "$state",
+    "$stateParams",
     "authData",
     "fileUploadService",
   ];
 
-  function categoryAddController(
-    $scope,
+  function categoryEditController(
     apiService,
-    $state,
+    $scope,
     notificationService,
-    commonService,
+    $state,
+    $stateParams,
     authData,
     fileUploadService
   ) {
-    //#region check auth
-    if (!authData?.authenticationData?.IsAuthenticated) {
-      $state.go("login");
-      return;
-    }
-    //#endregion
-
     $scope.category = {
       status: true,
     };
 
-    $scope.parentCategories = [];
-
-    $scope.AddCategory = AddCategory;
+    $scope.UpdateCategory = UpdateCategory;
     $scope.UploadImage = UploadImage;
     $scope.DeleteImage = DeleteImage;
 
-    function AddCategory() {
-      console.log($scope.category);
-      apiService.post(
-        "api/categories",
-        $scope.category,
+    function loadProductCategoryDetail() {
+      apiService.get(
+        "api/categories/" + $stateParams.id,
+        null,
         function (res) {
           if (res?.data?.code == 200) {
-            $state.go("categories");
-            notificationService.displaySuccess("Add category successfully.");
+            $scope.category = res?.data?.data;
+            console.log($scope.category);
           } else {
             notificationService.displayError(res?.data?.error);
           }
         },
         function (error) {
-          notificationService.displayError("Add category failed");
+          notificationService.displayError(error.data);
+        }
+      );
+    }
+
+    function UpdateCategory() {
+      console.log("dcmmmmmmmmmmmmmmmmm");
+      console.log($scope.category);
+      apiService.put(
+        "api/categories/" + $stateParams.id,
+        $scope.category,
+        function (res) {
+          if (res?.data?.code == 200) {
+            $state.go("categories");
+            notificationService.displaySuccess("Update category successfully.");
+          } else {
+            notificationService.displayError(res?.data?.error);
+          }
+        },
+        function () {
+          notificationService.displayError("Update category failed");
         }
       );
     }
@@ -69,7 +79,7 @@
             notificationService.displayWarning(res?.data?.error);
           }
         },
-        function (error) {}
+        function () {}
       );
     }
 
@@ -94,5 +104,6 @@
       document.querySelector('input[type="file"]').value = null;
     }
     loadParentCategory();
+    loadProductCategoryDetail();
   }
 })(angular.module("shop.categories"));

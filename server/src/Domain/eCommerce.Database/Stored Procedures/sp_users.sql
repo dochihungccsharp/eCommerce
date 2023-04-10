@@ -3,15 +3,15 @@ GO
 
 
 
---CREATE TYPE RolesTableType AS TABLE
---(
---  [Id]                   UNIQUEIDENTIFIER   NOT NULL,
---  [Name]                 NVARCHAR (256)     NOT NULL
---);
---GO
+CREATE TYPE RolesTableType AS TABLE
+(
+  [Id]                   UNIQUEIDENTIFIER   NOT NULL,
+  [Name]                 NVARCHAR (256)     NOT NULL
+);
+GO
 
 
-ALTER PROC sp_Users
+CREATE PROC sp_Users
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,

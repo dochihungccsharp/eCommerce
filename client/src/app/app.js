@@ -1,16 +1,14 @@
 ﻿(function () {
   angular
-    .module("shop", ["shop.common", "shop.brands", "shop.categories"])
+    .module("shop", [
+      "shop.common",
+      "shop.brands",
+      "shop.categories",
+      "shop.suppliers",
+      "shop.products",
+    ])
     .config(config)
-    .config(configAuth)
-    .run(["$rootScope", "$state", "authData",function($rootScope, $state, authData) {
-      $rootScope.$on('$stateChangeStart', function(event, next, current) {
-        if (!authData?.authenticationData?.IsAuthenticated) {
-          // Nếu chưa đăng nhập thì chuyển hướng đến trang đăng nhập
-          $state.go('login');
-        }
-      });
-    }]);
+    .config(configAuth);
 
   config.$inject = [
     "$stateProvider",
@@ -28,14 +26,14 @@
       .state("login", {
         url: "/login",
         templateUrl: "app/components/login/login.view.html",
-        controller: "loginController"
+        controller: "loginController",
       })
       .state("home", {
         url: "/home",
         parent: "base",
         templateUrl: "app/components/home/home.view.html",
         controller: "homeController",
-        authenticate: true
+        auth: true,
       });
 
     $locationProvider.html5Mode(true);
@@ -45,8 +43,10 @@
     $urlRouterProvider.otherwise("/login");
   }
 
+  configAuth.$inject = ["$httpProvider"];
+
   function configAuth($httpProvider) {
-    $httpProvider.interceptors.push(function ($q, $location) {
+    $httpProvider.interceptors.push(function ($q, $injector, $location) {
       return {
         request: function (config) {
           return config;
@@ -55,7 +55,7 @@
           return $q.reject(rejection);
         },
         response: function (response) {
-          if (response?.data?.code == "401") {
+          if (response?.data?.status == "401") {
             $location.path("/login");
           }
           //the same response/modified/or a new one need to be returned.
@@ -63,7 +63,7 @@
         },
         responseError: function (rejection) {
           if (rejection?.data?.code == "401") {
-            $location.path("/login");
+            $location.path("/status");
           }
           return $q.reject(rejection);
         },

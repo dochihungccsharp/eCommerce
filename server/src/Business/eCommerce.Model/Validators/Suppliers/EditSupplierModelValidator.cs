@@ -12,13 +12,7 @@ public class EditSupplierModelValidator : AbstractValidator<EditSupplierModel>
             .WithMessage("Tên không được để trống.")
             .Length(3, 255)
             .WithMessage("Tên có độ dài từ 3 đến 255 kí tự.");
-            
-        RuleFor(x => x.Description)
-            .NotEmpty()
-            .WithMessage("Mô tả không được để trống.")
-            .MinimumLength(3)
-            .WithMessage("Mô tả phải có tối thiểu 3 kí tự.");
-            
+
         RuleFor(x => x.Address)
             .NotEmpty()
             .WithMessage("Địa chỉ nhà không được để trống.")

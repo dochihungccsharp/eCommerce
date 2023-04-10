@@ -19,4 +19,6 @@ public class SupplierModel
     public decimal TotalAmountOwed { get; set; }
         
     public bool Status { get; set; }
+    
+    public DateTime Created { get; set; }
 }

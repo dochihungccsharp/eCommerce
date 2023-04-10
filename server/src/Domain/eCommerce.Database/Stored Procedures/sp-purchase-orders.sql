@@ -11,7 +11,7 @@ GO
 
 
 
-ALTER PROC [dbo].[sp_PurchaseOrders]
+CREATE PROC [dbo].[sp_PurchaseOrders]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,

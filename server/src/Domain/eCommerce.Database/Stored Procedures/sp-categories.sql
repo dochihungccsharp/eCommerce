@@ -2,7 +2,7 @@ USE eCommerce
 GO
 
 
-ALTER PROC [dbo].[sp_Categories]
+CREATE PROC [dbo].[sp_Categories]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,

@@ -129,8 +129,8 @@
                   role="status"
                   aria-live="polite"
                 >
-                  Hiển thị từ {{page * pageSize}} đến {{page * pageSize +
-                  productCategories.length}} trong tổng số {{totalCount}}
+                  Hiển thị từ {{(page - 1) * pageSize}} đến {{(page - 1) *
+                  pageSize + categories.length}} trong tổng số {{totalCount}}
                 </div>
               </div>
               <div class="col-sm-12 col-md-7 d-flex justify-content-end">
@@ -139,7 +139,7 @@
                   custom-path="{{customPath}}"
                   pages-count="{{pageCount}}"
                   total-count="{{totalCount}}"
-                  search-func="getListProductCategory(page)"
+                  search-func="getListCategory(page)"
                 ></pager-directive>
               </div>
             </div>

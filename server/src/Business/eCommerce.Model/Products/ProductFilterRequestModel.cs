@@ -20,7 +20,8 @@ public class ProductFilterRequestModel : IFilterRequestAuditModel
         
     [BindProperty(Name = "brand_id")]
     public Guid? BrandId { get; set; }
-        
+    [BindProperty(Name = "supplier_id")]
+    public Guid? SupplierId { get; set; }
     [BindProperty(Name = "from_date")]
     public DateTime? FromTime { get; set; }
         
@@ -38,4 +39,7 @@ public class ProductFilterRequestModel : IFilterRequestAuditModel
         
     [BindProperty(Name = "is_new")]
     public bool? IsNew { get; set; }
+    
+    [BindProperty(Name = "status")]
+    public bool? Status { get; set; }
 }

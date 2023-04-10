@@ -2,7 +2,7 @@ USE eCommerce
 GO
 
 
-ALTER PROC [dbo].[sp_UserAddresses]
+CREATE PROC [dbo].[sp_UserAddresses]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @Id						        UNIQUEIDENTIFIER	=		NULL,

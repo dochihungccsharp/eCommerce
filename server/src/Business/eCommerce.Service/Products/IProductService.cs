@@ -17,7 +17,7 @@ public interface IProductService
     Task<BaseResponseModel> ChangeIsNewAsync(Guid productId, CancellationToken cancellationToken = default);
     Task<BaseResponseModel> ChangeStatusAsync(Guid productId, CancellationToken cancellationToken = default);
     Task<BaseResponseModel> DeleteAsync(Guid productId, CancellationToken cancellationToken = default);
-    Task<BaseResponseModel> DeleteListAsync(string[] listProductId, CancellationToken cancellationToken = default);
+    Task<BaseResponseModel> DeleteListAsync(List<string> listProductId, CancellationToken cancellationToken = default);
     Task<Product> FindByIdAsync(Guid productId, CancellationToken cancellationToken = default);
     Task<bool> CheckDuplicatedAsync(EditProductModel editProductModel, CancellationToken cancellationToken = default);
     Task<bool> CheckAlreadyExistAsync(Guid productId, CancellationToken cancellationToken = default);

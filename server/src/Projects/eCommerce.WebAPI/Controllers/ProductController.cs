@@ -41,7 +41,7 @@ public class ProductController : BaseController
     [HttpPost]
     [Route("api/products")]
     [Authorize(Roles.Admin)]
-    public async Task<IActionResult> CreateAsync([FromForm] EditProductModel editProductModel,
+    public async Task<IActionResult> CreateAsync([FromBody] EditProductModel editProductModel,
         CancellationToken cancellationToken = default)
         => Ok(await _productService.CreateAsync(editProductModel, cancellationToken).ConfigureAwait(false));
 
@@ -49,7 +49,7 @@ public class ProductController : BaseController
     [Route("api/products/{id:guid}")]
     [Authorize(Roles.Admin)]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid productId,
-        [FromForm] EditProductModel editProductModel, CancellationToken cancellationToken = default)
+        [FromBody] EditProductModel editProductModel, CancellationToken cancellationToken = default)
         => Ok(await _productService.UpdateAsync(productId, editProductModel, cancellationToken).ConfigureAwait(false));
 
 
@@ -85,9 +85,9 @@ public class ProductController : BaseController
 
 
     [HttpDelete]
-    [Route("api/products/{ids}")]
+    [Route("api/products/delete-multiple")]
     [Authorize(Roles.Admin)]
-    public async Task<IActionResult> DeleteListAsync([FromRoute(Name = "ids")] string[] listProductId,
+    public async Task<IActionResult> DeleteListAsync([FromBody] List<string> listProductId,
         CancellationToken cancellationToken = default)
         => Ok(await _productService.DeleteListAsync(listProductId, cancellationToken).ConfigureAwait(false));
     #endregion

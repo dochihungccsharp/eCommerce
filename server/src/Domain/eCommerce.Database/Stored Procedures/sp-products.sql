@@ -47,7 +47,7 @@ AS
 IF @Activity = 'INSERT'
 BEGIN
 	INSERT INTO Product (Id, [Name], Slug, [Description], ImageUrl, OriginalPrice, Price, QuantitySold, CategoryId, SupplierId, BrandId, [Status], IsBestSelling, IsNew, Created)
-	VALUES (@Id, @Name, @Slug, @Description, @ImageUrl, @OriginalPrice, @Price, 0, @CategoryId, @SupplierId, @BrandId, 1, 0, 0, GETDATE())
+	VALUES (@Id, @Name, @Slug, @Description, @ImageUrl, @OriginalPrice, @Price, 0, @CategoryId, @SupplierId, @BrandId, @Status, @IsBestSelling, @IsNew, GETDATE())
 END
 
 -----------------------------------------------------------------
@@ -79,7 +79,8 @@ END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'DELETE_LIST'
 BEGIN
-	BEGIN TRANSACTION;
+BEGIN TRANSACTION
+BEGIN TRY
 	DECLARE @CurrentPosition INT
 	SET @CurrentPosition = 1
 
@@ -93,17 +94,17 @@ BEGIN
 				SET @CurrentPosition += 1;
 			END
 		ELSE
-			BEGIN
-			SELECT 
-				@ErrorMessage = ERROR_MESSAGE(),
-				@ErrorSeverity = ERROR_SEVERITY(),
-				@ErrorState = ERROR_STATE();
-				RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+			THROW 404000, 'Product is not found', 1;
 
-				ROLLBACK TRANSACTION
-			END
 	END 
-	COMMIT TRANSACTION
+COMMIT TRANSACTION
+
+END TRY
+BEGIN CATCH
+	SET @ErrorMessage = ERROR_MESSAGE();
+	THROW 400000, @ErrorMessage , 1
+	ROLLBACK TRANSACTION
+END CATCH
 END
 
 -----------------------------------------------------------------
@@ -135,7 +136,8 @@ END
 -----------------------------------------------------------------
 ELSE IF @Activity = 'GET_BY_ID'
 BEGIN
-	SELECT p.Id, p.[Name], p.Slug, p.[Description], p.ImageUrl, p.OriginalPrice, p.Price, i.Quantity,p.QuantitySold, p.[Status], p.IsBestSelling, p.IsNew
+	SELECT p.Id, p.[Name], p.Slug, p.[Description], p.ImageUrl, p.OriginalPrice, p.Price, i.Quantity,p.QuantitySold, p.[Status], p.IsBestSelling, p.IsNew,
+	p.CategoryId, p.InventoryId, p.BrandId, p.SupplierId
 	FROM Product AS p (NOLOCK)
 	LEFT JOIN Inventory (NOLOCK) i ON i.Id = p.InventoryId
 	WHERE p.Id = @Id AND P.IsDeleted = 0
@@ -164,13 +166,16 @@ BEGIN
 		WHERE (@SearchString IS NULL OR p.[Name] LIKE N'%'+@SearchString+'%' OR  p.[Description] LIKE N'%'+@SearchString+'%') 
 		AND (@CategoryId IS NULL OR p.CategoryId = @CategoryId)
 		AND (@BrandId IS NULL OR p.BrandId = @BrandId)
+		AND (@SupplierId IS NULL OR p.SupplierId = @SupplierId)
 		AND ((@FromPrice IS NULL OR @ToPrice IS NULL) OR (p.Price >= @FromPrice AND p.Price <= @ToPrice))
 		AND ((@FromTime IS NULL OR @ToTime IS NULL) OR (p.Created >= @FromTime AND p.Created <= @ToTime))
 		AND (@IsBestSelling IS NULL OR p.IsBestSelling = @IsBestSelling)
 		AND (@IsNew IS NULL OR p.IsNew = @IsNew)
+		AND (@Status IS NULL OR p.[Status] = @Status)
 		AND p.IsDeleted = 0
 	)
 	SELECT p.Id, p.[Name], p.Slug, p.[Description], p.ImageUrl, p.OriginalPrice, p.Price, i.Quantity,p.QuantitySold, p.[Status], p.IsBestSelling, p.IsNew,
+	p.CategoryId, p.InventoryId, p.BrandId, p.SupplierId,
 	RecordCount.TotalRows as TotalRows
 	FROM ProductTemp AS pt 
 	CROSS JOIN 
@@ -186,4 +191,5 @@ BEGIN
 END
 
 GO
+
 

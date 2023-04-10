@@ -3,6 +3,7 @@ using System.Web.Http.Results;
 using eCommerce.Model.Abstractions.Responses;
 using eCommerce.Model.Users;
 using eCommerce.Service.Cache.RoleCache;
+using eCommerce.Shared.Consts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -40,8 +41,10 @@ public class AuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
             context.Result = new JsonResult(new BaseResponseModel(HttpStatusCode.Unauthorized, "Forbidden"));
             return;
         }
-            
-        foreach (var role in _roles)
+           
+        if(userRoles.Contains(Roles.Admin)) return;
+
+         foreach (var role in _roles)
         {
             if (!userRoles.Contains(role))
             {

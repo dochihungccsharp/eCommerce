@@ -42,7 +42,7 @@ public class SupplierController : BaseController
     [HttpPost]
     [Route("api/suppliers")]
     [Authorize(Roles.Admin)]
-    public async Task<IActionResult> CreateAsync([FromForm] EditSupplierModel editSupplierModel,
+    public async Task<IActionResult> CreateAsync([FromBody] EditSupplierModel editSupplierModel,
         CancellationToken cancellationToken)
         => Ok(await _supplierService.CreateAsync(editSupplierModel, cancellationToken).ConfigureAwait(false));
     
@@ -51,7 +51,7 @@ public class SupplierController : BaseController
     [Route("api/suppliers/{id:guid}")]
     [Authorize(Roles.Admin)]
     public async Task<IActionResult> UpdateAsync([FromRoute(Name = "id")] Guid supplierId,
-        [FromForm] EditSupplierModel editSupplierModel, CancellationToken cancellationToken = default)
+        [FromBody] EditSupplierModel editSupplierModel, CancellationToken cancellationToken = default)
         => Ok(await _supplierService.UpdateAsync(supplierId, editSupplierModel, cancellationToken).ConfigureAwait(false));
 
     [HttpDelete]

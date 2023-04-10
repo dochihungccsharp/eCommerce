@@ -1,12 +1,12 @@
 USE eCommerce
 GO
 
---CREATE TYPE CategoryProductExclusionsTableType AS TABLE
---(
---	CategoryId UNIQUEIDENTIFIER,
---	ProductId UNIQUEIDENTIFIER
---)
---GO
+CREATE TYPE CategoryProductExclusionsTableType AS TABLE
+(
+	CategoryId UNIQUEIDENTIFIER,
+	ProductId UNIQUEIDENTIFIER
+)
+GO
 
 ALTER PROC [dbo].[sp_CategoryDiscount]
 @Activity						NVARCHAR(50)		=		NULL,

@@ -99,7 +99,7 @@ BEGIN
 		OR  s.ContactPerson LIKE N'%'+@SearchString+'%') 
 		AND s.IsDeleted = 0
 	)
-	SELECT s.Id, s.[Name], s.[Description], s.[Address], s.Phone, s.Email, s.ContactPerson, s.[Status], s.TotalAmountOwed, RecordCount.TotalRows as TotalRows
+	SELECT s.Id, s.[Name], s.[Description], s.[Address], s.Phone, s.Email, s.ContactPerson, s.[Status], s.TotalAmountOwed, s.Created,RecordCount.TotalRows as TotalRows
 	FROM SupplierTemp AS st
 		CROSS JOIN 
 		(

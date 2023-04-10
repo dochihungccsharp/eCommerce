@@ -1,23 +1,21 @@
-﻿import * as consts from "../../shared/consts/index.js";
+﻿import * as consts from "../../../shared/consts/index.js";
 
 (function (app) {
-  app.controller("brandListController", brandListController);
+  app.controller("supplierListController", supplierListController);
 
-  brandListController.$inject = [
+  supplierListController.$inject = [
     "$scope",
     "apiService",
     "notificationService",
     "$ngBootbox",
-    "$filter",
     "authData",
   ];
 
-  function brandListController(
+  function supplierListController(
     $scope,
     apiService,
     notificationService,
     $ngBootbox,
-    $filter,
     authData
   ) {
     //#region check auth
@@ -28,49 +26,51 @@
     //#endregion
 
     //#region $scope
-    $scope.brands = [];
+    $scope.suppliers = [];
     $scope.page = consts.DEFAULT_PAGE_INDEX;
     $scope.pageSize = consts.DEFAULT_PAGE_SIZE;
     $scope.pageCount = 0;
     $scope.keyword = "";
 
-    $scope.deleteBrand = deleteBrand;
-    $scope.search = search;
-    $scope.getListBrand = getListBrand;
+    $scope.DeleteSupplier = DeleteSupplier;
+    $scope.Search = Search;
+    $scope.GetSuppliers = GetSuppliers;
     //#endregion
 
     //#region load data
 
-    $scope.getListBrand();
+    $scope.GetSuppliers();
 
     //#endregion
 
     //#region function
-    function deleteBrand(id) {
+    function DeleteSupplier(id) {
       $ngBootbox.confirm("Are you sure you want to delete?").then(function () {
         apiService.del(
-          "api/brands/" + id,
+          "api/suppliers/" + id,
           null,
           function (res) {
             if (res?.data?.code == 200) {
-              notificationService.displaySuccess("Delete brand successfully.");
-              $scope.search();
+              notificationService.displaySuccess(
+                "Delete supplier successfully."
+              );
+              $scope.Search();
             } else {
               notificationService.displayError(res?.data?.error);
             }
           },
           function () {
-            notificationService.displayError("Delete brand failed.");
+            notificationService.displayError("Delete supplier failed.");
           }
         );
       });
     }
 
-    function search() {
-      $scope.getListBrand();
+    function Search() {
+      $scope.GetSuppliers();
     }
 
-    function getListBrand(page) {
+    function GetSuppliers(page) {
       page = page || consts.DEFAULT_PAGE_INDEX;
 
       var config = {
@@ -82,22 +82,22 @@
       };
 
       apiService.get(
-        "api/brands",
+        "api/suppliers",
         config,
         function (res) {
-          if (res?.data?.data?.items == 0) {
-            notificationService.displayWarning("Brands is not found");
-          } else {
-            $scope.brands = res?.data?.data?.items;
+          if (res?.data?.code == 200) {
+            $scope.suppliers = res?.data?.data?.items;
             $scope.page = res?.data?.data?.pageIndex;
             $scope.pageCount = res?.data?.data?.totalPages;
             $scope.totalCount = res?.data?.data?.totalCount;
+          } else {
+            notificationService.displayError(res?.data?.error);
           }
         },
-        function (error) {}
+        function () {}
       );
     }
 
     //#endregion
   }
-})(angular.module("shop.brands"));
+})(angular.module("shop.suppliers"));

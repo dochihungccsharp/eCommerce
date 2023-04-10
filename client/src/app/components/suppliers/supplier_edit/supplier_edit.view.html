@@ -1,0 +1,217 @@
+﻿﻿<!--breadcrumb-->
+<div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+  <div class="breadcrumb-title pe-3">Đối tác</div>
+  <div class="ps-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 p-0">
+        <li class="breadcrumb-item">
+          <a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Thương hiệu</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+<!--end breadcrumb-->
+<div class="row">
+  <div class="col-xl-11 mx-auto mt-1">
+    <div class="card">
+      <div class="card-body">
+        <div class="border p-4 rounded">
+          <div class="card-title d-flex align-items-center">
+            <h5 class="mb-0">Thêm thương hiệu sản phẩm</h5>
+          </div>
+          <hr />
+          <form
+            novalidate
+            name="frmEditBrand"
+            role="form"
+            ng-submit="UpdateSupplier()"
+          >
+            <div class="row mb-3">
+              <label for="inputEnterName" class="col-sm-3 col-form-label"
+                >Tên nhà cung cấp</label
+              >
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inputEnterName"
+                  placeholder="Tên nhà cung cấp"
+                  name="name"
+                  ng-maxlength="256"
+                  required
+                  ng-model="supplier.name"
+                />
+                <div
+                  ng-show="frmAddSupplier.name.$invalid"
+                  class="invalid-feedback d-block"
+                >
+                  Tên nhà cung cấp không được để trống.
+                </div>
+                <div
+                  ng-show="frmAddSupplier.name.$error.maxlength"
+                  class="invalid-feedback d-block"
+                >
+                  Tên nhà cung cấp quá dài ( phải < 256 ký tự ).
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="inputEnterDescription" class="col-sm-3 col-form-label"
+                >Mô tả</label
+              >
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Mô tả"
+                  id="inputEnterDescription"
+                  name="description"
+                  ng-model="supplier.description"
+                />
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="inputEnterAddress" class="col-sm-3 col-form-label"
+                >Địa chỉ</label
+              >
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inputEnterAddress"
+                  placeholder="Địa chỉ"
+                  name="address"
+                  ng-minlength="3"
+                  required
+                  ng-model="supplier.address"
+                />
+                <div
+                  ng-show="frmAddSupplier.address.$invalid"
+                  class="invalid-feedback d-block"
+                >
+                  Địa chỉ không được để trống.
+                </div>
+                <div
+                  ng-show="frmAddSupplier.address.$error.minlength"
+                  class="invalid-feedback d-block"
+                >
+                  Địa chỉ quá ngắn, không hợp lệ.
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="input-telephone" class="col-sm-3 col-form-label"
+                >Số điện thoại</label
+              >
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="input-telephone"
+                  placeholder="Số điện thoại"
+                  name="phone"
+                  ng-minlength="10"
+                  ng-maxlength="10"
+                  required
+                  ng-model="supplier.phone"
+                />
+                <div
+                  ng-show="frmAddSupplier.phone.$error.minlength || frmAddSupplier.phone.$error.maxlength || frmAddSupplier.phone.$invalid"
+                  class="invalid-feedback d-block"
+                  style="color: red"
+                >
+                  Số điện thoại không hợp lệ.
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="inputEnterEmail" class="col-sm-3 col-form-label"
+                >E-Mail</label
+              >
+              <div class="col-sm-9">
+                <input
+                  type="email"
+                  class="form-control"
+                  id="input-payment-email"
+                  placeholder="E-Mail"
+                  name="email"
+                  ng-minlength="3"
+                  required
+                  ng-model="supplier.email"
+                />
+                <div
+                  ng-show="frmAddSupplier.email.$error.minlength || frmAddSupplier.email.$invalid"
+                  class="invalid-feedback d-block"
+                  style="color: red"
+                >
+                  E-mail không hợp lệ.
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label
+                for="inputEnterContactPerson"
+                class="col-sm-3 col-form-label"
+                >Người đại diện</label
+              >
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="inputEnterContactPerson"
+                  placeholder="Người đại diện"
+                  name="contactPerson"
+                  ng-model="supplier.contactPerson"
+                />
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label
+                for="inputCheckStatus"
+                class="col-sm-3 col-form-label"
+              ></label>
+              <div class="col-sm-9">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="inputCheckStatus"
+                    name="status"
+                    ng-model="supplier.status"
+                    ng-checked="supplier.status"
+                  />
+                  <label class="form-check-label" for="inputCheckStatus"
+                    >Trạng thái</label
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-sm-3 col-form-label"></label>
+              <div class="col-sm-9 d-flex justify-content-end">
+                <button ui-sref="suppliers" class="btn btn-primary px-5 me-2">
+                  Quay lại
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary px-5"
+                  ng-disabled="frmEditBrand.$invalid"
+                >
+                  Cập nhập
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

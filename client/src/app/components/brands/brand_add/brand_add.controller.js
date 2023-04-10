@@ -1,4 +1,4 @@
-﻿import * as consts from "../../shared/consts/index.js";
+﻿import * as consts from "../../../shared/consts/index.js";
 
 (function (app) {
   app.controller("brandAddController", brandAddController);

@@ -105,7 +105,7 @@ namespace eCommerce.Service.Suppliers;
             var checkAlreadyExistSupplier = await CheckAlreadyExistAsync(supplierId, cancellationToken).ConfigureAwait(false);
             if(!checkAlreadyExistSupplier)
                 throw new NotFoundException("The supplier is not found");
-            
+
             await _databaseRepository.ExecuteAsync(
                 sqlQuery: SQL_QUERY,
                 parameters: new Dictionary<string, object>()

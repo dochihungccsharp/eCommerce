@@ -2,7 +2,7 @@ USE eCommerce
 GO
 
 
-ALTER PROC [dbo].[sp_Brands]
+CREATE PROC [dbo].[sp_Brands]
 @Activity						NVARCHAR(50)		=		NULL,
 @SearchString					NVARCHAR(MAX)		=		NULL,
 -----------------------------------------------------------------

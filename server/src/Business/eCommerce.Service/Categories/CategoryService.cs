@@ -154,7 +154,7 @@ public class CategoryService : ICategoryService
             else if (c.ImageUrl != editCategoryModel.ImageUrl)
             {
                 await c.ImageUrl.DeleteImageAsync();
-                targetPath = Path.Combine(_env.WebRootPath,"images", "categories", Path.GetFileName(editCategoryModel.ImageUrl));
+                targetPath = Path.Combine(_env.WebRootPath, "images", "categories", Path.GetFileName(editCategoryModel.ImageUrl));
             }
         }
         else

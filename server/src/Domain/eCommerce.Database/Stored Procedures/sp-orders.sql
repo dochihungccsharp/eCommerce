@@ -1,15 +1,15 @@
 ﻿USE eCommerce
 GO
 
---CREATE TYPE OrderItemsTableType AS TABLE
---(
---   ProductId UNIQUEIDENTIFIER,
---   Quantity INT
---);
---GO
+CREATE TYPE OrderItemsTableType AS TABLE
+(
+   ProductId UNIQUEIDENTIFIER,
+   Quantity INT
+);
+GO
 
 
-ALTER PROC [dbo].[sp_Orders]
+CREATE PROC [dbo].[sp_Orders]
 @Activity						NVARCHAR(50)		=		NULL,
 -----------------------------------------------------------------
 @PageIndex						INT					=		0,
@@ -85,6 +85,8 @@ BEGIN
 	IF NOT EXISTS (SELECT TOP 1 1 FROM Inventory WHERE Id = @InventoryId AND @Quantity <= Quantity)
 		THROW 400000, 'The number of products in stock is not enough', 1;
 
+	UPDATE Product SET QuantitySold = (COALESCE(QuantitySold, 0) + @Quantity) WHERE Id = @ProductId;
+			
 	--- calculate total product
 	SET @TotalTemp = COALESCE(@TotalTemp, 0) + @Price * @Quantity
 
@@ -95,8 +97,8 @@ BEGIN
 	DELETE CartItem WHERE UserId = @UserId AND ProductId = @ProductId;
 
 	-- CREATE ORDER ITEM
-	INSERT INTO OrderItem (Id, OrderId, ProductId, Quantity) 
-	VALUES (NEWID(), @Id, @ProductId,  @Quantity)
+	INSERT INTO OrderItem (Id, OrderId, ProductId, Quantity, Created) 
+	VALUES (NEWID(), @Id, @ProductId,  @Quantity, GETDATE())
 
 	SET @Index = @Index + 1;
 END
@@ -153,6 +155,21 @@ IF (@Id IS NULL)
 	
 IF (@OrderStatus != 'PENDING')
 	THROW 400000, 'Can not cancel order', 1;
+
+SET @RowCount = (SELECT COUNT(1) FROM OrderItem WHERE OrderId = @Id);
+SET @Index = 1;
+WHILE @Index <= @RowCount
+BEGIN
+	SELECT @ProductId = ProductId, @Quantity = Quantity
+	FROM OrderItem
+	ORDER BY (SELECT NULL) OFFSET @Index-1 ROWS FETCH NEXT 1 ROWS ONLY;
+
+	SELECT @InventoryId = InventoryId FROM Product WHERE Id = @ProductId ;
+
+	UPDATE Inventory SET Quantity = (Quantity + @Quantity) WHERE Id = @InventoryId
+
+	SET @Index = @Index + 1;
+END
 
 UPDATE [Order] SET IsCancelled = 1 WHERE Id = @Id;
 

@@ -55,12 +55,14 @@ public class ProductService : IProductService
                 { "SearchString", filter.SearchString },
                 { "CategoryId", filter.CategoryId },
                 { "BrandId", filter.BrandId },
+                { "SupplierId", filter.SupplierId },
                 { "FromTime", filter.FromTime },
                 { "ToTime", filter.ToTime },
                 { "FromPrice", filter.FromPrice },
                 { "ToPrice", filter.ToPrice },
                 { "IsBestSelling", filter.IsBestSelling },
-                { "IsNew", filter.IsNew },
+                { "IsNew", filter.IsNew},
+                { "Status", filter.Status},
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -163,7 +165,10 @@ public class ProductService : IProductService
                 { "Price", editProductModel.Price },
                 { "CategoryId", editProductModel.CategoryId },
                 { "SupplierId", editProductModel.SupplierId },
-                { "BrandId", editProductModel.BrandId }
+                { "BrandId", editProductModel.BrandId },
+                { "Status", editProductModel.Status },
+                { "IsBestSelling", editProductModel.IsBestSelling },
+                { "IsNew", editProductModel.IsNew },
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -249,7 +254,8 @@ public class ProductService : IProductService
                 { "Price", editProductModel.Price },
                 { "CategoryId", editProductModel.CategoryId },
                 { "SupplierId", editProductModel.SupplierId },
-                { "BrandId", editProductModel.BrandId }
+                { "BrandId", editProductModel.BrandId },
+                { "Status", editProductModel.Status },
             },
             cancellationToken: cancellationToken
         ).ConfigureAwait(false);
@@ -291,7 +297,7 @@ public class ProductService : IProductService
         return new BaseResponseModel("Deleted product success");
     }
 
-    public async Task<BaseResponseModel> DeleteListAsync(string[] listProductId,
+    public async Task<BaseResponseModel> DeleteListAsync(List<string> listProductId,
         CancellationToken cancellationToken = default)
     {
 

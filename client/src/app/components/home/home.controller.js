@@ -17,71 +17,112 @@
     authData,
     $state
   ) {
+    //#region check auth
+    if (!authData?.authenticationData?.IsAuthenticated) {
+      $state.go("login");
+      return;
+    }
+    //#endregion
 
-    let url = "https://localhost:44353/api/statistical/statistical";
+    //#region $scope
+    $scope.statistics = {};
+    $scope.products = [];
+    $scope.categories = [];
+    $scope.users = [];
+    $scope.orders = [];
+    //#endregion
 
-    $scope.statistical = {};
+    //#region load data
+    GetMonthlyStatistics();
+    GetTopCategoriesOfCurrentMonth();
+    GetTopUsersOfCurrentMonth();
+    GetTopProductsOfCurrentMonth();
+    GetTopOrderOfCurrentMonthly();
+    //#endregion
 
-    getStatistical().then((result) => {
-      if (result) {
-        $scope.statistical = result;
-        ordersDataProcessing();
-      }
-    });
-    function getStatistical() {
-      let deferred = $q.defer();
-
+    //#region function
+    function GetMonthlyStatistics() {
       apiService.get(
-        url,
+        "api/statistics/monthly",
         null,
-        function (result) {
-          deferred.resolve(result.data);
+        function (res) {
+          console.log(res);
+          if (res?.data?.code == "200") {
+            $scope.statistics = res?.data?.data;
+          } else {
+            notificationService.displayWarning(res?.data?.error);
+          }
         },
         function (error) {
-          deferred.reject("get statistical failure");
+          // handle error
         }
       );
-
-      return deferred.promise;
     }
-
-    function ordersDataProcessing() {
-      $scope.statistical.RecentOrders = $scope.statistical.RecentOrders.map(
-        (x) => {
-          switch (x.OrderStatus) {
-            case 1: {
-              x.OrderStatusText = "Đang chờ duyệt";
-              break;
-            }
-            case 2: {
-              x.OrderStatusText = "Đã duyệt";
-              break;
-            }
-            case 3: {
-              x.OrderStatusText = "Đang gói hàng";
-              break;
-            }
-            case 4: {
-              x.OrderStatusText = "Đang vận chuyển";
-              break;
-            }
-            case 5: {
-              x.OrderStatusText = "Đang giao hàng";
-              break;
-            }
+    function GetTopCategoriesOfCurrentMonth() {
+      apiService.get(
+        "api/statistics/categories/top-monthly",
+        null,
+        function (res) {
+          if (res?.data?.code == "200") {
+            $scope.categories = res?.data?.data;
+            console.log($scope.categories);
+          } else {
+            notificationService.displayWarning(res?.data?.error);
           }
-          x.TotalPayment = 0;
-          console.log(x.OrderDetails);
-          x.OrderDetails.map((od) => {
-            x.TotalPayment += od.Price * od.Quantity;
-          });
-
-          x.TotalPayment =
-            x.TotalPayment + (x.TotalPayment * x.Vat) / 100 + x.TransportFee;
-
-          return x;
+        },
+        function (error) {
+          // handle error
         }
       );
     }
+    function GetTopProductsOfCurrentMonth() {
+      apiService.get(
+        "api/statistics/products/top-monthly",
+        null,
+        function (res) {
+          if (res?.data?.code == "200") {
+            $scope.products = res?.data?.data;
+          } else {
+            notificationService.displayWarning(res?.data?.error);
+          }
+        },
+        function (error) {
+          // handle error
+        }
+      );
+    }
+    function GetTopUsersOfCurrentMonth() {
+      apiService.get(
+        "api/statistics/users/top-monthly",
+        null,
+        function (res) {
+          if (res?.data?.code == "200") {
+            $scope.users = res?.data?.data;
+          } else {
+            notificationService.displayWarning(res?.data?.error);
+          }
+        },
+        function (error) {
+          // handle error
+        }
+      );
+    }
+    function GetTopOrderOfCurrentMonthly() {
+      apiService.get(
+        "api/statistics/orders/top-monthly",
+        null,
+        function (res) {
+          if (res?.data?.code == "200") {
+            $scope.orders = res?.data?.data;
+          } else {
+            notificationService.displayWarning(res?.data?.error);
+          }
+        },
+        function (error) {
+          // handle error
+        }
+      );
+    }
+    //#endregion
   }
 })(angular.module("shop"));

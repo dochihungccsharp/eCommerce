@@ -11,6 +11,7 @@ using eCommerce.Service.Provinces;
 using eCommerce.Service.PurchaseOrders;
 using eCommerce.Service.Roles;
 using eCommerce.Service.SendMail;
+using eCommerce.Service.Statistics;
 using eCommerce.Service.Suppliers;
 using eCommerce.Service.Uploads;
 using eCommerce.Service.UserAddresses;
@@ -47,7 +48,9 @@ public static class ServiceExtensions
         services.AddScoped<IUserAddressService, UserAddressService>();
         services.AddScoped<ICategoryDiscountService, CategoryDiscountService>();
         services.AddScoped<IPromotionService, PromotionService>();
-        services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IOrderService, OrderService>();      
+        services.AddScoped<IStatisticsService, StatisticsService>();
+
 
     }
 }

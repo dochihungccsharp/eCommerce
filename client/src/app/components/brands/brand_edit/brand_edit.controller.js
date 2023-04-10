@@ -1,4 +1,4 @@
-﻿import * as consts from "../../shared/consts/index.js";
+﻿import * as consts from "../../../shared/consts/index.js";
 
 (function (app) {
   app.controller("brandEditController", brandEditController);
@@ -31,8 +31,7 @@
 
     //#region scope
     $scope.brand = {
-      Status: true,
-      HomeFlag: true,
+      status: true,
     };
 
     $scope.UpdateBrand = UpdateBrand;
@@ -55,9 +54,6 @@
         function (res) {
           if (res?.data?.code == 200) {
             $scope.brand = res?.data?.data;
-            if ($scope.brand.logoURL) {
-              $scope.image = consts.DEFAULT_URL_BACKEND + $scope.brand.logoURL;
-            }
           } else {
             notificationService.displayError(res?.data?.error);
           }

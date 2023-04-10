@@ -3,11 +3,11 @@ GO
 
 
 
---CREATE TYPE CartItemsTableType AS TABLE
---(
---	Id UNIQUEIDENTIFIER
---);
---GO
+CREATE TYPE CartItemsTableType AS TABLE
+(
+	Id UNIQUEIDENTIFIER
+);
+GO
 
 
 
